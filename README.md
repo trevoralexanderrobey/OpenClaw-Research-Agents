@@ -2,7 +2,7 @@
 
 Local-first, file-based, audit-oriented research orchestration scaffold built on OpenClaw architectural patterns.
 
-## Phase 4 status
+## Phase 5 status
 - Preflight validation implemented to enforce strict size/payload constraints and safety bounds for outbound mutations.
 - Workload integrity guaranteed via SBOM generation, registry/digest verification, and lockfile/cache validation.
 - Phase 2 runtime hardening controls preserved
@@ -11,6 +11,8 @@ Local-first, file-based, audit-oriented research orchestration scaffold built on
 - Static outbound allowlists enforced for read and write providers
 - Deterministic replay protections include sequence/idempotency duplicate blocking
 - Mutation governance, kill-switch, and operator authorization enforcement enabled
+- Internal RLHF workflow automation enabled for deterministic draft generation, linting, and manual handoff packaging
+- RLHF drafts are always AI-assisted and marked human-review-required
 
 ## Key directories
 - `openclaw-bridge/` runtime/control-plane scaffold
@@ -21,3 +23,5 @@ Local-first, file-based, audit-oriented research orchestration scaffold built on
 Automatic publishing is not enabled.
 Supervisor direct tool execution remains blocked.
 Mutation requires explicit operator approval and governance checks.
+External RLHF submission to third-party platforms is manual-only.
+Platform login, attestation, and final submission actions are always human-operated.

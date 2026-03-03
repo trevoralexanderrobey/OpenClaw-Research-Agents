@@ -58,9 +58,89 @@ function normalizeSlug(value) {
   return typeof value === "string" ? value.trim().toLowerCase() : "";
 }
 
-function buildDefaultV4State() {
+const RLHF_DRAFT_STATUSES = Object.freeze(["draft", "reviewed", "approved_for_manual_submission", "archived"]);
+const RLHF_REVIEW_STATUSES = Object.freeze(["pending_review", "reviewed", "approved_for_manual_submission", "archived"]);
+const EMPTY_HASH = "0000000000000000000000000000000000000000000000000000000000000000";
+
+function buildDefaultRlhfWorkflowsState() {
   return {
-    schemaVersion: 4,
+    drafts: [],
+    candidateQueue: [],
+    reviewQueue: [],
+    nextDraftSequence: 0,
+    nextQueueSequence: 0,
+    lastAutomationRunAt: "",
+    generatorVersion: "v1"
+  };
+}
+
+function normalizeRlhfStatus(value) {
+  const text = typeof value === "string" ? value.trim() : "";
+  return RLHF_DRAFT_STATUSES.includes(text) ? text : "draft";
+}
+
+function normalizeReviewQueueStatus(value) {
+  const text = typeof value === "string" ? value.trim() : "";
+  return RLHF_REVIEW_STATUSES.includes(text) ? text : "pending_review";
+}
+
+function normalizeRlhfDraftRecord(value) {
+  const source = isPlainObject(value) ? value : {};
+  const status = normalizeRlhfStatus(source.status);
+  return canonicalize({
+    sequence: Math.max(1, parsePositiveInt(source.sequence, 1)),
+    sourcePaperId: typeof source.sourcePaperId === "string" ? source.sourcePaperId.trim() : "",
+    sourceHash: typeof source.sourceHash === "string" ? source.sourceHash.trim().toLowerCase() : "",
+    domainTag: typeof source.domainTag === "string" ? source.domainTag.trim() : "general-research",
+    complexityScore: Math.max(0, Number.parseInt(String(source.complexityScore ?? "0"), 10) || 0),
+    monetizationScore: Math.max(0, Number.parseInt(String(source.monetizationScore ?? "0"), 10) || 0),
+    generatedAt: typeof source.generatedAt === "string" ? source.generatedAt : "",
+    generatorVersion: typeof source.generatorVersion === "string" && source.generatorVersion.trim() ? source.generatorVersion.trim() : "v1",
+    contentHash: typeof source.contentHash === "string" && /^[a-f0-9]{64}$/.test(source.contentHash) ? source.contentHash : EMPTY_HASH,
+    status,
+    aiAssisted: true,
+    reviewedBy: status === "draft"
+      ? null
+      : (typeof source.reviewedBy === "string" && source.reviewedBy.trim() ? source.reviewedBy.trim() : null),
+    reviewedAt: status === "draft"
+      ? null
+      : (typeof source.reviewedAt === "string" && source.reviewedAt.trim() ? source.reviewedAt.trim() : null),
+    notes: typeof source.notes === "string" ? source.notes : "",
+    manualSubmissionRequired: true
+  });
+}
+
+function normalizeRlhfCandidateQueueRecord(value) {
+  const source = isPlainObject(value) ? value : {};
+  return canonicalize({
+    queueSequence: Math.max(1, parsePositiveInt(source.queueSequence, 1)),
+    sourcePaperId: typeof source.sourcePaperId === "string" ? source.sourcePaperId.trim() : "",
+    sourceHash: typeof source.sourceHash === "string" ? source.sourceHash.trim().toLowerCase() : "",
+    domainTag: typeof source.domainTag === "string" ? source.domainTag.trim() : "general-research",
+    complexityScore: Math.max(0, Number.parseInt(String(source.complexityScore ?? "0"), 10) || 0),
+    monetizationScore: Math.max(0, Number.parseInt(String(source.monetizationScore ?? "0"), 10) || 0),
+    rankingScore: Math.max(0, Number.parseInt(String(source.rankingScore ?? "0"), 10) || 0),
+    enqueuedAt: typeof source.enqueuedAt === "string" ? source.enqueuedAt : "",
+    status: typeof source.status === "string" && source.status.trim() ? source.status.trim() : "queued",
+    draftSequence: source.draftSequence === null ? null : Math.max(0, Number.parseInt(String(source.draftSequence ?? "0"), 10) || 0)
+  });
+}
+
+function normalizeRlhfReviewQueueRecord(value) {
+  const source = isPlainObject(value) ? value : {};
+  return canonicalize({
+    queueSequence: Math.max(1, parsePositiveInt(source.queueSequence, 1)),
+    draftSequence: Math.max(1, parsePositiveInt(source.draftSequence, 1)),
+    status: normalizeReviewQueueStatus(source.status),
+    enqueuedAt: typeof source.enqueuedAt === "string" ? source.enqueuedAt : "",
+    updatedAt: typeof source.updatedAt === "string" ? source.updatedAt : "",
+    notes: typeof source.notes === "string" ? source.notes : ""
+  });
+}
+
+function buildDefaultV5State() {
+  return {
+    schemaVersion: 5,
     deterministicSerialization: true,
     lastDeterministicReplayAt: null,
     activeInitiatives: [],
@@ -117,20 +197,21 @@ function buildDefaultV4State() {
       lastControlToggleAt: null,
       lastControlSequence: 0,
       mutationLogTipHash: "0000000000000000000000000000000000000000000000000000000000000000"
-    }
+    },
+    rlhfWorkflows: buildDefaultRlhfWorkflowsState()
   };
 }
 
 function normalizeRuntimeState(raw) {
-  const state = isPlainObject(raw) ? raw : buildDefaultV4State();
-  if (Number(state.schemaVersion) !== 4) {
+  const state = isPlainObject(raw) ? raw : buildDefaultV5State();
+  if (Number(state.schemaVersion) !== 5) {
     const error = new Error(`Unsupported runtime state schemaVersion: ${state.schemaVersion}`);
     error.code = "RUNTIME_STATE_SCHEMA_UNSUPPORTED";
     throw error;
   }
 
   if (!isPlainObject(state.apiGovernance)) {
-    state.apiGovernance = buildDefaultV4State().apiGovernance;
+    state.apiGovernance = buildDefaultV5State().apiGovernance;
   }
   if (!isPlainObject(state.apiGovernance.global)) {
     state.apiGovernance.global = { requestsToday: 0, tokensToday: 0 };
@@ -148,7 +229,7 @@ function normalizeRuntimeState(raw) {
     state.apiGovernance.violations = { count: 0, lastViolationAt: null, lastViolationCode: null };
   }
   if (!isPlainObject(state.apiGovernance.mutation)) {
-    state.apiGovernance.mutation = buildDefaultV4State().apiGovernance.mutation;
+    state.apiGovernance.mutation = buildDefaultV5State().apiGovernance.mutation;
   }
   if (!isPlainObject(state.apiGovernance.mutation.hourWindow)) {
     state.apiGovernance.mutation.hourWindow = { hourEpoch: 0, publishes: 0 };
@@ -173,7 +254,7 @@ function normalizeRuntimeState(raw) {
     : "research-record-v1";
 
   if (!isPlainObject(state.outboundMutation)) {
-    state.outboundMutation = buildDefaultV4State().outboundMutation;
+    state.outboundMutation = buildDefaultV5State().outboundMutation;
   }
   state.outboundMutation.enabled = Boolean(state.outboundMutation.enabled);
   state.outboundMutation.killSwitch = Boolean(state.outboundMutation.killSwitch);
@@ -192,6 +273,53 @@ function normalizeRuntimeState(raw) {
     && /^[a-f0-9]{64}$/.test(state.outboundMutation.mutationLogTipHash)
     ? state.outboundMutation.mutationLogTipHash
     : "0000000000000000000000000000000000000000000000000000000000000000";
+
+  if (!isPlainObject(state.rlhfWorkflows)) {
+    state.rlhfWorkflows = buildDefaultRlhfWorkflowsState();
+  }
+  if (!Array.isArray(state.rlhfWorkflows.drafts)) {
+    state.rlhfWorkflows.drafts = [];
+  }
+  if (!Array.isArray(state.rlhfWorkflows.candidateQueue)) {
+    state.rlhfWorkflows.candidateQueue = [];
+  }
+  if (!Array.isArray(state.rlhfWorkflows.reviewQueue)) {
+    state.rlhfWorkflows.reviewQueue = [];
+  }
+  state.rlhfWorkflows.drafts = state.rlhfWorkflows.drafts
+    .map((entry) => normalizeRlhfDraftRecord(entry))
+    .sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0));
+  state.rlhfWorkflows.candidateQueue = state.rlhfWorkflows.candidateQueue
+    .map((entry) => normalizeRlhfCandidateQueueRecord(entry))
+    .sort((left, right) => Number(left.queueSequence || 0) - Number(right.queueSequence || 0));
+  state.rlhfWorkflows.reviewQueue = state.rlhfWorkflows.reviewQueue
+    .map((entry) => normalizeRlhfReviewQueueRecord(entry))
+    .sort((left, right) => Number(left.queueSequence || 0) - Number(right.queueSequence || 0));
+
+  const observedMaxDraftSequence = state.rlhfWorkflows.drafts.reduce(
+    (max, draft) => Math.max(max, Number(draft.sequence || 0)),
+    0
+  );
+  const observedMaxQueueSequence = [...state.rlhfWorkflows.candidateQueue, ...state.rlhfWorkflows.reviewQueue].reduce(
+    (max, queueRecord) => Math.max(max, Number(queueRecord.queueSequence || 0)),
+    0
+  );
+
+  state.rlhfWorkflows.nextDraftSequence = Math.max(
+    observedMaxDraftSequence,
+    Math.max(0, Number.parseInt(String(state.rlhfWorkflows.nextDraftSequence ?? "0"), 10) || 0)
+  );
+  state.rlhfWorkflows.nextQueueSequence = Math.max(
+    observedMaxQueueSequence,
+    Math.max(0, Number.parseInt(String(state.rlhfWorkflows.nextQueueSequence ?? "0"), 10) || 0)
+  );
+  state.rlhfWorkflows.lastAutomationRunAt = typeof state.rlhfWorkflows.lastAutomationRunAt === "string"
+    ? state.rlhfWorkflows.lastAutomationRunAt
+    : "";
+  state.rlhfWorkflows.generatorVersion = typeof state.rlhfWorkflows.generatorVersion === "string"
+    && state.rlhfWorkflows.generatorVersion.trim()
+    ? state.rlhfWorkflows.generatorVersion.trim()
+    : "v1";
 
   return state;
 }
@@ -406,7 +534,7 @@ function createApiGovernance(options = {}) {
   async function loadState() {
     await ensureNdjsonIntegrityOnce();
 
-    const raw = await readJsonOrDefault(statePath, buildDefaultV4State());
+    const raw = await readJsonOrDefault(statePath, buildDefaultV5State());
     const state = normalizeRuntimeState(raw);
 
     // Sequence reconciliation is source-of-truth by append-only NDJSON.

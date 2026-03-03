@@ -53,8 +53,8 @@ if (!fs.existsSync(runtimeStatePath)) {
   fail("workspace/runtime/state.json not found");
 }
 const runtimeState = JSON.parse(fs.readFileSync(runtimeStatePath, "utf8"));
-if (Number(runtimeState.schemaVersion) !== 4) {
-  fail("workspace/runtime/state.json schemaVersion must be 4");
+if (Number(runtimeState.schemaVersion) !== 5) {
+  fail("workspace/runtime/state.json schemaVersion must be 5");
 }
 
 process.stdout.write(`Runtime policy validation passed (sha256=${calculatePolicyChecksum()})\n`);

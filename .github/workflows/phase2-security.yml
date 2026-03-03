@@ -63,6 +63,9 @@ jobs:
       - name: Mutation policy verification
         run: bash scripts/verify-mutation-policy.sh
 
+      - name: Phase 5 policy verification
+        run: bash scripts/verify-phase5-policy.sh
+
       - name: Test suite
         run: node --test tests/**/*.test.js
 

@@ -11,6 +11,7 @@ Core outcomes:
 - MCP replacement contracts scaffolded with strict validation expectations and stub gating.
 - Preflight payload validation checks implemented to catch oversized/abusive outbound requests early.
 - Comprehensive workload integrity controls enforced (SBOM, digest matching, runtime policy scanning).
+- Internal RLHF workflow automation explicitly bounded to deterministic draft generation, compliance linting, and manual packaging.
 - Audit, threat-model, and governance documentation scaffolded for formal review.
 
 See:

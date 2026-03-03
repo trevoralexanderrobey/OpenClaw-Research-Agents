@@ -1,11 +1,46 @@
-# Failure Modes (Phase 4)
+# Failure Modes (Phase 5)
 
 ## Runtime Schema Mismatch
 Detection:
-- State schema is not v4.
+- State schema is not v5.
 
 Handling:
 - Fail closed with `RUNTIME_STATE_SCHEMA_UNSUPPORTED`.
+
+## RLHF Draft Hash Mismatch
+Detection:
+- Stored `contentHash` does not match deterministic recomputation.
+
+Handling:
+- Fail closed with `RLHF_DRAFT_HASH_MISMATCH`.
+- Reject replay/transition until mismatch is remediated.
+
+## RLHF Queue Ordering Drift
+Detection:
+- `nextQueueSequence` is behind observed max queue sequence.
+- Duplicate queue sequence values detected during normalization/replay checks.
+
+Handling:
+- Reconcile to monotonic max sequence.
+- Reject duplicate/invalid queue records.
+
+## RLHF Compliance Linter Rejection
+Detection:
+- Missing required sections/disclosure or forbidden phrase match.
+- Rendered markdown differs from deterministic re-render.
+
+Handling:
+- Block draft persistence for the candidate.
+- Mark candidate queue entry as lint-rejected.
+
+## Unauthorized RLHF Review Transition
+Detection:
+- Supervisor or non-operator attempts status mutation.
+- Transition path violates allowed state machine.
+
+Handling:
+- Fail closed with `RLHF_REVIEW_ROLE_DENIED` or `RLHF_REVIEW_TRANSITION_INVALID`.
+- No status mutation is committed.
 
 ## Mutation Disabled or Kill-Switch Active
 Detection:

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "deterministicSerialization": true,
   "lastDeterministicReplayAt": null,
   "activeInitiatives": [],
@@ -83,5 +83,14 @@
     "lastControlToggleAt": null,
     "lastControlSequence": 0,
     "mutationLogTipHash": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "rlhfWorkflows": {
+    "drafts": [],
+    "candidateQueue": [],
+    "reviewQueue": [],
+    "nextDraftSequence": 0,
+    "nextQueueSequence": 0,
+    "lastAutomationRunAt": "",
+    "generatorVersion": "v1"
   }
 }

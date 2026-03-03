@@ -1,4 +1,4 @@
-# Attack Surface Enumeration (Phase 4)
+# Attack Surface Enumeration (Phase 5)
 
 ## Open Ports
 - `127.0.0.1:18789` (bridge control plane)
@@ -25,6 +25,14 @@ Mitigation:
   - `api.beehiiv.com`
   - `api.notion.com`
 
+## RLHF Internal Workflow Surface
+- Internal modules only:
+  - `workflows/rlhf-generator/*`
+  - `workflows/rlhf-review.js`
+- No external submission endpoints are defined.
+- No browser, login, or credential automation exists in RLHF modules.
+- Draft generation, linting, persistence, review queueing, and package export are local-only operations.
+
 Mitigation:
 - Default egress deny-all.
 - HTTPS required.
@@ -49,6 +57,8 @@ Mitigation:
 - Mutation attempts logged to `workspace/memory/mutation-attempts.ndjson`.
 - Each entry includes hash chain fields (`entryHash`, `prevChainHash`, `chainHash`).
 - State stores log tip hash (`outboundMutation.mutationLogTipHash`) and startup verifies chain.
+- RLHF drafts may be mirrored in deterministic artifact store `workspace/memory/rlhf-drafts.ndjson`.
+- RLHF manual package output is local-only at `workspace/memory/rlhf-manual-packages/`.
 
 ## Container/Credential Boundaries
 - Non-root, non-privileged, no host-network, read-only rootfs.

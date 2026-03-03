@@ -19,3 +19,7 @@
 ## Preflight validation
 - Payload sizes and structures are enforced ahead of execution.
 - Prevents egress policy violations by rejecting out-of-bounds requests before the mutation queue.
+
+## RLHF Review Pipeline
+- Automates internal draft preparation, formatting, and compliance linting.
+- Output explicitly constrained to deterministic manual-handoff packaging; absolutely no automated external submission.

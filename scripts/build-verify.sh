@@ -22,6 +22,7 @@ bash scripts/verify-container-digest.sh
 bash scripts/lint-restricted-globals.sh
 bash scripts/verify-mcp-policy.sh
 bash scripts/verify-mutation-policy.sh
+bash scripts/verify-phase5-policy.sh
 
 FIRST_HASH="$(hash_file package-lock.json)"
 npm ci --offline --ignore-scripts --cache ./.ci/npm-cache

@@ -29,3 +29,8 @@
 - SBOM artifacts generated for supply-chain provenance.
 - Lockfile, cache, and code registry checksums formally verified.
 - Container digests validated before any runtime action.
+
+## RLHF Compliance
+- All generated drafts enforced as AI-assisted with required manual review.
+- Automated submission paths and credential usage strictly prohibited.
+- Replay-safe internal queue management tied directly to governance transactions.

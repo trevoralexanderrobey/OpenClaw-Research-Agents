@@ -85,7 +85,7 @@ const RUNTIME_POLICY = deepFreeze({
     useCanonicalJsonSerialization: true,
     prohibitDirectGlobalTime: true,
     prohibitDirectGlobalRandomness: true,
-    runtimeStateSchemaVersion: 4,
+    runtimeStateSchemaVersion: 5,
     ndjsonOrderingAuthority: "sequence",
   },
   researchMcp: {
@@ -160,8 +160,8 @@ function validateRuntimePolicy(policyInput = RUNTIME_POLICY) {
   if (!isPlainObject(policy.determinism)) {
     errors.push("determinism policy missing");
   } else {
-    if (policy.determinism.runtimeStateSchemaVersion !== 4) {
-      errors.push("runtime state schemaVersion must be 4 in Phase 4");
+    if (policy.determinism.runtimeStateSchemaVersion !== 5) {
+      errors.push("runtime state schemaVersion must be 5 in Phase 5");
     }
     if (policy.determinism.ndjsonOrderingAuthority !== "sequence") {
       errors.push("ndjson ordering authority must be sequence");
@@ -175,7 +175,7 @@ function validateRuntimePolicy(policyInput = RUNTIME_POLICY) {
       errors.push("researchMcp must disable dynamic domain configuration");
     }
     if (policy.researchMcp.allowOutboundMutationMethods !== true) {
-      errors.push("researchMcp must enable controlled outbound mutation methods in Phase 4");
+      errors.push("researchMcp must enable controlled outbound mutation methods in Phase 5");
     }
     const allowed = Array.isArray(policy.researchMcp.allowedReadDomains) ? policy.researchMcp.allowedReadDomains : [];
     const sorted = [...allowed].sort();
