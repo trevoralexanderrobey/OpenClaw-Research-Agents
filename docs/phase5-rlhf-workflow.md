@@ -28,6 +28,17 @@ Manual-only scope:
 7. Transition review statuses through operator-only workflow.
 8. Generate deterministic manual submission package when approved.
 
+## State and Artifact Commit Discipline
+- Runtime state is the source of truth.
+- RLHF draft artifact NDJSON is reconciled from canonical runtime state after pipeline execution.
+- This is a state-first deterministic reconciliation model (crash-safe recovery without external side effects).
+- On startup/run, truncated trailing NDJSON artifact lines are repaired deterministically; non-trailing corruption fails closed.
+
+## Empty Run Determinism
+- If no eligible candidates are selected, the pipeline performs a no-op for runtime state mutation.
+- Empty runs do not advance draft/queue sequences and do not update runtime state timestamps.
+- Artifact store reconciliation may still run from existing state to repair artifacts without mutating runtime state.
+
 ## Invariants Preserved
 - State writes occur only inside governance transactions.
 - No new egress domains or outbound submission paths.
@@ -50,3 +61,8 @@ Any other transition is rejected.
 - `compliance-manifest.json`
 
 The package does not include credential material, submission endpoints, or automated submission instructions.
+
+## Manual Package Integrity
+- `compliance-manifest.json` includes `packageHash`.
+- `packageHash = SHA256("rlhf-package-v1|" + canonical(manifest_without_hash))`.
+- Package verification recomputes `packageHash` and per-file hashes before export/handoff.

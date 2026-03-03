@@ -37,6 +37,83 @@ if [[ -n "$NETWORK_HITS" ]]; then
   fail "Phase 5 workflows must not include network/browser automation clients"
 fi
 
+node - "$WORKFLOW_DIR" <<'NODE'
+const fs = require("node:fs");
+const path = require("node:path");
+
+const workflowDir = process.argv[2];
+const bannedModuleMatchers = [
+  "node:http",
+  "http",
+  "node:https",
+  "https",
+  "axios",
+  "undici",
+  "node-fetch",
+  "cross-fetch",
+  "playwright",
+  "playwright-core",
+  "@playwright/test",
+  "puppeteer",
+  "puppeteer-core",
+  "selenium-webdriver",
+  "webdriverio",
+  "wd",
+  "cypress"
+];
+
+function listJsFiles(dir) {
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      out.push(...listJsFiles(full));
+      continue;
+    }
+    if (entry.isFile() && entry.name.endsWith(".js")) {
+      out.push(full);
+    }
+  }
+  return out.sort();
+}
+
+function isBanned(specifier) {
+  const value = String(specifier || "").trim().toLowerCase();
+  return bannedModuleMatchers.some((needle) => value === needle || value.startsWith(`${needle}/`));
+}
+
+function collectImports(source) {
+  const imports = new Set();
+  const patterns = [
+    /require\(\s*["']([^"']+)["']\s*\)/g,
+    /import\s+(?:.+?\s+from\s+)?["']([^"']+)["']/g,
+    /import\(\s*["']([^"']+)["']\s*\)/g
+  ];
+  for (const pattern of patterns) {
+    let match;
+    while ((match = pattern.exec(source)) !== null) {
+      imports.add(match[1]);
+    }
+  }
+  return [...imports];
+}
+
+const hits = [];
+for (const filePath of listJsFiles(workflowDir)) {
+  const source = fs.readFileSync(filePath, "utf8");
+  for (const specifier of collectImports(source)) {
+    if (isBanned(specifier)) {
+      hits.push(`${filePath}: banned import '${specifier}'`);
+    }
+  }
+}
+
+if (hits.length > 0) {
+  process.stderr.write(`${hits.join("\n")}\n`);
+  process.exit(1);
+}
+NODE
+
 HTTPS_LITERAL_HITS="$(rg -n --glob '*.js' "https?://" "$WORKFLOW_DIR" || true)"
 if [[ -n "$HTTPS_LITERAL_HITS" ]]; then
   echo "$HTTPS_LITERAL_HITS" >&2
@@ -55,6 +132,11 @@ fi
 if ! rg -q "RLHF_REVIEW_ROLE_DENIED" "$REVIEW_FILE"; then
   fail "rlhf-review.js missing deny code for unauthorized status mutation"
 fi
+for scope in "rlhf.review.review" "rlhf.review.approve_manual_submission" "rlhf.review.archive"; do
+  if ! rg -q "$scope" "$REVIEW_FILE"; then
+    fail "rlhf-review.js missing explicit transition scope: $scope"
+  fi
+done
 
 RESTRICTED_GLOBALS="$(rg -n "Date\.now\(|new Date\(|Math\.random\(|randomUUID\(" "$WORKFLOW_DIR" || true)"
 if [[ -n "$RESTRICTED_GLOBALS" ]]; then
@@ -95,6 +177,76 @@ for (const value of Object.values(policy.TOOL_EGRESS_POLICIES || {})) {
 if (JSON.stringify([...seen].sort()) !== JSON.stringify([...allowed].sort())) {
   process.stderr.write(`Egress allowlist set mismatch. seen=${JSON.stringify([...seen].sort())}\n`);
   process.exit(1);
+}
+NODE
+
+node - "$ROOT/package-lock.json" "$ROOT/package.json" <<'NODE'
+const fs = require("node:fs");
+
+const lockPath = process.argv[2];
+const packageJsonPath = process.argv[3];
+const deny = new Set([
+  "playwright",
+  "playwright-core",
+  "@playwright/test",
+  "puppeteer",
+  "puppeteer-core",
+  "selenium-webdriver",
+  "webdriverio",
+  "wd",
+  "cypress"
+]);
+
+function fail(msg) {
+  process.stderr.write(`${msg}\n`);
+  process.exit(1);
+}
+
+function deniedName(name) {
+  const normalized = String(name || "").trim().toLowerCase();
+  return deny.has(normalized);
+}
+
+const pkg = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+for (const section of ["dependencies", "devDependencies", "optionalDependencies"]) {
+  const map = pkg[section] && typeof pkg[section] === "object" ? pkg[section] : {};
+  for (const name of Object.keys(map)) {
+    if (deniedName(name)) {
+      fail(`Denied browser automation dependency in package.json: ${name}`);
+    }
+  }
+}
+
+const lock = JSON.parse(fs.readFileSync(lockPath, "utf8"));
+const transitiveHits = new Set();
+
+const packages = lock.packages && typeof lock.packages === "object" ? lock.packages : {};
+for (const [key, value] of Object.entries(packages)) {
+  const pkgName = value && typeof value === "object" && typeof value.name === "string"
+    ? value.name
+    : String(key || "").split("node_modules/").pop();
+  if (deniedName(pkgName)) {
+    transitiveHits.add(pkgName);
+  }
+}
+
+const dependencies = lock.dependencies && typeof lock.dependencies === "object" ? lock.dependencies : {};
+const stack = Object.entries(dependencies);
+while (stack.length > 0) {
+  const [name, meta] = stack.pop();
+  if (deniedName(name)) {
+    transitiveHits.add(name);
+  }
+  const children = meta && typeof meta === "object" && meta.dependencies && typeof meta.dependencies === "object"
+    ? meta.dependencies
+    : {};
+  for (const child of Object.entries(children)) {
+    stack.push(child);
+  }
+}
+
+if (transitiveHits.size > 0) {
+  fail(`Denied transitive browser automation dependencies detected: ${JSON.stringify([...transitiveHits].sort())}`);
 }
 NODE
 

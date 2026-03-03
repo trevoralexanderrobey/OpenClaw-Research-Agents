@@ -14,6 +14,12 @@ const ALLOWED_TRANSITIONS = Object.freeze({
   approved_for_manual_submission: "archived"
 });
 
+const TRANSITION_SCOPE_BY_STATUS = Object.freeze({
+  reviewed: "rlhf.review.review",
+  approved_for_manual_submission: "rlhf.review.approve_manual_submission",
+  archived: "rlhf.review.archive"
+});
+
 function normalizeRole(context = {}) {
   return typeof context.role === "string" ? context.role.trim().toLowerCase() : "supervisor";
 }
@@ -76,7 +82,12 @@ function createRlhfReviewWorkflow(options = {}) {
       throw error;
     }
 
-    const scope = `rlhf.review.transition.${toStatus}`;
+    const scope = TRANSITION_SCOPE_BY_STATUS[toStatus];
+    if (!scope) {
+      const error = new Error(`No scope is defined for status '${toStatus}'`); // should never happen due status validation
+      error.code = "RLHF_REVIEW_SCOPE_UNDEFINED";
+      throw error;
+    }
     const tokenResult = operatorAuthorization.consumeApprovalToken(input.approvalToken, scope, {
       correlationId: typeof context.correlationId === "string" ? context.correlationId : ""
     });

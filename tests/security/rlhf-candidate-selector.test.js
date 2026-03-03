@@ -125,3 +125,94 @@ test("queue sequence remains monotonic under concurrent pipeline runs", async ()
     Array.from({ length: sequences.length }, (_, index) => index + 1)
   );
 });
+
+test("empty candidate runs are deterministic no-op for runtime state", async () => {
+  const dir = await makeTmpDir();
+  const statePath = path.join(dir, "state.json");
+  const governance = createApiGovernance({
+    statePath,
+    researchNdjsonPath: path.join(dir, "research.ndjson")
+  });
+
+  let fixedNowMs = 1710000000000;
+  const timeProvider = {
+    nowMs() {
+      const out = fixedNowMs;
+      fixedNowMs += 1000;
+      return out;
+    },
+    nowIso() {
+      const out = this.nowMs();
+      return new Date(out).toISOString();
+    }
+  };
+
+  const runner = createRlhfPipelineRunner({
+    apiGovernance: governance,
+    monetizationEngine: { computeMonetizationScore: async () => ({ ok: true, score: 60, metrics: {} }) },
+    timeProvider,
+    draftArtifactPath: path.join(dir, "rlhf-drafts.ndjson")
+  });
+
+  const before = JSON.stringify(await governance.readState());
+  const first = await runner.run({ maxCandidates: 20, correlationId: "cccc3333cccc3333" });
+  const afterFirst = JSON.stringify(await governance.readState());
+  const second = await runner.run({ maxCandidates: 20, correlationId: "dddd4444dddd4444" });
+  const afterSecond = JSON.stringify(await governance.readState());
+
+  assert.equal(first.noOp, true);
+  assert.equal(first.stateMutated, false);
+  assert.equal(second.noOp, true);
+  assert.equal(second.stateMutated, false);
+  assert.equal(before, afterFirst);
+  assert.equal(afterFirst, afterSecond);
+});
+
+test("artifact store truncated tail line is repaired deterministically on startup path", async () => {
+  const dir = await makeTmpDir();
+  const artifactPath = path.join(dir, "rlhf-drafts.ndjson");
+  const governance = createApiGovernance({
+    statePath: path.join(dir, "state.json"),
+    researchNdjsonPath: path.join(dir, "research.ndjson")
+  });
+
+  await appendResearchRecord(governance, {
+    paperId: "paper-tail-repair",
+    title: "Security exploit prevention for deterministic systems",
+    abstract: "Threat model and vulnerability analysis.",
+    citationVelocity: 210
+  });
+
+  const timeProvider = {
+    nowMs() {
+      return 1711000000000;
+    },
+    nowIso() {
+      return "2026-03-03T00:00:00.000Z";
+    }
+  };
+
+  const runner = createRlhfPipelineRunner({
+    apiGovernance: governance,
+    monetizationEngine: { computeMonetizationScore: async () => ({ ok: true, score: 60, metrics: {} }) },
+    timeProvider,
+    draftArtifactPath: artifactPath
+  });
+
+  await runner.run({ maxCandidates: 20, correlationId: "eeee5555eeee5555" });
+  await fsp.appendFile(artifactPath, "{\"broken\": ", "utf8");
+
+  const repairedRun = await runner.run({
+    maxCandidates: 20,
+    domainAllowlist: ["mathematics"],
+    correlationId: "ffff6666ffff6666"
+  });
+  assert.equal(repairedRun.noOp, true);
+  assert.equal(repairedRun.artifactRepair.repaired, true);
+
+  const state = await governance.readState();
+  const artifactRaw = await fsp.readFile(artifactPath, "utf8");
+  const lines = artifactRaw.split("\n").filter((line) => line.trim().length > 0);
+  const parsed = lines.map((line) => JSON.parse(line));
+  assert.equal(parsed.length, state.rlhfWorkflows.drafts.length);
+});

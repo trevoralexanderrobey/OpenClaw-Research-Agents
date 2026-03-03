@@ -59,3 +59,34 @@ Keep progress updates in assistant commentary only and send pure shell commands 
 ### Resolution
 - **Resolved**: 2026-03-03T14:10:00-08:00
 - **Notes**: Split status updates from command payloads.
+
+## [ERR-20260303-003] parallel verification raced on dependency state
+
+**Logged**: 2026-03-03T15:44:08-08:00
+**Priority**: medium
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Running `npm test` and `bash scripts/build-verify.sh` in parallel caused transient module resolution failures.
+
+### Error
+```
+Error: Cannot find module 'zod'
+Error: Cannot find module './helpers/errorUtil'
+```
+
+### Context
+- Command pattern: concurrent execution of test and build verification in the same workspace.
+- Root cause: both commands mutate/read dependency state (`node_modules`/install steps) and are not safe to run concurrently.
+
+### Suggested Fix
+Run dependency-touching verification steps serially; reserve parallel execution for read-only checks.
+
+### Metadata
+- Reproducible: yes
+- Related Files: .learnings/ERRORS.md
+
+### Resolution
+- **Resolved**: 2026-03-03T15:44:08-08:00
+- **Notes**: Switched to serial execution (`build-verify` then `npm test`) and suite passed cleanly.

@@ -62,7 +62,7 @@ test("supervisor cannot change RLHF draft status", async () => {
   const auth = createOperatorAuthorization();
   const review = createRlhfReviewWorkflow({ apiGovernance: governance, operatorAuthorization: auth });
 
-  const token = auth.issueApprovalToken({ operatorId: "op-1", scope: "rlhf.review.transition.reviewed" }).token;
+  const token = auth.issueApprovalToken({ operatorId: "op-1", scope: "rlhf.review.review" }).token;
   await assert.rejects(
     () => review.transitionStatus({ draftSequence: 1, toStatus: "reviewed", approvalToken: token }, { role: "supervisor" }),
     (error) => error && error.code === "RLHF_REVIEW_ROLE_DENIED"
@@ -80,7 +80,7 @@ test("operator-only transitions are enforced and invalid transition is rejected"
   const auth = createOperatorAuthorization();
   const review = createRlhfReviewWorkflow({ apiGovernance: governance, operatorAuthorization: auth });
 
-  const reviewToken = auth.issueApprovalToken({ operatorId: "op-1", scope: "rlhf.review.transition.reviewed" }).token;
+  const reviewToken = auth.issueApprovalToken({ operatorId: "op-1", scope: "rlhf.review.review" }).token;
   const reviewed = await review.transitionStatus(
     { draftSequence: 1, toStatus: "reviewed", approvalToken: reviewToken, notes: "checked" },
     { role: "operator", requester: "operator" }
@@ -88,17 +88,39 @@ test("operator-only transitions are enforced and invalid transition is rejected"
   assert.equal(reviewed.ok, true);
   assert.equal(reviewed.draft.status, "reviewed");
 
-  const invalidToken = auth.issueApprovalToken({ operatorId: "op-1", scope: "rlhf.review.transition.archived" }).token;
+  const invalidToken = auth.issueApprovalToken({ operatorId: "op-1", scope: "rlhf.review.archive" }).token;
   await assert.rejects(
     () => review.transitionStatus({ draftSequence: 1, toStatus: "archived", approvalToken: invalidToken }, { role: "operator" }),
     (error) => error && error.code === "RLHF_REVIEW_TRANSITION_INVALID"
   );
 
-  const approveToken = auth.issueApprovalToken({ operatorId: "op-1", scope: "rlhf.review.transition.approved_for_manual_submission" }).token;
+  const approveToken = auth.issueApprovalToken({ operatorId: "op-1", scope: "rlhf.review.approve_manual_submission" }).token;
   const approved = await review.transitionStatus(
     { draftSequence: 1, toStatus: "approved_for_manual_submission", approvalToken: approveToken },
     { role: "operator", requester: "operator" }
   );
   assert.equal(approved.ok, true);
   assert.equal(approved.draft.status, "approved_for_manual_submission");
+});
+
+test("review transition denies scope mismatch", async () => {
+  const dir = await makeTmpDir();
+  const governance = createApiGovernance({
+    statePath: path.join(dir, "state.json"),
+    researchNdjsonPath: path.join(dir, "research.ndjson")
+  });
+  await seedDraft(governance);
+
+  const auth = createOperatorAuthorization();
+  const review = createRlhfReviewWorkflow({ apiGovernance: governance, operatorAuthorization: auth });
+
+  const wrongScopeToken = auth.issueApprovalToken({
+    operatorId: "op-1",
+    scope: "rlhf.review.approve_manual_submission"
+  }).token;
+
+  await assert.rejects(
+    () => review.transitionStatus({ draftSequence: 1, toStatus: "reviewed", approvalToken: wrongScopeToken }, { role: "operator" }),
+    (error) => error && error.code === "OPERATOR_TOKEN_SCOPE_INVALID"
+  );
 });
