@@ -1,0 +1,16 @@
+✔ api governance enforces per-minute limit (21.842292ms)
+✔ api governance enforces daily token budget (11.813084ms)
+✔ api governance enforces global per-minute limit (14.279417ms)
+✔ api governance enforces daily request ceiling (11.08825ms)
+✔ api governance circuit opens after violation (11.379625ms)
+✔ governance transaction serializes parallel sequence allocation (510.0055ms)
+✔ governance recovers from truncated trailing NDJSON record (30.828ms)
+✔ governance daily reset uses UTC boundary from deterministic time provider (21.241291ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 792.665917

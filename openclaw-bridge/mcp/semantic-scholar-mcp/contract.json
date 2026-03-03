@@ -1,0 +1,24 @@
+{
+  "name": "semantic-scholar-mcp",
+  "phase": 1,
+  "status": "scaffolded",
+  "tools": [
+    {
+      "name": "search_papers",
+      "zodSchema": "z.object({ query: z.string().min(3).max(300), limit: z.number().int().min(1).max(50).default(10) }).strict()"
+    },
+    {
+      "name": "paper_details",
+      "zodSchema": "z.object({ paper_id: z.string().min(3).max(128) }).strict()"
+    },
+    {
+      "name": "citation_graph",
+      "zodSchema": "z.object({ paper_id: z.string().min(3).max(128), depth: z.number().int().min(1).max(2).default(1) }).strict()"
+    }
+  ],
+  "rateLimit": {
+    "requestsPerSecond": 1,
+    "burst": 3,
+    "retryPolicy": "bounded_exponential_backoff"
+  }
+}

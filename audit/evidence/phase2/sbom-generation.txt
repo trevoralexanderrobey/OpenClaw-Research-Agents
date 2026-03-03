@@ -1,0 +1,1 @@
+SBOM written to /Users/trevorrobey/OpenClaw-Research-Agents/audit/evidence/phase2/sbom.cyclonedx.json

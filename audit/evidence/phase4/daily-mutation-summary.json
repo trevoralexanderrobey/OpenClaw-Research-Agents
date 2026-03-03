@@ -1,0 +1,33 @@
+{
+  "data": {
+    "dayKey": "1970-01-01",
+    "global": {
+      "requestsToday": 0,
+      "tokensToday": 0
+    },
+    "mutation": {
+      "accountedAttemptIds": {},
+      "controlWindow": {
+        "minuteEpoch": 0,
+        "toggles": 0
+      },
+      "dayWindow": {
+        "dayKey": "1970-01-01",
+        "publishes": 0,
+        "writeTokens": 0
+      },
+      "hourWindow": {
+        "hourEpoch": 0,
+        "publishes": 0
+      }
+    },
+    "perMcpDaily": {},
+    "violations": {
+      "count": 0,
+      "lastViolationAt": null,
+      "lastViolationCode": null
+    }
+  },
+  "digest": "f77e3fdb972065387f7fd089206c33b7b982f10ce3953324a37506c04f423b22",
+  "generatedAt": "2026-03-03T21:48:32.354Z"
+}

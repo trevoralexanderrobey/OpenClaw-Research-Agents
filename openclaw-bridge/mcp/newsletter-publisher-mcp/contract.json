@@ -1,0 +1,14 @@
+{
+  "name": "newsletter-publisher-mcp",
+  "phase": 1,
+  "status": "stub_only",
+  "tools": [
+    "draft_newsletter",
+    "schedule_newsletter",
+    "publish_newsletter"
+  ],
+  "behavior": {
+    "execution": "disabled",
+    "responseCode": "NOT_IMPLEMENTED_PHASE1"
+  }
+}

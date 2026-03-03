@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 4,
+  "deterministicSerialization": true,
+  "lastDeterministicReplayAt": null,
+  "activeInitiatives": [],
+  "openLoops": [],
+  "agentHealth": {
+    "supervisor": {
+      "status": "healthy",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    "scout": {
+      "status": "unknown",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    "analyst": {
+      "status": "unknown",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    "synthesizer": {
+      "status": "unknown",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    },
+    "operator": {
+      "status": "unknown",
+      "updatedAt": "1970-01-01T00:00:00.000Z"
+    }
+  },
+  "circuitBreakerState": {
+    "supervisor": "CLOSED",
+    "scout": "CLOSED",
+    "analyst": "CLOSED",
+    "synthesizer": "CLOSED",
+    "operator": "CLOSED"
+  },
+  "dailyTokenUsage": {},
+  "hydrationTimestamp": "1970-01-01T00:00:00.000Z",
+  "apiGovernance": {
+    "dayKey": "1970-01-01",
+    "global": {
+      "requestsToday": 0,
+      "tokensToday": 0
+    },
+    "window": {
+      "minuteEpoch": 0,
+      "globalRequests": 0,
+      "perMcpRequests": {}
+    },
+    "perMcpDaily": {},
+    "violations": {
+      "count": 0,
+      "lastViolationAt": null,
+      "lastViolationCode": null
+    },
+    "mutation": {
+      "hourWindow": {
+        "hourEpoch": 0,
+        "publishes": 0
+      },
+      "dayWindow": {
+        "dayKey": "1970-01-01",
+        "publishes": 0,
+        "writeTokens": 0
+      },
+      "controlWindow": {
+        "minuteEpoch": 0,
+        "toggles": 0
+      },
+      "accountedAttemptIds": {}
+    }
+  },
+  "researchIngestion": {
+    "nextSequence": 1,
+    "lastCommittedSequence": 0,
+    "hashVersion": "research-record-v1"
+  },
+  "outboundMutation": {
+    "enabled": false,
+    "killSwitch": false,
+    "pendingPublications": [],
+    "committedPublications": [],
+    "lastMutationSequence": 0,
+    "lastControlToggleAt": null,
+    "lastControlSequence": 0,
+    "mutationLogTipHash": "0000000000000000000000000000000000000000000000000000000000000000"
+  }
+}

@@ -1,0 +1,12 @@
+✔ time provider supports deterministic override (1.244333ms)
+✔ entropy provider supports deterministic seed (0.686459ms)
+✔ restricted globals lint passes (28.868709ms)
+✔ deterministic replay remains stable after MCP ingestion (36.466083ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 242.195042

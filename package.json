@@ -1,0 +1,31 @@
+{
+  "name": "openclaw-research-agents",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Phase 3 controlled research ingestion governance layer for OpenClaw Research Agents",
+  "license": "UNLICENSED",
+  "type": "commonjs",
+  "engines": {
+    "node": "22.13.1"
+  },
+  "scripts": {
+    "test": "node --test tests/**/*.test.js",
+    "sbom:generate": "node scripts/generate-sbom.js",
+    "policy:validate": "node scripts/validate-runtime-policy.js",
+    "cache:lock": "bash scripts/generate-npm-cache-lock.sh",
+    "cache:verify": "bash scripts/verify-npm-cache-checksum.sh",
+    "registry:verify": "bash scripts/verify-tool-registry-checksum.sh",
+    "digest:verify": "bash scripts/verify-container-digest.sh",
+    "mcp:verify": "bash scripts/verify-mcp-policy.sh",
+    "mutation:verify": "bash scripts/verify-mutation-policy.sh",
+    "lifecycle:verify": "bash scripts/verify-no-lifecycle-hooks.sh",
+    "globals:lint": "bash scripts/lint-restricted-globals.sh",
+    "build:verify": "bash scripts/build-verify.sh",
+    "phase2:gates": "bash scripts/cleanroom-purge-validate.sh && bash scripts/verify-no-lifecycle-hooks.sh && bash scripts/verify-npm-cache-checksum.sh && node scripts/validate-runtime-policy.js && bash scripts/verify-tool-registry-checksum.sh && bash scripts/verify-container-digest.sh && bash scripts/lint-restricted-globals.sh && bash scripts/verify-mcp-policy.sh && bash scripts/verify-mutation-policy.sh && node --test tests/**/*.test.js",
+    "phase3:audit": "bash scripts/generate-phase3-audit-artifacts.sh",
+    "phase4:audit": "bash scripts/generate-phase4-audit-artifacts.sh"
+  },
+  "dependencies": {
+    "zod": "3.24.1"
+  }
+}

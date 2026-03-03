@@ -1,0 +1,11 @@
+node_modules/
+dist/
+build/
+.tmp/
+logs/
+.ci/npm-cache/_update-notifier-last-checked
+openclaw-bridge/.bridge/
+openclaw-bridge/data/
+openclaw-bridge/logs/
+*.log
+.DS_Store

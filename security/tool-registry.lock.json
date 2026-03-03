@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "registrySha256": "d2c610e450fb28edb58aa3708f424952035c41b294147a2381e5e502f6179c03",
+  "catalog": [
+    {
+      "slug": "arxiv-scholar-mcp",
+      "image": "ghcr.io/openclaw-research/arxiv-scholar-mcp@sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    },
+    {
+      "slug": "latex-compiler-tool",
+      "image": "ghcr.io/openclaw-research/latex-compiler-tool@sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    },
+    {
+      "slug": "newsletter-publisher-mcp",
+      "image": "ghcr.io/openclaw-research/newsletter-publisher-mcp@sha256:7777777777777777777777777777777777777777777777777777777777777777"
+    },
+    {
+      "slug": "notion-sync-mcp",
+      "image": "ghcr.io/openclaw-research/notion-sync-mcp@sha256:8888888888888888888888888888888888888888888888888888888888888888"
+    },
+    {
+      "slug": "operator-stub-tool",
+      "image": "ghcr.io/openclaw-research/operator-stub-tool@sha256:4444444444444444444444444444444444444444444444444444444444444444"
+    },
+    {
+      "slug": "pdf-extractor-tool",
+      "image": "ghcr.io/openclaw-research/pdf-extractor-tool@sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    },
+    {
+      "slug": "research-fetch-tool",
+      "image": "ghcr.io/openclaw-research/research-fetch-tool@sha256:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "slug": "semantic-scholar-mcp",
+      "image": "ghcr.io/openclaw-research/semantic-scholar-mcp@sha256:6666666666666666666666666666666666666666666666666666666666666666"
+    }
+  ]
+}

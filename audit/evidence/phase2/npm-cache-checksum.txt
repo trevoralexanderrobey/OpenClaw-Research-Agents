@@ -1,0 +1,2 @@
+Ignoring volatile npm metadata file: _update-notifier-last-checked
+npm cache checksum verification passed

@@ -1,0 +1,13 @@
+✔ egress denies outbound google.com for semantic MCP (3.344208ms)
+✔ egress denies raw IP literal target (0.354833ms)
+✔ egress allows approved host and returns pinned lookup (2.339375ms)
+✔ egress blocks DNS rebinding to loopback/private addresses (0.20675ms)
+✔ forbidden IP helper covers private and loopback ranges (0.111625ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 114.335541

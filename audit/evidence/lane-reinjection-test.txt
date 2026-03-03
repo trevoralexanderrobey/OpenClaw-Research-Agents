@@ -1,0 +1,2 @@
+14:## Reinjection sequence
+18:4. Sort unresolved loops by `nextRetryAt`, `retryCount`, `createdAt`, `loopId`.

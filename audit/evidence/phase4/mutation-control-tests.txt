@@ -1,0 +1,21 @@
+✔ prepare fails when mutation enabled flag is false (8.460417ms)
+✔ prepare fails without operator approval token (39.286792ms)
+✔ mutation prepare+commit succeeds and dedupes identical payload (75.900584ms)
+✔ uncertain retry preserves sequence and idempotency key (119.5725ms)
+✔ commit fails when mutation disabled after prepare (72.075833ms)
+✔ commit fails immediately when kill switch is enabled (63.507667ms)
+✔ startup hydration abandons pending entries not prepared while enabled (25.196ms)
+✔ retry is blocked after maximum retry attempts (178.399292ms)
+✔ uncertain entries older than max age require reconcile before retry (106.902042ms)
+✔ mutation sequence remains strictly monotonic across prepares (64.723333ms)
+✔ mutation blocks commit when NODE_TLS_REJECT_UNAUTHORIZED is disabled (78.952667ms)
+✔ toggle cooldown is enforced (44.870208ms)
+✔ mutation log tamper is detected on startup verification (44.040541ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1040.664792

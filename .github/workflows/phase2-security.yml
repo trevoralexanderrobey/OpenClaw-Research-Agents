@@ -1,0 +1,79 @@
+name: phase2-security
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  phase2-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node 22.13.1
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.1'
+
+      - name: Purge validation
+        run: bash scripts/cleanroom-purge-validate.sh
+
+      - name: Secret scan
+        run: bash scripts/verify-secrets.sh
+
+      - name: Lifecycle hooks prohibition
+        run: bash scripts/verify-no-lifecycle-hooks.sh
+
+      - name: Offline install (ignore scripts)
+        run: npm ci --offline --ignore-scripts --cache ./.ci/npm-cache
+
+      - name: npm cache checksum verification
+        run: bash scripts/verify-npm-cache-checksum.sh
+
+      - name: Dependency audit
+        run: npm audit --audit-level=high
+
+      - name: SBOM generation
+        run: node scripts/generate-sbom.js
+
+      - name: Runtime policy validation
+        run: node scripts/validate-runtime-policy.js
+
+      - name: Tool registry checksum
+        run: bash scripts/verify-tool-registry-checksum.sh
+
+      - name: Container digest verification
+        run: bash scripts/verify-container-digest.sh
+
+      - name: Lockfile/cache governance
+        run: bash scripts/verify-lockfile-review.sh
+
+      - name: Restricted globals lint
+        run: bash scripts/lint-restricted-globals.sh
+
+      - name: MCP policy verification
+        run: bash scripts/verify-mcp-policy.sh
+
+      - name: Mutation policy verification
+        run: bash scripts/verify-mutation-policy.sh
+
+      - name: Test suite
+        run: node --test tests/**/*.test.js
+
+      - name: Deterministic build verification
+        run: bash scripts/build-verify.sh
+
+      - name: Generate phase2 audit artifacts
+        run: bash scripts/generate-phase2-audit-artifacts.sh
+
+      - name: Generate phase3 audit artifacts
+        run: bash scripts/generate-phase3-audit-artifacts.sh
+
+      - name: Generate phase4 audit artifacts
+        run: bash scripts/generate-phase4-audit-artifacts.sh

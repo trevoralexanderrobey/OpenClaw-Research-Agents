@@ -1,0 +1,7 @@
+ReadonlyRootfs / Privileged / CapDrop / NetworkMode checks:
+884:      ReadonlyRootfs: true,
+885:      Privileged: false,
+886:      PidMode: "private",
+887:      NetworkMode: networkName,
+888:      CapDrop: ["ALL"],
+889:      Binds: [`${volumeName}:/scratch:rw`],

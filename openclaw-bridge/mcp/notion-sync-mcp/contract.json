@@ -1,0 +1,14 @@
+{
+  "name": "notion-sync-mcp",
+  "phase": 1,
+  "status": "stub_only",
+  "tools": [
+    "create_page",
+    "update_page",
+    "sync_database"
+  ],
+  "behavior": {
+    "execution": "disabled",
+    "responseCode": "NOT_IMPLEMENTED_PHASE1"
+  }
+}

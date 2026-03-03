@@ -1,0 +1,17 @@
+{
+  "data": {
+    "dayKey": "1970-01-01",
+    "global": {
+      "requestsToday": 0,
+      "tokensToday": 0
+    },
+    "perMcpDaily": {},
+    "violations": {
+      "count": 0,
+      "lastViolationAt": null,
+      "lastViolationCode": null
+    }
+  },
+  "digest": "54eb6cb3052c88f4fdab996777bd178952c11d393c1ba2d24be8ea40252bf7e6",
+  "generatedAt": "2026-03-03T20:57:54.569Z"
+}

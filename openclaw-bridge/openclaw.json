@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 2,
+  "project": {
+    "name": "OpenClaw-Research-Agents",
+    "mode": "phase4-controlled-outbound-mutation",
+    "cleanRoomDerivative": true
+  },
+  "gateway": {
+    "host": "127.0.0.1",
+    "port": 18789,
+    "allowHttp": true,
+    "allowDynamicPort": false,
+    "allowNonLocalhostBind": false,
+    "bridgeRouting": "research-only"
+  },
+  "runtime": {
+    "stateStorePath": "./data/control-plane-state.json",
+    "workspaceRoot": "../workspace",
+    "queueModel": "lane_queue",
+    "fileCommsPath": "../workspace/comms",
+    "immutableConfigAfterBoot": true
+  },
+  "execution": {
+    "containerRuntimeEnabled": true,
+    "executionMode": "container",
+    "allowLegacyExternalTools": false,
+    "blockedCategories": [
+      "offensive_security",
+      "network_scanning",
+      "exploit_generation",
+      "lateral_movement"
+    ]
+  },
+  "featureFlags": {
+    "ENABLE_OPERATOR_MUTATIONS": true,
+    "ENABLE_NEWSLETTER_PUBLISHER_MCP": true,
+    "ENABLE_NOTION_SYNC_MCP": true,
+    "ENABLE_EXTERNAL_POST_PUT_DELETE": false
+  },
+  "governance": {
+    "phase": 4,
+    "freezePolicy": "hard",
+    "changeControlRequiredForOutboundMutations": true
+  }
+}

@@ -1,0 +1,5 @@
+23:    "allowLegacyExternalTools": false,
+32:    "ENABLE_OPERATOR_MUTATIONS": false,
+33:    "ENABLE_NEWSLETTER_PUBLISHER_MCP": false,
+34:    "ENABLE_NOTION_SYNC_MCP": false,
+35:    "ENABLE_EXTERNAL_POST_PUT_DELETE": false

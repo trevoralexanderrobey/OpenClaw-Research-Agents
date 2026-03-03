@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-03-03T03:05:02.637Z",
+  "sourceRepository": {
+    "path": "/Users/trevorrobey/AI-Agent-BountyHunt",
+    "branch": "main",
+    "commit": "d7e950e40d75af34da1e30afefdb2706ab0318ab",
+    "describe": "supervisor-kernel-v1-6-gd7e950e"
+  },
+  "targetRepository": {
+    "path": "/Users/trevorrobey/OpenClaw-Research-Agents",
+    "cleanRoomDerivative": true
+  },
+  "importedFileHashes": [
+    {
+      "path": "openclaw-bridge/bridge/server.ts",
+      "sha256": "85b1fe823dcfb8a0d17101fcfe4e218b68f938d1d3baa3fc4edd12af3bb00652"
+    },
+    {
+      "path": "openclaw-bridge/bridge/state-store.ts",
+      "sha256": "4106d41152f4f699b9d2118b778468a96cb6afd563d25dd3a7c0a66037e1044b"
+    },
+    {
+      "path": "openclaw-bridge/bridge/types.ts",
+      "sha256": "7e106ed9530402ed3e5e54e61fe9e5c773e4090e363e40033622991c46e043f4"
+    },
+    {
+      "path": "openclaw-bridge/bridge/worker.ts",
+      "sha256": "a49fe377f02aca2b96f9decc649b9b7c2a54bd70485744aef9ad43c60c0a9bf9"
+    },
+    {
+      "path": "openclaw-bridge/docs/attack-tree-phase1.md",
+      "sha256": "17aa053e570a15c9751147f5ea132cf5b110647862e0e031e648f7c3c470bd13"
+    },
+    {
+      "path": "openclaw-bridge/docs/autonomy-ladder.md",
+      "sha256": "58ea31a4242bdcc8b88802a77e995151f864196e4f904fa6c4031e1c5816cdd0"
+    },
+    {
+      "path": "openclaw-bridge/docs/feature-flag-governance.md",
+      "sha256": "a5b2267decfc0e9af3c6f39a1f4606c64d8ef7804b1df882d21e77104e50af8a"
+    },
+    {
+      "path": "openclaw-bridge/docs/mcp-contracts-phase1.md",
+      "sha256": "3cf36a90f91d066494b106de3edef4b51046dbfa9e2317b93edc4d5380154c51"
+    },
+    {
+      "path": "openclaw-bridge/docs/phase1-freeze-policy.md",
+      "sha256": "d359ab4109af2d7028922c101d941d29cbfef9aee5f0c1191902b1d8878221c1"
+    },
+    {
+      "path": "openclaw-bridge/docs/state-schema-phase1.md",
+      "sha256": "03fd643c9dc7ddd9524a4b8ec4f96df047d7d4d7be11c9b5fd56467e405645c2"
+    },
+    {
+      "path": "openclaw-bridge/docs/threat-model-phase1.md",
+      "sha256": "266fa8e1ffb3233916a0471288c86d67e36238c9fb35e946a0ba66390e05dcf3"
+    },
+    {
+      "path": "openclaw-bridge/docs/threat-traceability-matrix.md",
+      "sha256": "7d13ea18bcb4ad2633346afeaabf15f4c58279ac7c9cd55d5f60c1da79177f93"
+    },
+    {
+      "path": "openclaw-bridge/execution/container-runtime.js",
+      "sha256": "3f3c3ac823564794fc3c5a77bf7cf97afe304f3833a5bfbd980914f122ec2acd"
+    },
+    {
+      "path": "openclaw-bridge/execution/egress-policy.js",
+      "sha256": "437a82c0cb231837eec8fe72b26a72d22c792f7c0b7ea5012ca1c8b27a2f4144"
+    },
+    {
+      "path": "openclaw-bridge/execution/image-policy.js",
+      "sha256": "93e3c2adf9124e4358dc68b28ba0070756c1ff5c897f6b9cbd7473c98002b733"
+    },
+    {
+      "path": "openclaw-bridge/execution/resource-policy.js",
+      "sha256": "a12d2b66068c041cdad6a167b278e7cfe781ba7a60f5894204cdc13ec16b7b6d"
+    },
+    {
+      "path": "openclaw-bridge/execution/sandbox-policy.js",
+      "sha256": "35e4076ad1518882e245c6d1d60e802e8435b0b0c5d9fbeee19bb5f3ef6d0d29"
+    },
+    {
+      "path": "openclaw-bridge/execution/tool-image-catalog.js",
+      "sha256": "d9acf8913e4ce942e5f732e66f7344f67cfb6611480d06ea802e2409cf4c572d"
+    },
+    {
+      "path": "openclaw-bridge/mcp/README.md",
+      "sha256": "f55e2180834c0bb086566e075cbf86be2b57e5a31937b1c3a6e9de02138793dd"
+    },
+    {
+      "path": "openclaw-bridge/mcp/arxiv-scholar-mcp/contract.json",
+      "sha256": "14e0fe4b0fad7c1d0d92ea2dd1b9d498f6bcaf66d0d6bfb8fade35fd6e8e42c8"
+    },
+    {
+      "path": "openclaw-bridge/mcp/newsletter-publisher-mcp/contract.json",
+      "sha256": "93ee824d76bafb7a8103d11f16a9e8de07334671898bd09b487c8f0a1497cb0e"
+    },
+    {
+      "path": "openclaw-bridge/mcp/notion-sync-mcp/contract.json",
+      "sha256": "2312d7805105939c669704adec6d953d8fd4091acdef379a4132c177c10fb92e"
+    },
+    {
+      "path": "openclaw-bridge/mcp/semantic-scholar-mcp/contract.json",
+      "sha256": "006e8b963fc20b54f60811cde036c938e9707e4c446d7bd6e4ba5d95b2ea65a7"
+    },
+    {
+      "path": "openclaw-bridge/openclaw.json",
+      "sha256": "20df8063bdc5112a89572339d7771104391455696f3635b1a62196a78de476ba"
+    },
+    {
+      "path": "openclaw-bridge/security/credential-broker-boundary.md",
+      "sha256": "eb045a6aaf9f1635e4712cf628c9ac915b19d9a280354f00427a1592c215c392"
+    },
+    {
+      "path": "openclaw-bridge/security/credential-broker-threat-model.md",
+      "sha256": "227381bbdd74671b3cbb2cb05606a013fa0c3632803bff891383d404a42cf6e8"
+    },
+    {
+      "path": "openclaw-bridge/src/core/execution-router.ts",
+      "sha256": "bdc388cc98729434119db08e7d867357783c89f4a94da181e54a3d628ee54052"
+    },
+    {
+      "path": "openclaw-bridge/state/persistent-store.js",
+      "sha256": "83163c134dabce4873e1eb8c827fce725a8e78f542c5a94976f231733ebfa3d9"
+    },
+    {
+      "path": "openclaw-bridge/state/state-manager.js",
+      "sha256": "6d719feb6251902723ee51b765a09e189f01c781f0b83e0ff1967923bf2aeea2"
+    },
+    {
+      "path": "openclaw-bridge/supervisor/circuit-breaker.js",
+      "sha256": "50c3580fb43431fdb8e03f2cf9c960edb6aeaee57c5c2d03f1d5de16fab47f67"
+    },
+    {
+      "path": "openclaw-bridge/supervisor/request-queue.js",
+      "sha256": "9d45048971e44d3bcda0ad81a6cac7faca0a93dd73cca6f166b32be83773c6fe"
+    },
+    {
+      "path": "openclaw-bridge/supervisor/supervisor-registry.json",
+      "sha256": "da142e33340ea199db8c9918bc9dc940a77287c677fc2a5b4b6c71ed9e499381"
+    },
+    {
+      "path": "openclaw-bridge/supervisor/supervisor-v1.js",
+      "sha256": "92cf309cf427c35bd4a79cad71b97a0a500297bfed785e85275b0b001de374bb"
+    }
+  ]
+}

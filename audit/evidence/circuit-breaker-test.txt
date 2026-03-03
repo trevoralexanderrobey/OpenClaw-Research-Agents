@@ -1,0 +1,28 @@
+1:const CIRCUIT_STATE = Object.freeze({
+2:  CLOSED: "CLOSED",
+3:  OPEN: "OPEN",
+4:  HALF_OPEN: "HALF_OPEN",
+27:        state: CIRCUIT_STATE.CLOSED,
+40:    if (entry.state === CIRCUIT_STATE.OPEN) {
+43:    if (entry.state === CIRCUIT_STATE.HALF_OPEN) {
+70:    if (entry.state !== CIRCUIT_STATE.OPEN) {
+76:    entry.state = CIRCUIT_STATE.HALF_OPEN;
+89:    if (entry.state === CIRCUIT_STATE.OPEN) {
+98:    if (entry.state === CIRCUIT_STATE.HALF_OPEN) {
+122:  function recordSuccess(slug, now = Date.now()) {
+126:    if (entry.state === CIRCUIT_STATE.HALF_OPEN) {
+130:        entry.state = CIRCUIT_STATE.CLOSED;
+138:    if (entry.state === CIRCUIT_STATE.CLOSED) {
+146:  function recordFailure(slug, now = Date.now()) {
+150:    if (entry.state === CIRCUIT_STATE.HALF_OPEN) {
+155:      entry.state = CIRCUIT_STATE.OPEN;
+160:    if (entry.state === CIRCUIT_STATE.CLOSED) {
+165:        entry.state = CIRCUIT_STATE.OPEN;
+180:    if (entry.state === CIRCUIT_STATE.HALF_OPEN) {
+221:        item.state === CIRCUIT_STATE.OPEN || item.state === CIRCUIT_STATE.HALF_OPEN || item.state === CIRCUIT_STATE.CLOSED
+223:          : CIRCUIT_STATE.CLOSED;
+224:      const normalizedState = resetHalfOpenToOpen && state === CIRCUIT_STATE.HALF_OPEN ? CIRCUIT_STATE.OPEN : state;
+246:    recordSuccess,
+247:    recordFailure,
+257:    states: CIRCUIT_STATE,
+263:  CIRCUIT_STATE,

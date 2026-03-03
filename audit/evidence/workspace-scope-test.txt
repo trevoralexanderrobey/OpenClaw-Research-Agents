@@ -1,0 +1,5 @@
+ok:supervisor
+ok:scout
+ok:analyst
+ok:synthesizer
+ok:operator
