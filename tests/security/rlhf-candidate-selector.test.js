@@ -9,7 +9,7 @@ const fsp = require("node:fs/promises");
 const { createApiGovernance } = require("../../security/api-governance.js");
 const { BaseMcp } = require("../../openclaw-bridge/mcp/base-mcp.js");
 const { createRlhfPipelineRunner } = require("../../workflows/rlhf-generator/pipeline-runner.js");
-const { selectCandidates } = require("../../workflows/rlhf-generator/candidate-selector.js");
+const { selectCandidates, rankingScoreFor } = require("../../workflows/rlhf-generator/candidate-selector.js");
 
 async function makeTmpDir() {
   return fsp.mkdtemp(path.join(os.tmpdir(), "openclaw-phase5-candidates-"));
@@ -34,6 +34,17 @@ async function appendResearchRecord(governance, input = {}) {
       hash: BaseMcp.computeRecordHash(base),
       sequence
     });
+  });
+}
+
+async function setCalibrationAndRolloutProfile(governance, calibrationWeights, rolloutProfile) {
+  await governance.withGovernanceTransaction(async (tx) => {
+    tx.state.rlhfOutcomes.calibration.weights = {
+      complexity: Number(calibrationWeights.complexity),
+      monetization: Number(calibrationWeights.monetization),
+      qualitySignal: Number(calibrationWeights.qualitySignal)
+    };
+    tx.state.experimentGovernance.activeRolloutProfile = rolloutProfile;
   });
 }
 
@@ -122,6 +133,60 @@ test("candidate ranking consumes calibrated weights and quality priors determini
 
   assert.deepEqual(first, second);
   assert.equal(first[0].domainTag, "security");
+});
+
+test("candidate ranking uses valid rollout profile and falls back to calibration when rollout profile is invalid", () => {
+  const candidate = {
+    complexityScore: 80,
+    monetizationScore: 20,
+    domainTag: "security"
+  };
+  const calibrationWeights = {
+    complexity: 1,
+    monetization: 0,
+    qualitySignal: 0
+  };
+
+  const scoreWithValidProfile = rankingScoreFor(candidate, {
+    calibrationWeights,
+    rolloutProfile: {
+      version: "v1",
+      weights: {
+        complexity: 0,
+        monetization: 1,
+        qualitySignal: 0
+      },
+      templateBias: {}
+    },
+    qualityPriorByDomain: {
+      security: 100
+    }
+  });
+  const scoreWithInvalidProfile = rankingScoreFor(candidate, {
+    calibrationWeights,
+    rolloutProfile: {
+      version: "v1",
+      weights: {
+        complexity: 0.8,
+        monetization: 0.8,
+        qualitySignal: 0
+      },
+      templateBias: {}
+    },
+    qualityPriorByDomain: {
+      security: 100
+    }
+  });
+  const scoreWithoutProfile = rankingScoreFor(candidate, {
+    calibrationWeights,
+    qualityPriorByDomain: {
+      security: 100
+    }
+  });
+
+  assert.equal(scoreWithValidProfile, 20);
+  assert.equal(scoreWithInvalidProfile, 80);
+  assert.equal(scoreWithoutProfile, 80);
 });
 
 test("queue sequence remains monotonic under concurrent pipeline runs", async () => {
@@ -270,4 +335,92 @@ test("artifact store truncated tail line is repaired deterministically on startu
   const lines = artifactRaw.split("\n").filter((line) => line.trim().length > 0);
   const parsed = lines.map((line) => JSON.parse(line));
   assert.equal(parsed.length, state.rlhfWorkflows.drafts.length);
+});
+
+test("pipeline runner fallback preserves deterministic ranking when rollout profile is invalid", async () => {
+  const calibrationWeights = { complexity: 1, monetization: 0, qualitySignal: 0 };
+
+  const dirA = await makeTmpDir();
+  const governanceA = createApiGovernance({
+    statePath: path.join(dirA, "state.json"),
+    researchNdjsonPath: path.join(dirA, "research.ndjson")
+  });
+  const dirB = await makeTmpDir();
+  const governanceB = createApiGovernance({
+    statePath: path.join(dirB, "state.json"),
+    researchNdjsonPath: path.join(dirB, "research.ndjson")
+  });
+
+  const inputs = [
+    {
+      paperId: "paper-fallback-1",
+      title: "Security boundary analysis in deterministic runtime",
+      abstract: "Threat model for exploit containment.",
+      citationVelocity: 200
+    },
+    {
+      paperId: "paper-fallback-2",
+      title: "Distributed consensus reliability under failures",
+      abstract: "Consensus behavior and throughput tradeoffs.",
+      citationVelocity: 120
+    }
+  ];
+
+  for (const input of inputs) {
+    await appendResearchRecord(governanceA, input);
+    await appendResearchRecord(governanceB, input);
+  }
+
+  await setCalibrationAndRolloutProfile(governanceA, calibrationWeights, {
+    version: "v1",
+    updatedAt: "",
+    updatedBy: "",
+    weights: { complexity: 0.35, monetization: 0.35, qualitySignal: 0.30 },
+    templateBias: {}
+  });
+  await setCalibrationAndRolloutProfile(governanceB, calibrationWeights, {
+    version: "v1",
+    updatedAt: "",
+    updatedBy: "",
+    weights: { complexity: 0.9, monetization: 0.9, qualitySignal: 0.9 },
+    templateBias: {}
+  });
+
+  const timeProvider = {
+    nowMs() {
+      return 1712000000000;
+    },
+    nowIso() {
+      return "2026-03-03T00:00:00.000Z";
+    }
+  };
+
+  const runnerA = createRlhfPipelineRunner({
+    apiGovernance: governanceA,
+    monetizationEngine: { computeMonetizationScore: async () => ({ ok: true, score: 60, metrics: {} }) },
+    timeProvider,
+    draftArtifactPath: path.join(dirA, "rlhf-drafts.ndjson")
+  });
+  const runnerB = createRlhfPipelineRunner({
+    apiGovernance: governanceB,
+    monetizationEngine: { computeMonetizationScore: async () => ({ ok: true, score: 60, metrics: {} }) },
+    timeProvider,
+    draftArtifactPath: path.join(dirB, "rlhf-drafts.ndjson")
+  });
+
+  await runnerA.run({ maxCandidates: 2, correlationId: "rollout-valid-profile" });
+  await runnerB.run({ maxCandidates: 2, correlationId: "rollout-invalid-profile" });
+
+  const stateA = await governanceA.readState();
+  const stateB = await governanceB.readState();
+  const queueA = stateA.rlhfWorkflows.candidateQueue.map((entry) => ({
+    sourcePaperId: entry.sourcePaperId,
+    rankingScore: entry.rankingScore
+  }));
+  const queueB = stateB.rlhfWorkflows.candidateQueue.map((entry) => ({
+    sourcePaperId: entry.sourcePaperId,
+    rankingScore: entry.rankingScore
+  }));
+
+  assert.deepEqual(queueA, queueB);
 });

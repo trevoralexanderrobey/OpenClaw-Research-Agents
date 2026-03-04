@@ -1,0 +1,7 @@
+{
+  "decisionLedger": {
+    "chainHead": "",
+    "nextSequence": 0,
+    "records": []
+  }
+}

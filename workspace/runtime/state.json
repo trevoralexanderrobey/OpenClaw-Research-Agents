@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 6,
+  "schemaVersion": 7,
   "deterministicSerialization": true,
   "lastDeterministicReplayAt": null,
   "activeInitiatives": [],
@@ -109,5 +109,32 @@
     "nextSnapshotSequence": 0,
     "chainHeadHash": "0000000000000000000000000000000000000000000000000000000000000000",
     "chainHeadSequence": 0
+  },
+  "experimentGovernance": {
+    "policyVersion": "v1",
+    "experiments": [],
+    "assignments": [],
+    "analysisSnapshots": [],
+    "rolloutDecisions": [],
+    "activeRolloutProfile": {
+      "version": "v1",
+      "updatedAt": "",
+      "updatedBy": "",
+      "weights": {
+        "complexity": 0.35,
+        "monetization": 0.35,
+        "qualitySignal": 0.3
+      },
+      "templateBias": {}
+    },
+    "decisionLedger": {
+      "records": [],
+      "nextSequence": 0,
+      "chainHead": ""
+    },
+    "nextExperimentSequence": 0,
+    "nextAssignmentSequence": 0,
+    "nextAnalysisSequence": 0,
+    "nextRolloutDecisionSequence": 0
   }
 }

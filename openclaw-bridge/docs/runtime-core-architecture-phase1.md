@@ -27,3 +27,7 @@
 ## Outcome Intelligence Pipeline
 - Computes deterministic quality scoring and calibration from operator-entered feedback.
 - Generates weekly/monthly intelligence artifacts without autonomous external side effects.
+
+## Experiment Governance Pipeline
+- Internal deterministic assignment engine, rollout controls, and analysis snapshot generation.
+- Validates pre-registration hash locks and applies startup integrity checks before processing requests.

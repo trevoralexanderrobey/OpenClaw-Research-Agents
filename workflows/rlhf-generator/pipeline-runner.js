@@ -227,6 +227,46 @@ function readCalibrationWeightsFromState(state) {
   return { complexity, monetization, qualitySignal };
 }
 
+function readActiveRolloutProfileFromState(state) {
+  const profile = state
+    && state.experimentGovernance
+    && isPlainObject(state.experimentGovernance.activeRolloutProfile)
+    ? state.experimentGovernance.activeRolloutProfile
+    : null;
+  if (!profile) {
+    return null;
+  }
+  const weights = isPlainObject(profile.weights) ? profile.weights : null;
+  const fallbackWeights = { complexity: 0.35, monetization: 0.35, qualitySignal: 0.30 };
+  if (!weights) {
+    return null;
+  }
+  const complexity = Number(weights.complexity);
+  const monetization = Number(weights.monetization);
+  const qualitySignal = Number(weights.qualitySignal);
+  const sum = complexity + monetization + qualitySignal;
+  if (
+    !Number.isFinite(complexity) || !Number.isFinite(monetization) || !Number.isFinite(qualitySignal)
+    || complexity < 0 || monetization < 0 || qualitySignal < 0
+    || Math.abs(sum - 1) > 0.000001
+  ) {
+    return null;
+  }
+  const templateBias = isPlainObject(profile.templateBias) ? profile.templateBias : {};
+  return {
+    version: typeof profile.version === "string" ? profile.version : "v1",
+    updatedAt: typeof profile.updatedAt === "string" ? profile.updatedAt : "",
+    updatedBy: typeof profile.updatedBy === "string" ? profile.updatedBy : "",
+    weights: {
+      complexity,
+      monetization,
+      qualitySignal
+    },
+    templateBias,
+    fallbackWeights
+  };
+}
+
 function buildQualityPriorByDomainFromState(state) {
   const drafts = isPlainObject(state && state.rlhfWorkflows) && Array.isArray(state.rlhfWorkflows.drafts)
     ? state.rlhfWorkflows.drafts
@@ -326,6 +366,7 @@ function createRlhfPipelineRunner(options = {}) {
       domainAllowlist,
       monetizationSnapshot,
       calibrationWeights: readCalibrationWeightsFromState(snapshot),
+      rolloutProfile: readActiveRolloutProfileFromState(snapshot),
       qualityPriorByDomain: buildQualityPriorByDomainFromState(snapshot),
       limit: candidateLimit
     });

@@ -1,0 +1,29 @@
+{
+  "files": [
+    {
+      "file": "analysis-snapshot.json",
+      "sha256": "210c2a553b0f56ed9fb3fec709d8e20a5ea9d3bbfac1fe96e9babef941d4dc46"
+    },
+    {
+      "file": "assignment-snapshot.json",
+      "sha256": "c8960def3a00791f98d7378b17ffcaf4427c1ab8b9b3f68ea67ef8f2e7bf0777"
+    },
+    {
+      "file": "decision-ledger-chain.json",
+      "sha256": "c0c28746bc112d0aa6264a8d3b34c36ca9ddcdd5630fa8d7df69fda6ae70f4ad"
+    },
+    {
+      "file": "experiment-catalog.json",
+      "sha256": "f1dad770a72d0fe56380030eaa1679c2446bfcdfca63ee87a98dcc0ade57fc9a"
+    },
+    {
+      "file": "explainability-report.md",
+      "sha256": "655381dc454a1b586838eb633d51fc07d54766eca3bbff444e71f98792349865"
+    },
+    {
+      "file": "rollout-decisions.json",
+      "sha256": "e7ecae65a7fcfbf20f99302d7e850bd6117280065b6f4f7d69062b8a0be49474"
+    }
+  ],
+  "generatedAt": "2026-03-04T00:00:00.000Z"
+}

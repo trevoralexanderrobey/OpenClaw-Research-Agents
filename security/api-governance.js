@@ -61,6 +61,14 @@ function normalizeSlug(value) {
 const RLHF_DRAFT_STATUSES = Object.freeze(["draft", "reviewed", "approved_for_manual_submission", "archived"]);
 const RLHF_REVIEW_STATUSES = Object.freeze(["pending_review", "reviewed", "approved_for_manual_submission", "archived"]);
 const RLHF_OUTCOME_RESULTS = Object.freeze(["accepted", "rejected", "revise_requested", "pending"]);
+const EXPERIMENT_STATUSES = Object.freeze(["draft", "approved", "running", "paused", "completed", "archived"]);
+const ROLLOUT_DECISIONS = Object.freeze(["adopt", "hold", "rollback"]);
+const ROLLOUT_REASON_CODES = Object.freeze([
+  "uplift_positive",
+  "insufficient_power",
+  "guardrail_breach",
+  "operator_override"
+]);
 const EMPTY_HASH = "0000000000000000000000000000000000000000000000000000000000000000";
 const DEFAULT_CALIBRATION_WEIGHTS = Object.freeze({
   complexity: 0.35,
@@ -93,6 +101,32 @@ function buildDefaultRlhfOutcomesState() {
     nextSnapshotSequence: 0,
     chainHeadHash: EMPTY_HASH,
     chainHeadSequence: 0
+  };
+}
+
+function buildDefaultExperimentGovernanceState() {
+  return {
+    policyVersion: "v1",
+    experiments: [],
+    assignments: [],
+    analysisSnapshots: [],
+    rolloutDecisions: [],
+    activeRolloutProfile: {
+      version: "v1",
+      updatedAt: "",
+      updatedBy: "",
+      weights: { ...DEFAULT_CALIBRATION_WEIGHTS },
+      templateBias: {}
+    },
+    decisionLedger: {
+      records: [],
+      nextSequence: 0,
+      chainHead: ""
+    },
+    nextExperimentSequence: 0,
+    nextAssignmentSequence: 0,
+    nextAnalysisSequence: 0,
+    nextRolloutDecisionSequence: 0
   };
 }
 
@@ -262,9 +296,220 @@ function normalizeRlhfOutcomeRecord(value) {
   });
 }
 
-function buildDefaultV6State() {
+function normalizeExperimentStatus(value) {
+  const text = typeof value === "string" ? value.trim() : "";
+  return EXPERIMENT_STATUSES.includes(text) ? text : "draft";
+}
+
+function normalizeRolloutDecision(value) {
+  const text = typeof value === "string" ? value.trim() : "";
+  return ROLLOUT_DECISIONS.includes(text) ? text : "hold";
+}
+
+function normalizeRolloutReasonCode(value) {
+  const text = typeof value === "string" ? value.trim() : "";
+  return ROLLOUT_REASON_CODES.includes(text) ? text : "insufficient_power";
+}
+
+function normalizeSplitBasisPoints(value) {
+  const source = isPlainObject(value) ? value : {};
+  const control = Math.max(0, Math.min(10000, Number.parseInt(String(source.control ?? "5000"), 10) || 5000));
+  const treatment = Math.max(0, Math.min(10000, Number.parseInt(String(source.treatment ?? "5000"), 10) || 5000));
+  if ((control + treatment) !== 10000) {
+    return { control: 5000, treatment: 5000 };
+  }
+  return { control, treatment };
+}
+
+function normalizeTemplateBias(value) {
+  if (!isPlainObject(value)) {
+    return {};
+  }
+  const pairs = Object.entries(value)
+    .map(([key, raw]) => [String(key || "").trim(), Number(raw)])
+    .filter(([key, score]) => key.length > 0 && Number.isFinite(score))
+    .map(([key, score]) => [key, Number.parseFloat(Number(score).toFixed(6))]);
+  pairs.sort((left, right) => left[0].localeCompare(right[0]));
+  return Object.fromEntries(pairs);
+}
+
+function normalizeActiveRolloutProfile(value) {
+  const source = isPlainObject(value) ? value : {};
+  return canonicalize({
+    version: typeof source.version === "string" && source.version.trim() ? source.version.trim() : "v1",
+    updatedAt: typeof source.updatedAt === "string" ? source.updatedAt : "",
+    updatedBy: typeof source.updatedBy === "string" ? source.updatedBy.trim() : "",
+    weights: normalizeCalibrationWeights(source.weights),
+    templateBias: normalizeTemplateBias(source.templateBias)
+  });
+}
+
+function normalizeDecisionLedgerRecord(value) {
+  const source = isPlainObject(value) ? value : {};
+  return canonicalize({
+    sequence: Math.max(1, parsePositiveInt(source.sequence, 1)),
+    decisionSequence: Math.max(0, Number.parseInt(String(source.decisionSequence ?? "0"), 10) || 0),
+    recordedAt: typeof source.recordedAt === "string" ? source.recordedAt : "",
+    decisionHash: normalizeHash(source.decisionHash, ""),
+    prevDecisionHash: normalizeHash(source.prevDecisionHash, ""),
+    chainHash: normalizeHash(source.chainHash, "")
+  });
+}
+
+function normalizeExperimentRecord(value) {
+  const source = isPlainObject(value) ? value : {};
+  return canonicalize({
+    sequence: Math.max(1, parsePositiveInt(source.sequence, 1)),
+    createdAt: typeof source.createdAt === "string" ? source.createdAt : "",
+    createdBy: typeof source.createdBy === "string" ? source.createdBy.trim() : "",
+    name: typeof source.name === "string" ? source.name : "",
+    status: normalizeExperimentStatus(source.status),
+    objective: typeof source.objective === "string" ? source.objective : "",
+    treatment: isPlainObject(source.treatment) ? canonicalize(source.treatment) : {},
+    control: isPlainObject(source.control) ? canonicalize(source.control) : {},
+    window: isPlainObject(source.window) ? canonicalize(source.window) : {},
+    guardrails: isPlainObject(source.guardrails) ? canonicalize(source.guardrails) : {},
+    analysisPlanVersion: typeof source.analysisPlanVersion === "string" ? source.analysisPlanVersion : "v1",
+    notes: typeof source.notes === "string" ? source.notes : "",
+    splitBasisPoints: normalizeSplitBasisPoints(source.splitBasisPoints),
+    preRegistrationLockHash: normalizeHash(source.preRegistrationLockHash, "")
+  });
+}
+
+function normalizeAssignmentRecord(value) {
+  const source = isPlainObject(value) ? value : {};
+  return canonicalize({
+    sequence: Math.max(1, parsePositiveInt(source.sequence, 1)),
+    experimentSequence: Math.max(1, parsePositiveInt(source.experimentSequence, 1)),
+    draftSequence: Math.max(1, parsePositiveInt(source.draftSequence, 1)),
+    assignedAt: typeof source.assignedAt === "string" ? source.assignedAt : "",
+    assignedBy: typeof source.assignedBy === "string" ? source.assignedBy.trim() : "",
+    bucket: Math.max(0, Math.min(9999, Number.parseInt(String(source.bucket ?? "0"), 10) || 0)),
+    cohort: typeof source.cohort === "string" && source.cohort.trim() ? source.cohort.trim() : "control",
+    idempotencyKey: typeof source.idempotencyKey === "string" ? source.idempotencyKey.trim() : ""
+  });
+}
+
+function normalizeAnalysisSnapshotRecord(value) {
+  const source = isPlainObject(value) ? value : {};
+  return canonicalize({
+    sequence: Math.max(1, parsePositiveInt(source.sequence, 1)),
+    experimentSequence: Math.max(1, parsePositiveInt(source.experimentSequence, 1)),
+    capturedAt: typeof source.capturedAt === "string" ? source.capturedAt : "",
+    capturedBy: typeof source.capturedBy === "string" ? source.capturedBy.trim() : "",
+    idempotencyKey: typeof source.idempotencyKey === "string" ? source.idempotencyKey.trim() : "",
+    sampleSize: Math.max(0, Number.parseInt(String(source.sampleSize ?? "0"), 10) || 0),
+    treatmentSampleSize: Math.max(0, Number.parseInt(String(source.treatmentSampleSize ?? "0"), 10) || 0),
+    controlSampleSize: Math.max(0, Number.parseInt(String(source.controlSampleSize ?? "0"), 10) || 0),
+    metrics: isPlainObject(source.metrics) ? canonicalize(source.metrics) : {
+      acceptanceRateDelta: 0,
+      reviseRequestRateDelta: 0,
+      meanQualityScoreDelta: 0,
+      medianQualityScoreDelta: 0,
+      domainUplift: {}
+    },
+    recommendation: normalizeRolloutDecision(source.recommendation),
+    reasonCode: normalizeRolloutReasonCode(source.reasonCode),
+    guardrailBreaches: Array.isArray(source.guardrailBreaches)
+      ? source.guardrailBreaches.map((item) => String(item || "").trim()).filter(Boolean)
+      : [],
+    analysisPlanVersion: typeof source.analysisPlanVersion === "string" && source.analysisPlanVersion.trim()
+      ? source.analysisPlanVersion.trim()
+      : "v1"
+  });
+}
+
+function normalizeRolloutDecisionRecord(value) {
+  const source = isPlainObject(value) ? value : {};
+  return canonicalize({
+    sequence: Math.max(1, parsePositiveInt(source.sequence, 1)),
+    experimentSequence: Math.max(1, parsePositiveInt(source.experimentSequence, 1)),
+    decidedAt: typeof source.decidedAt === "string" ? source.decidedAt : "",
+    decidedBy: typeof source.decidedBy === "string" ? source.decidedBy.trim() : "",
+    decision: normalizeRolloutDecision(source.decision),
+    reasonCode: typeof source.reasonCode === "string" ? source.reasonCode : "",
+    approvalToken: typeof source.approvalToken === "string" ? source.approvalToken.trim() : "",
+    idempotencyKey: typeof source.idempotencyKey === "string" ? source.idempotencyKey.trim() : "",
+    decisionHash: normalizeHash(source.decisionHash, ""),
+    prevDecisionHash: normalizeHash(source.prevDecisionHash, "")
+  });
+}
+
+function normalizeDecisionLedgerState(value) {
+  const source = isPlainObject(value) ? value : {};
+  const records = Array.isArray(source.records)
+    ? source.records
+      .map((entry) => normalizeDecisionLedgerRecord(entry))
+      .sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0))
+    : [];
+  const observedMaxSequence = records.reduce((max, record) => Math.max(max, Number(record.sequence || 0)), 0);
+  return canonicalize({
+    records,
+    nextSequence: Math.max(
+      observedMaxSequence,
+      Math.max(0, Number.parseInt(String(source.nextSequence ?? "0"), 10) || 0)
+    ),
+    chainHead: normalizeHash(source.chainHead, "")
+  });
+}
+
+function normalizeExperimentGovernanceState(value) {
+  const source = isPlainObject(value) ? value : {};
+  const experiments = Array.isArray(source.experiments)
+    ? source.experiments
+      .map((entry) => normalizeExperimentRecord(entry))
+      .sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0))
+    : [];
+  const assignments = Array.isArray(source.assignments)
+    ? source.assignments
+      .map((entry) => normalizeAssignmentRecord(entry))
+      .sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0))
+    : [];
+  const analysisSnapshots = Array.isArray(source.analysisSnapshots)
+    ? source.analysisSnapshots
+      .map((entry) => normalizeAnalysisSnapshotRecord(entry))
+      .sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0))
+    : [];
+  const rolloutDecisions = Array.isArray(source.rolloutDecisions)
+    ? source.rolloutDecisions
+      .map((entry) => normalizeRolloutDecisionRecord(entry))
+      .sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0))
+    : [];
+  const observedMaxExperimentSequence = experiments.reduce((max, entry) => Math.max(max, Number(entry.sequence || 0)), 0);
+  const observedMaxAssignmentSequence = assignments.reduce((max, entry) => Math.max(max, Number(entry.sequence || 0)), 0);
+  const observedMaxAnalysisSequence = analysisSnapshots.reduce((max, entry) => Math.max(max, Number(entry.sequence || 0)), 0);
+  const observedMaxRolloutDecisionSequence = rolloutDecisions.reduce((max, entry) => Math.max(max, Number(entry.sequence || 0)), 0);
+
+  return canonicalize({
+    policyVersion: typeof source.policyVersion === "string" && source.policyVersion.trim() ? source.policyVersion.trim() : "v1",
+    experiments,
+    assignments,
+    analysisSnapshots,
+    rolloutDecisions,
+    activeRolloutProfile: normalizeActiveRolloutProfile(source.activeRolloutProfile),
+    decisionLedger: normalizeDecisionLedgerState(source.decisionLedger),
+    nextExperimentSequence: Math.max(
+      observedMaxExperimentSequence,
+      Math.max(0, Number.parseInt(String(source.nextExperimentSequence ?? "0"), 10) || 0)
+    ),
+    nextAssignmentSequence: Math.max(
+      observedMaxAssignmentSequence,
+      Math.max(0, Number.parseInt(String(source.nextAssignmentSequence ?? "0"), 10) || 0)
+    ),
+    nextAnalysisSequence: Math.max(
+      observedMaxAnalysisSequence,
+      Math.max(0, Number.parseInt(String(source.nextAnalysisSequence ?? "0"), 10) || 0)
+    ),
+    nextRolloutDecisionSequence: Math.max(
+      observedMaxRolloutDecisionSequence,
+      Math.max(0, Number.parseInt(String(source.nextRolloutDecisionSequence ?? "0"), 10) || 0)
+    )
+  });
+}
+
+function buildDefaultV7State() {
   return {
-    schemaVersion: 6,
+    schemaVersion: 7,
     deterministicSerialization: true,
     lastDeterministicReplayAt: null,
     activeInitiatives: [],
@@ -323,20 +568,21 @@ function buildDefaultV6State() {
       mutationLogTipHash: "0000000000000000000000000000000000000000000000000000000000000000"
     },
     rlhfWorkflows: buildDefaultRlhfWorkflowsState(),
-    rlhfOutcomes: buildDefaultRlhfOutcomesState()
+    rlhfOutcomes: buildDefaultRlhfOutcomesState(),
+    experimentGovernance: buildDefaultExperimentGovernanceState()
   };
 }
 
 function normalizeRuntimeState(raw) {
-  const state = isPlainObject(raw) ? raw : buildDefaultV6State();
-  if (Number(state.schemaVersion) !== 6) {
+  const state = isPlainObject(raw) ? raw : buildDefaultV7State();
+  if (Number(state.schemaVersion) !== 7) {
     const error = new Error(`Unsupported runtime state schemaVersion: ${state.schemaVersion}`);
     error.code = "RUNTIME_STATE_SCHEMA_UNSUPPORTED";
     throw error;
   }
 
   if (!isPlainObject(state.apiGovernance)) {
-    state.apiGovernance = buildDefaultV6State().apiGovernance;
+    state.apiGovernance = buildDefaultV7State().apiGovernance;
   }
   if (!isPlainObject(state.apiGovernance.global)) {
     state.apiGovernance.global = { requestsToday: 0, tokensToday: 0 };
@@ -354,7 +600,7 @@ function normalizeRuntimeState(raw) {
     state.apiGovernance.violations = { count: 0, lastViolationAt: null, lastViolationCode: null };
   }
   if (!isPlainObject(state.apiGovernance.mutation)) {
-    state.apiGovernance.mutation = buildDefaultV6State().apiGovernance.mutation;
+    state.apiGovernance.mutation = buildDefaultV7State().apiGovernance.mutation;
   }
   if (!isPlainObject(state.apiGovernance.mutation.hourWindow)) {
     state.apiGovernance.mutation.hourWindow = { hourEpoch: 0, publishes: 0 };
@@ -379,7 +625,7 @@ function normalizeRuntimeState(raw) {
     : "research-record-v1";
 
   if (!isPlainObject(state.outboundMutation)) {
-    state.outboundMutation = buildDefaultV6State().outboundMutation;
+    state.outboundMutation = buildDefaultV7State().outboundMutation;
   }
   state.outboundMutation.enabled = Boolean(state.outboundMutation.enabled);
   state.outboundMutation.killSwitch = Boolean(state.outboundMutation.killSwitch);
@@ -484,6 +730,8 @@ function normalizeRuntimeState(raw) {
     0,
     Number.parseInt(String(state.rlhfOutcomes.chainHeadSequence ?? "0"), 10) || 0
   );
+
+  state.experimentGovernance = normalizeExperimentGovernanceState(state.experimentGovernance);
 
   return state;
 }
@@ -698,7 +946,7 @@ function createApiGovernance(options = {}) {
   async function loadState() {
     await ensureNdjsonIntegrityOnce();
 
-    const raw = await readJsonOrDefault(statePath, buildDefaultV6State());
+    const raw = await readJsonOrDefault(statePath, buildDefaultV7State());
     const state = normalizeRuntimeState(raw);
 
     // Sequence reconciliation is source-of-truth by append-only NDJSON.

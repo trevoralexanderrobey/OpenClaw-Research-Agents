@@ -17,6 +17,11 @@ Local-first, file-based, audit-oriented research orchestration scaffold built on
 - Outcome capture enforces idempotency keys, chain-hash integrity, and chain-head state anchoring
 - Calibration and outcome mutation paths are kill-switch-gated and operator-only
 - Weekly/monthly intelligence artifacts are generated internally without external side effects
+- Phase 7 deterministic experiment governance enabled (pre-registered experiments, deterministic assignment, deterministic analysis)
+- All Phase 7 protected mutations require operator role, scoped approval token, governance transaction wrapper, and kill-switch-open state
+- Phase 7 startup integrity gate verifies decision-ledger chain anchor + pre-registration locks and fails closed before MCP service handling
+- Rollout updates are recommendation-first and operator-approved only; no autonomous external execution is introduced
+- Deterministic explainability and audit evidence artifacts are generated under `audit/evidence/phase7/`
 
 ## Key directories
 - `openclaw-bridge/` runtime/control-plane scaffold
@@ -30,3 +35,4 @@ Mutation requires explicit operator approval and governance checks.
 External RLHF submission to third-party platforms is manual-only.
 Platform login, attestation, and final submission actions are always human-operated.
 Outcome ingestion is operator-entered only.
+Phase 7 experimentation/rollout logic is internal-only and never submits externally.

@@ -120,3 +120,64 @@ Validate semantics on a projected subset (without hash fields) or allow passthro
 ### Resolution
 - **Resolved**: 2026-03-04T04:42:00Z
 - **Notes**: Updated semantic validation to parse a projected non-hash subset before strict checks; Phase 6 targeted suite now passes.
+
+## [ERR-20260304-005] phase7 normalization dropped required split basis points
+
+**Logged**: 2026-03-04T00:22:00-08:00
+**Priority**: high
+**Status**: resolved
+**Area**: backend
+
+### Summary
+Phase 7 lifecycle tests failed after `approve/start` because runtime normalization removed `splitBasisPoints` from persisted experiment records.
+
+### Error
+```
+ZodError: invalid_type expected object received undefined at path splitBasisPoints
+```
+
+### Context
+- Command: `node --test tests/security/experiment-*.test.js`
+- Root cause: `normalizeExperimentRecord()` in `security/api-governance.js` did not preserve `splitBasisPoints`.
+
+### Suggested Fix
+Add deterministic `splitBasisPoints` normalization with strict sum=10000 fallback and keep it in canonical experiment records.
+
+### Metadata
+- Reproducible: yes
+- Related Files: security/api-governance.js
+
+### Resolution
+- **Resolved**: 2026-03-04T00:24:00-08:00
+- **Notes**: Added `normalizeSplitBasisPoints()` and persisted field in experiment normalization; Phase 7 tests passed.
+
+## [ERR-20260304-006] phase7 policy grep alternation escaped incorrectly
+
+**Logged**: 2026-03-04T00:31:00-08:00
+**Priority**: medium
+**Status**: resolved
+**Area**: tests
+
+### Summary
+`verify-phase7-policy.sh` failed on valid code because regex alternation used escaped `\|` in ripgrep patterns.
+
+### Error
+```
+Missing approval token consumption in workflows/experiment-governance/experiment-manager.js
+Rollout governor missing pre-registration lock verification
+```
+
+### Context
+- Command: `bash scripts/verify-phase7-policy.sh`
+- Root cause: `rg` pattern used `consumeScopedApprovalToken\|consumeApprovalToken` and similar strings, matching literal `|` instead of alternation.
+
+### Suggested Fix
+Use proper alternation syntax (`a|b`) in ripgrep patterns.
+
+### Metadata
+- Reproducible: yes
+- Related Files: scripts/verify-phase7-policy.sh
+
+### Resolution
+- **Resolved**: 2026-03-04T00:33:00-08:00
+- **Notes**: Updated `rg` checks to use valid alternation, verification script now passes.

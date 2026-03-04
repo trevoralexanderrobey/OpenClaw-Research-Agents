@@ -1,4 +1,4 @@
-# Failure Modes (Phase 5)
+# Failure Modes (Phase 7)
 
 ## Runtime Schema Mismatch
 Detection:
@@ -156,3 +156,57 @@ Detection:
 
 Handling:
 - Deny request before outbound call.
+
+## Phase 7 Pre-Registration Lock Breach
+Detection:
+- Running/paused/completed/archived experiment lock hash does not match canonical hash of locked fields:
+  - `treatment`
+  - `control`
+  - `guardrails`
+  - `window`
+  - `analysisPlanVersion`
+
+Handling:
+- Fail closed with `EXPERIMENT_PREREG_LOCK_BREACH`.
+- Block assignment, analysis, recommendation, rollout, repair, and startup readiness checks.
+
+## Phase 7 Startup Integrity Failure
+Detection:
+- Decision ledger chain/hash/anchor mismatch, or pre-registration lock mismatch at startup verification.
+
+Handling:
+- Fail closed before MCP service starts handling requests.
+- Require explicit operator repair for allowed truncated-tail cases only.
+
+## Assignment Immutability/Idempotency Conflict (Phase 7)
+Detection:
+- Existing assignment for `(experimentSequence, draftSequence)` receives new write.
+- Same idempotency key reused with divergent payload.
+
+Handling:
+- Reject with `EXPERIMENT_ASSIGNMENT_IMMUTABLE` or `EXPERIMENT_ASSIGNMENT_IDEMPOTENCY_CONFLICT`.
+- Keep persisted assignment unchanged.
+
+## Decision Ledger Mismatch (Phase 7)
+Detection:
+- `decisionHash` mismatch, `prevDecisionHash` mismatch, contiguous sequence violation, ledger chain hash mismatch, or chain-head mismatch.
+
+Handling:
+- Fail closed (`PHASE7_*` integrity errors).
+- Disallow automatic repair except explicit truncated-tail operator repair path.
+
+## Guardrail-Blocked Rollout Adoption (Phase 7)
+Detection:
+- Analysis guardrail breach (`maxRejectRateDelta`, `minQualityScore`) under sufficient sample window.
+
+Handling:
+- Deterministic recommendation is `hold` with `guardrail_breach`.
+- Rollout apply remains operator-approved only and non-autonomous.
+
+## Rollback Path (Phase 7)
+Detection:
+- Operator applies rollout `rollback` decision.
+
+Handling:
+- Active rollout profile reverts to prior adopted deterministic profile.
+- Decision and ledger chain updated transactionally with tamper-evident hashes.

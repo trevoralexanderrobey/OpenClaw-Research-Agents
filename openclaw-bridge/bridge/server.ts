@@ -169,6 +169,7 @@ async function bootstrap(): Promise<void> {
   });
   worker.enqueueQueuedJobs();
   const mcpService = createMcpService({ logger });
+  await mcpService.initialize();
 
   const sseSessions = new Map<string, SseSession>();
   const mcpPerIpMinute = new Map<string, { minuteEpoch: number; count: number }>();

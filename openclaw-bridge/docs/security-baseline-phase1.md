@@ -39,3 +39,8 @@
 - Ingestion, calibration, and portfolio planning mutations are operator-only and kill-switch gated.
 - Autonomous intelligence extraction via browser or platforms is denied.
 - Outcome persistence enforces idempotency keys, chain-hash integrity, and strict sequence anchoring.
+
+## Experiment Governance Boundary
+- Mutation endpoints for creation, analysis, and rollout are explicitly operator-only.
+- Decision verification enforces ledger chain-hash integrity and chain-head anchoring that fail closed.
+- Autonomous rollout or automatic external submission of treatments is explicitly denied.

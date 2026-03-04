@@ -46,10 +46,47 @@ function normalizeCalibrationWeights(value) {
   return { complexity, monetization, qualitySignal };
 }
 
+function parseCalibrationWeights(value) {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+  const complexity = Number(value.complexity);
+  const monetization = Number(value.monetization);
+  const qualitySignal = Number(value.qualitySignal);
+  const sum = complexity + monetization + qualitySignal;
+  if (
+    !Number.isFinite(complexity) || !Number.isFinite(monetization) || !Number.isFinite(qualitySignal)
+    || complexity < 0 || monetization < 0 || qualitySignal < 0
+    || Math.abs(sum - 1) > 0.000001
+  ) {
+    return null;
+  }
+  return { complexity, monetization, qualitySignal };
+}
+
+function normalizeRolloutProfile(value) {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+  const weights = parseCalibrationWeights(value.weights);
+  if (!weights) {
+    return null;
+  }
+  const templateBias = value.templateBias && typeof value.templateBias === "object" && !Array.isArray(value.templateBias)
+    ? value.templateBias
+    : {};
+  return {
+    version: typeof value.version === "string" ? value.version : "v1",
+    weights,
+    templateBias
+  };
+}
+
 function rankingScoreForCandidate(candidate, input = {}) {
   const complexity = Number(candidate.complexityScore || 0);
   const monetization = Number(candidate.monetizationScore || 0);
-  const weights = normalizeCalibrationWeights(input.calibrationWeights);
+  const rolloutProfile = normalizeRolloutProfile(input.rolloutProfile);
+  const weights = rolloutProfile ? rolloutProfile.weights : normalizeCalibrationWeights(input.calibrationWeights);
   const qualityPriorByDomain = input.qualityPriorByDomain && typeof input.qualityPriorByDomain === "object"
     ? input.qualityPriorByDomain
     : {};
@@ -108,6 +145,7 @@ function selectCandidates(input = {}) {
     ? input.monetizationSnapshot
     : {};
   const calibrationWeights = normalizeCalibrationWeights(input.calibrationWeights);
+  const rolloutProfile = normalizeRolloutProfile(input.rolloutProfile);
   const qualityPriorByDomain = input.qualityPriorByDomain && typeof input.qualityPriorByDomain === "object"
     ? input.qualityPriorByDomain
     : {};
@@ -158,6 +196,7 @@ function selectCandidates(input = {}) {
     };
     candidate.rankingScore = rankingScoreForCandidate(candidate, {
       calibrationWeights,
+      rolloutProfile,
       qualityPriorByDomain
     });
     candidates.push(candidate);

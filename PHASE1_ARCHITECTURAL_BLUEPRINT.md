@@ -13,6 +13,7 @@ Core outcomes:
 - Comprehensive workload integrity controls enforced (SBOM, digest matching, runtime policy scanning).
 - Internal RLHF workflow automation explicitly bounded to deterministic draft generation, compliance linting, and manual packaging.
 - Deterministic Outcome Intelligence integrated for operator-entered feedback loops, trajectory scoring, calibration, and portfolio planning.
+- Internal Experiment Governance enables deterministic assignment, internal-only analysis, and pre-registration locked decision ledgers without external autonomous side-effects.
 - Audit, threat-model, and governance documentation scaffolded for formal review.
 
 See:

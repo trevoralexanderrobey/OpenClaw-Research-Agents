@@ -1,4 +1,4 @@
-# Attack Surface Enumeration (Phase 5)
+# Attack Surface Enumeration (Phase 7)
 
 ## Open Ports
 - `127.0.0.1:18789` (bridge control plane)
@@ -25,6 +25,7 @@ Mitigation:
   - `api.beehiiv.com`
   - `api.notion.com`
 - No additional outbound hosts are introduced by Phase 6.
+- No additional outbound hosts are introduced by Phase 7.
 
 ## RLHF Internal Workflow Surface
 - Internal modules only:
@@ -44,6 +45,22 @@ Mitigation:
 - Canonical state anchors (`rlhfOutcomes.chainHeadHash`, `rlhfOutcomes.chainHeadSequence`) are cross-checked at startup; mismatch fails closed.
 - Calibration and outcome write paths are kill-switch-gated and operator-only.
 - Portfolio planning/reporting is read-only and does not trigger external actions.
+
+## Phase 7 Experiment Governance Surface
+- Internal-only modules:
+  - `workflows/experiment-governance/*`
+  - `analytics/experiment-explainability/*`
+  - `security/phase7-startup-integrity.js`
+- No external submission methods are added.
+- No browser/login automation, credential automation, or anti-detection behavior is added.
+- No new egress domains or dynamic endpoint expansion is introduced.
+- Protected mutation paths are operator-only, approval-token-scoped, transaction-bound, and kill-switch-gated:
+  - lifecycle (`create`, `approve`, `start`, `pause`, `complete`, `archive`)
+  - assignment (`assignDraftToExperiment`)
+  - analysis snapshot capture (`captureAnalysisSnapshot`)
+  - rollout apply (`applyRolloutDecision`)
+  - ledger tail repair (`repairDecisionLedgerTail`)
+- Startup performs mandatory fail-closed Phase 7 integrity checks before MCP method handling.
 
 Mitigation:
 - Default egress deny-all.

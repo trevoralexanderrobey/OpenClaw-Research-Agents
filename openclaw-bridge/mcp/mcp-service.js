@@ -6,6 +6,7 @@ const { createPromptSanitizer } = require("../../security/prompt-sanitizer.js");
 const { createApiGovernance } = require("../../security/api-governance.js");
 const { createOperatorAuthorization } = require("../../security/operator-authorization.js");
 const { createMutationControl } = require("../../security/mutation-control.js");
+const { verifyPhase7StartupIntegrity } = require("../../security/phase7-startup-integrity.js");
 const { createMonetizationEngine } = require("../../analytics/monetization-engine.js");
 const { createSemanticScholarMcp } = require("./semantic-scholar-mcp.js");
 const { createArxivMcp } = require("./arxiv-mcp.js");
@@ -185,6 +186,7 @@ function createMcpService(options = {}) {
 
   const monetizationEngine = createMonetizationEngine({ apiGovernance });
   let mutationHydrationPromise = null;
+  let initializePromise = null;
 
   async function ensureMutationHydrated() {
     if (!mutationHydrationPromise) {
@@ -196,7 +198,22 @@ function createMcpService(options = {}) {
     return mutationHydrationPromise;
   }
 
+  async function initialize() {
+    if (!initializePromise) {
+      initializePromise = (async () => {
+        await verifyStoredReplay();
+        await verifyPhase7StartupIntegrity({ apiGovernance, logger });
+        return { ok: true };
+      })().catch((error) => {
+        initializePromise = null;
+        throw error;
+      });
+    }
+    return initializePromise;
+  }
+
   async function handle(method, params, context = {}) {
+    await initialize();
     const correlationId = typeof context.correlationId === "string" ? context.correlationId : "";
     assertNoForbiddenOverrides(params);
 
@@ -354,6 +371,7 @@ function createMcpService(options = {}) {
   }
 
   return Object.freeze({
+    initialize,
     handle,
     verifyStoredReplay,
     apiGovernance,
