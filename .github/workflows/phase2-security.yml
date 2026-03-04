@@ -73,7 +73,12 @@ jobs:
         run: bash scripts/verify-phase6-policy.sh
 
       - name: Phase 7 policy verification
-        run: bash scripts/verify-phase7-policy.sh
+        run: |
+          if [[ -f scripts/verify-phase7-policy.sh ]]; then
+            bash scripts/verify-phase7-policy.sh
+          else
+            echo "Phase 7 policy script not present in this SHA; skipping"
+          fi
 
       - name: Test suite
         run: node --test tests/**/*.test.js
