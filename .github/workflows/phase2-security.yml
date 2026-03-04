@@ -21,6 +21,9 @@ jobs:
         with:
           node-version: '22.13.1'
 
+      - name: Install ripgrep
+        run: sudo apt-get update && sudo apt-get install -y ripgrep
+
       - name: Purge validation
         run: bash scripts/cleanroom-purge-validate.sh
 
@@ -68,6 +71,9 @@ jobs:
 
       - name: Phase 6 policy verification
         run: bash scripts/verify-phase6-policy.sh
+
+      - name: Phase 7 policy verification
+        run: bash scripts/verify-phase7-policy.sh
 
       - name: Test suite
         run: node --test tests/**/*.test.js
