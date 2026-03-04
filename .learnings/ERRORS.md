@@ -90,3 +90,33 @@ Run dependency-touching verification steps serially; reserve parallel execution 
 ### Resolution
 - **Resolved**: 2026-03-03T15:44:08-08:00
 - **Notes**: Switched to serial execution (`build-verify` then `npm test`) and suite passed cleanly.
+
+## [ERR-20260303-004] outcome-schema strict parse rejected hashed records
+
+**Logged**: 2026-03-04T04:40:00Z
+**Priority**: high
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Phase 6 outcome integrity tests failed because semantic validation parsed hashed records with a strict schema that disallowed hash fields.
+
+### Error
+```
+ZodError: Unrecognized key(s) in object: 'outcomeHash', 'prevChainHash', 'chainHash'
+```
+
+### Context
+- Command: `node --test tests/security/state-schema-v6.test.js tests/security/rlhf-outcome-capture.test.js tests/security/rlhf-outcome-integrity.test.js ...`
+- Root cause: `assertOutcomeSemantics()` used `OutcomeRecordWithoutHashesSchema.parse(record)` directly, so full records failed validation before integrity checks.
+
+### Suggested Fix
+Validate semantics on a projected subset (without hash fields) or allow passthrough parsing for full records before semantic checks.
+
+### Metadata
+- Reproducible: yes
+- Related Files: workflows/rlhf-outcomes/outcome-schema.js, workflows/rlhf-outcomes/outcome-validator.js
+
+### Resolution
+- **Resolved**: 2026-03-04T04:42:00Z
+- **Notes**: Updated semantic validation to parse a projected non-hash subset before strict checks; Phase 6 targeted suite now passes.

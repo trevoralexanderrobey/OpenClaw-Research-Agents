@@ -1,0 +1,9 @@
+{
+  "lastCalibratedAt": "",
+  "version": "v1",
+  "weights": {
+    "complexity": 0.35,
+    "monetization": 0.35,
+    "qualitySignal": 0.3
+  }
+}

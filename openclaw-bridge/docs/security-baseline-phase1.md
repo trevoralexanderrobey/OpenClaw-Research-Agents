@@ -34,3 +34,8 @@
 - All generated drafts enforced as AI-assisted with required manual review.
 - Automated submission paths and credential usage strictly prohibited.
 - Replay-safe internal queue management tied directly to governance transactions.
+
+## Outcome Ingestion Boundary
+- Ingestion, calibration, and portfolio planning mutations are operator-only and kill-switch gated.
+- Autonomous intelligence extraction via browser or platforms is denied.
+- Outcome persistence enforces idempotency keys, chain-hash integrity, and strict sequence anchoring.

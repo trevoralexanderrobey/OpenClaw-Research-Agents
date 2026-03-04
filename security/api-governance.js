@@ -60,7 +60,13 @@ function normalizeSlug(value) {
 
 const RLHF_DRAFT_STATUSES = Object.freeze(["draft", "reviewed", "approved_for_manual_submission", "archived"]);
 const RLHF_REVIEW_STATUSES = Object.freeze(["pending_review", "reviewed", "approved_for_manual_submission", "archived"]);
+const RLHF_OUTCOME_RESULTS = Object.freeze(["accepted", "rejected", "revise_requested", "pending"]);
 const EMPTY_HASH = "0000000000000000000000000000000000000000000000000000000000000000";
+const DEFAULT_CALIBRATION_WEIGHTS = Object.freeze({
+  complexity: 0.35,
+  monetization: 0.35,
+  qualitySignal: 0.30
+});
 
 function buildDefaultRlhfWorkflowsState() {
   return {
@@ -74,6 +80,22 @@ function buildDefaultRlhfWorkflowsState() {
   };
 }
 
+function buildDefaultRlhfOutcomesState() {
+  return {
+    records: [],
+    nextOutcomeSequence: 0,
+    calibration: {
+      version: "v1",
+      lastCalibratedAt: "",
+      weights: { ...DEFAULT_CALIBRATION_WEIGHTS }
+    },
+    portfolioSnapshots: [],
+    nextSnapshotSequence: 0,
+    chainHeadHash: EMPTY_HASH,
+    chainHeadSequence: 0
+  };
+}
+
 function normalizeRlhfStatus(value) {
   const text = typeof value === "string" ? value.trim() : "";
   return RLHF_DRAFT_STATUSES.includes(text) ? text : "draft";
@@ -82,6 +104,73 @@ function normalizeRlhfStatus(value) {
 function normalizeReviewQueueStatus(value) {
   const text = typeof value === "string" ? value.trim() : "";
   return RLHF_REVIEW_STATUSES.includes(text) ? text : "pending_review";
+}
+
+function normalizeOutcomeResult(value) {
+  const text = typeof value === "string" ? value.trim() : "";
+  return RLHF_OUTCOME_RESULTS.includes(text) ? text : "pending";
+}
+
+function toBoundedInt(value, min, max, fallback = min) {
+  const parsed = Number.parseInt(String(value ?? ""), 10);
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+  return Math.max(min, Math.min(max, parsed));
+}
+
+function normalizeHash(value, fallback = "") {
+  const text = typeof value === "string" ? value.trim().toLowerCase() : "";
+  return /^[a-f0-9]{64}$/.test(text) ? text : fallback;
+}
+
+function normalizeTags(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  const deduped = new Set(
+    value
+      .map((item) => String(item || "").trim())
+      .filter(Boolean)
+  );
+  return [...deduped].sort((left, right) => left.localeCompare(right));
+}
+
+function normalizeCalibrationWeights(value) {
+  const source = isPlainObject(value) ? value : {};
+  const complexity = Number.parseFloat(String(source.complexity ?? DEFAULT_CALIBRATION_WEIGHTS.complexity));
+  const monetization = Number.parseFloat(String(source.monetization ?? DEFAULT_CALIBRATION_WEIGHTS.monetization));
+  const qualitySignal = Number.parseFloat(String(source.qualitySignal ?? DEFAULT_CALIBRATION_WEIGHTS.qualitySignal));
+  const weights = { complexity, monetization, qualitySignal };
+  const allFinite = Object.values(weights).every((weight) => Number.isFinite(weight) && weight >= 0 && weight <= 1);
+  const sum = complexity + monetization + qualitySignal;
+  if (!allFinite || Math.abs(sum - 1) > 0.000001) {
+    return { ...DEFAULT_CALIBRATION_WEIGHTS };
+  }
+  return {
+    complexity: Number.parseFloat(complexity.toFixed(6)),
+    monetization: Number.parseFloat(monetization.toFixed(6)),
+    qualitySignal: Number.parseFloat(qualitySignal.toFixed(6))
+  };
+}
+
+function normalizeCalibration(value) {
+  const source = isPlainObject(value) ? value : {};
+  return canonicalize({
+    version: typeof source.version === "string" && source.version.trim() ? source.version.trim() : "v1",
+    lastCalibratedAt: typeof source.lastCalibratedAt === "string" ? source.lastCalibratedAt : "",
+    weights: normalizeCalibrationWeights(source.weights)
+  });
+}
+
+function normalizePortfolioSnapshot(value) {
+  const source = isPlainObject(value) ? value : {};
+  return canonicalize({
+    sequence: Math.max(1, parsePositiveInt(source.sequence, 1)),
+    capturedAt: typeof source.capturedAt === "string" ? source.capturedAt : "",
+    summary: isPlainObject(source.summary) ? canonicalize(source.summary) : {},
+    reportHash: normalizeHash(source.reportHash, EMPTY_HASH)
+  });
 }
 
 function normalizeRlhfDraftRecord(value) {
@@ -138,9 +227,44 @@ function normalizeRlhfReviewQueueRecord(value) {
   });
 }
 
-function buildDefaultV5State() {
+function normalizeRlhfOutcomeRecord(value) {
+  const source = isPlainObject(value) ? value : {};
+  const result = normalizeOutcomeResult(source.result);
+  const manualSubmissionConfirmed = Boolean(source.manualSubmissionConfirmed);
+  const finalized = result !== "pending";
+  let normalizedResult = result;
+  let normalizedScore = toBoundedInt(source.score, 0, 100, 0);
+  if (result === "pending") {
+    normalizedScore = 0;
+  }
+  if (finalized && manualSubmissionConfirmed !== true) {
+    normalizedResult = "pending";
+    normalizedScore = 0;
+  }
+
+  return canonicalize({
+    sequence: Math.max(1, parsePositiveInt(source.sequence, 1)),
+    draftSequence: Math.max(1, parsePositiveInt(source.draftSequence, 1)),
+    idempotencyKey: typeof source.idempotencyKey === "string" ? source.idempotencyKey.trim() : "",
+    enteredAt: typeof source.enteredAt === "string" ? source.enteredAt : "",
+    enteredBy: typeof source.enteredBy === "string" ? source.enteredBy.trim() : "",
+    aiAssisted: true,
+    manualSubmissionConfirmed: normalizedResult === "pending" ? Boolean(source.manualSubmissionConfirmed) : true,
+    result: normalizedResult,
+    score: normalizedResult === "pending" ? 0 : normalizedScore,
+    feedbackTags: normalizeTags(source.feedbackTags),
+    notes: typeof source.notes === "string" ? source.notes : "",
+    evidenceHash: normalizeHash(source.evidenceHash, ""),
+    outcomeHash: normalizeHash(source.outcomeHash, EMPTY_HASH),
+    prevChainHash: normalizeHash(source.prevChainHash, EMPTY_HASH),
+    chainHash: normalizeHash(source.chainHash, EMPTY_HASH),
+    outcomeVersion: typeof source.outcomeVersion === "string" && source.outcomeVersion.trim() ? source.outcomeVersion.trim() : "v1"
+  });
+}
+
+function buildDefaultV6State() {
   return {
-    schemaVersion: 5,
+    schemaVersion: 6,
     deterministicSerialization: true,
     lastDeterministicReplayAt: null,
     activeInitiatives: [],
@@ -198,20 +322,21 @@ function buildDefaultV5State() {
       lastControlSequence: 0,
       mutationLogTipHash: "0000000000000000000000000000000000000000000000000000000000000000"
     },
-    rlhfWorkflows: buildDefaultRlhfWorkflowsState()
+    rlhfWorkflows: buildDefaultRlhfWorkflowsState(),
+    rlhfOutcomes: buildDefaultRlhfOutcomesState()
   };
 }
 
 function normalizeRuntimeState(raw) {
-  const state = isPlainObject(raw) ? raw : buildDefaultV5State();
-  if (Number(state.schemaVersion) !== 5) {
+  const state = isPlainObject(raw) ? raw : buildDefaultV6State();
+  if (Number(state.schemaVersion) !== 6) {
     const error = new Error(`Unsupported runtime state schemaVersion: ${state.schemaVersion}`);
     error.code = "RUNTIME_STATE_SCHEMA_UNSUPPORTED";
     throw error;
   }
 
   if (!isPlainObject(state.apiGovernance)) {
-    state.apiGovernance = buildDefaultV5State().apiGovernance;
+    state.apiGovernance = buildDefaultV6State().apiGovernance;
   }
   if (!isPlainObject(state.apiGovernance.global)) {
     state.apiGovernance.global = { requestsToday: 0, tokensToday: 0 };
@@ -229,7 +354,7 @@ function normalizeRuntimeState(raw) {
     state.apiGovernance.violations = { count: 0, lastViolationAt: null, lastViolationCode: null };
   }
   if (!isPlainObject(state.apiGovernance.mutation)) {
-    state.apiGovernance.mutation = buildDefaultV5State().apiGovernance.mutation;
+    state.apiGovernance.mutation = buildDefaultV6State().apiGovernance.mutation;
   }
   if (!isPlainObject(state.apiGovernance.mutation.hourWindow)) {
     state.apiGovernance.mutation.hourWindow = { hourEpoch: 0, publishes: 0 };
@@ -254,7 +379,7 @@ function normalizeRuntimeState(raw) {
     : "research-record-v1";
 
   if (!isPlainObject(state.outboundMutation)) {
-    state.outboundMutation = buildDefaultV5State().outboundMutation;
+    state.outboundMutation = buildDefaultV6State().outboundMutation;
   }
   state.outboundMutation.enabled = Boolean(state.outboundMutation.enabled);
   state.outboundMutation.killSwitch = Boolean(state.outboundMutation.killSwitch);
@@ -320,6 +445,45 @@ function normalizeRuntimeState(raw) {
     && state.rlhfWorkflows.generatorVersion.trim()
     ? state.rlhfWorkflows.generatorVersion.trim()
     : "v1";
+
+  if (!isPlainObject(state.rlhfOutcomes)) {
+    state.rlhfOutcomes = buildDefaultRlhfOutcomesState();
+  }
+  if (!Array.isArray(state.rlhfOutcomes.records)) {
+    state.rlhfOutcomes.records = [];
+  }
+  if (!Array.isArray(state.rlhfOutcomes.portfolioSnapshots)) {
+    state.rlhfOutcomes.portfolioSnapshots = [];
+  }
+  state.rlhfOutcomes.records = state.rlhfOutcomes.records
+    .map((entry) => normalizeRlhfOutcomeRecord(entry))
+    .sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0));
+  state.rlhfOutcomes.portfolioSnapshots = state.rlhfOutcomes.portfolioSnapshots
+    .map((entry) => normalizePortfolioSnapshot(entry))
+    .sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0));
+  state.rlhfOutcomes.calibration = normalizeCalibration(state.rlhfOutcomes.calibration);
+
+  const observedMaxOutcomeSequence = state.rlhfOutcomes.records.reduce(
+    (max, record) => Math.max(max, Number(record.sequence || 0)),
+    0
+  );
+  const observedMaxSnapshotSequence = state.rlhfOutcomes.portfolioSnapshots.reduce(
+    (max, snapshot) => Math.max(max, Number(snapshot.sequence || 0)),
+    0
+  );
+  state.rlhfOutcomes.nextOutcomeSequence = Math.max(
+    observedMaxOutcomeSequence,
+    Math.max(0, Number.parseInt(String(state.rlhfOutcomes.nextOutcomeSequence ?? "0"), 10) || 0)
+  );
+  state.rlhfOutcomes.nextSnapshotSequence = Math.max(
+    observedMaxSnapshotSequence,
+    Math.max(0, Number.parseInt(String(state.rlhfOutcomes.nextSnapshotSequence ?? "0"), 10) || 0)
+  );
+  state.rlhfOutcomes.chainHeadHash = normalizeHash(state.rlhfOutcomes.chainHeadHash, EMPTY_HASH);
+  state.rlhfOutcomes.chainHeadSequence = Math.max(
+    0,
+    Number.parseInt(String(state.rlhfOutcomes.chainHeadSequence ?? "0"), 10) || 0
+  );
 
   return state;
 }
@@ -534,7 +698,7 @@ function createApiGovernance(options = {}) {
   async function loadState() {
     await ensureNdjsonIntegrityOnce();
 
-    const raw = await readJsonOrDefault(statePath, buildDefaultV5State());
+    const raw = await readJsonOrDefault(statePath, buildDefaultV6State());
     const state = normalizeRuntimeState(raw);
 
     // Sequence reconciliation is source-of-truth by append-only NDJSON.

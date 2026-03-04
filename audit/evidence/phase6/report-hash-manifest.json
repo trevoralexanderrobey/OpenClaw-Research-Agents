@@ -1,0 +1,22 @@
+{
+  "files": [
+    {
+      "file": "calibration-snapshot.json",
+      "sha256": "b22624bd0fd5be45e8943feeaaa5df5824303db1190d2d6c1983c40d104cee6b"
+    },
+    {
+      "file": "outcome-summary.json",
+      "sha256": "501e1727a260209266c54e93285c1aebe82a8bb7bee8bb587f00c92826b9f282"
+    },
+    {
+      "file": "portfolio-priorities.json",
+      "sha256": "b3db24705b63dc93172d018f3f2d6df818b43aab053eecfbc83572eaf79e6e3b"
+    },
+    {
+      "file": "weekly-intel-report.md",
+      "sha256": "fea39aa42e6d391dc936cdff8bf0b92a10c00c166547d4cf2d76a3f24999441a"
+    }
+  ],
+  "generatedAt": "2026-03-04T00:00:00.000Z",
+  "noOp": true
+}

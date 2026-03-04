@@ -69,6 +69,61 @@ test("candidate ranking is deterministic for identical inputs", () => {
   assert.deepEqual(first, second);
 });
 
+test("candidate ranking consumes calibrated weights and quality priors deterministically", () => {
+  const records = [
+    {
+      sequence: 1,
+      paper_id: "paper-sec-cal",
+      hash: "c".repeat(64),
+      title: "Security sandbox hardening for deterministic runtime",
+      abstract: "Threat model and exploit-resistant controls.",
+      authors: ["A"],
+      citation_velocity: 120,
+      published_at: "2025-01-01T00:00:00.000Z",
+      retrieved_at: "2026-03-03T00:00:00.000Z"
+    },
+    {
+      sequence: 2,
+      paper_id: "paper-dist-cal",
+      hash: "d".repeat(64),
+      title: "Distributed consensus tuning under failure domains",
+      abstract: "Consensus protocols and replication tradeoffs.",
+      authors: ["B"],
+      citation_velocity: 120,
+      published_at: "2025-01-01T00:00:00.000Z",
+      retrieved_at: "2026-03-03T00:00:00.000Z"
+    }
+  ];
+
+  const calibrationWeights = { complexity: 0.2, monetization: 0.2, qualitySignal: 0.6 };
+  const qualityPriorByDomain = {
+    security: 90,
+    "distributed-systems": 10
+  };
+
+  const first = selectCandidates({
+    records,
+    existingDrafts: [],
+    domainAllowlist: [],
+    monetizationSnapshot: { score: 50 },
+    calibrationWeights,
+    qualityPriorByDomain,
+    limit: 20
+  });
+  const second = selectCandidates({
+    records,
+    existingDrafts: [],
+    domainAllowlist: [],
+    monetizationSnapshot: { score: 50 },
+    calibrationWeights,
+    qualityPriorByDomain,
+    limit: 20
+  });
+
+  assert.deepEqual(first, second);
+  assert.equal(first[0].domainTag, "security");
+});
+
 test("queue sequence remains monotonic under concurrent pipeline runs", async () => {
   const dir = await makeTmpDir();
   const governance = createApiGovernance({

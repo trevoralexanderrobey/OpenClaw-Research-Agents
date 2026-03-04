@@ -24,6 +24,7 @@ Mitigation:
 - Static write hosts:
   - `api.beehiiv.com`
   - `api.notion.com`
+- No additional outbound hosts are introduced by Phase 6.
 
 ## RLHF Internal Workflow Surface
 - Internal modules only:
@@ -32,6 +33,17 @@ Mitigation:
 - No external submission endpoints are defined.
 - No browser, login, or credential automation exists in RLHF modules.
 - Draft generation, linting, persistence, review queueing, and package export are local-only operations.
+
+## Phase 6 Outcome Intelligence Surface
+- Internal-only modules:
+  - `workflows/rlhf-outcomes/*`
+  - `analytics/rlhf-quality/*`
+  - `analytics/portfolio-intelligence/*`
+- Outcome ingestion is operator-entered only with explicit idempotency keys.
+- Outcome artifact stream (`workspace/memory/rlhf-outcomes.ndjson`) is append-only with outcome and chain hashes.
+- Canonical state anchors (`rlhfOutcomes.chainHeadHash`, `rlhfOutcomes.chainHeadSequence`) are cross-checked at startup; mismatch fails closed.
+- Calibration and outcome write paths are kill-switch-gated and operator-only.
+- Portfolio planning/reporting is read-only and does not trigger external actions.
 
 Mitigation:
 - Default egress deny-all.

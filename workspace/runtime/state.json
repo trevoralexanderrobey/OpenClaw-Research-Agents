@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 5,
+  "schemaVersion": 6,
   "deterministicSerialization": true,
   "lastDeterministicReplayAt": null,
   "activeInitiatives": [],
@@ -92,5 +92,22 @@
     "nextQueueSequence": 0,
     "lastAutomationRunAt": "",
     "generatorVersion": "v1"
+  },
+  "rlhfOutcomes": {
+    "records": [],
+    "nextOutcomeSequence": 0,
+    "calibration": {
+      "version": "v1",
+      "lastCalibratedAt": "",
+      "weights": {
+        "complexity": 0.35,
+        "monetization": 0.35,
+        "qualitySignal": 0.3
+      }
+    },
+    "portfolioSnapshots": [],
+    "nextSnapshotSequence": 0,
+    "chainHeadHash": "0000000000000000000000000000000000000000000000000000000000000000",
+    "chainHeadSequence": 0
   }
 }

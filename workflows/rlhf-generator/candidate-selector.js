@@ -27,10 +27,43 @@ function toSourceHash(record = {}) {
   return normalizeSourceHash(record.hash);
 }
 
-function rankingScoreFor(candidate) {
+function normalizeCalibrationWeights(value) {
+  const fallback = { complexity: 0.35, monetization: 0.35, qualitySignal: 0.30 };
+  if (!value || typeof value !== "object") {
+    return fallback;
+  }
+  const complexity = Number(value.complexity);
+  const monetization = Number(value.monetization);
+  const qualitySignal = Number(value.qualitySignal);
+  const sum = complexity + monetization + qualitySignal;
+  if (
+    !Number.isFinite(complexity) || !Number.isFinite(monetization) || !Number.isFinite(qualitySignal)
+    || complexity < 0 || monetization < 0 || qualitySignal < 0
+    || Math.abs(sum - 1) > 0.000001
+  ) {
+    return fallback;
+  }
+  return { complexity, monetization, qualitySignal };
+}
+
+function rankingScoreForCandidate(candidate, input = {}) {
   const complexity = Number(candidate.complexityScore || 0);
   const monetization = Number(candidate.monetizationScore || 0);
-  return Math.max(0, Math.min(100, Math.floor((complexity * 0.6) + (monetization * 0.4))));
+  const weights = normalizeCalibrationWeights(input.calibrationWeights);
+  const qualityPriorByDomain = input.qualityPriorByDomain && typeof input.qualityPriorByDomain === "object"
+    ? input.qualityPriorByDomain
+    : {};
+  const domainTag = String(candidate.domainTag || "");
+  const qualityPrior = Number.isFinite(Number(qualityPriorByDomain[domainTag]))
+    ? Math.max(0, Math.min(100, Math.floor(Number(qualityPriorByDomain[domainTag]))))
+    : 0;
+
+  const score = Math.floor(
+    (complexity * weights.complexity)
+    + (monetization * weights.monetization)
+    + (qualityPrior * weights.qualitySignal)
+  );
+  return Math.max(0, Math.min(100, score));
 }
 
 function byDeterministicOrder(left, right) {
@@ -73,6 +106,10 @@ function selectCandidates(input = {}) {
   const domainAllowlist = normalizeList(input.domainAllowlist);
   const monetizationSnapshot = input.monetizationSnapshot && typeof input.monetizationSnapshot === "object"
     ? input.monetizationSnapshot
+    : {};
+  const calibrationWeights = normalizeCalibrationWeights(input.calibrationWeights);
+  const qualityPriorByDomain = input.qualityPriorByDomain && typeof input.qualityPriorByDomain === "object"
+    ? input.qualityPriorByDomain
     : {};
   const limit = Number.isFinite(Number(input.limit))
     ? Math.max(1, Math.min(200, Math.floor(Number(input.limit))))
@@ -119,7 +156,10 @@ function selectCandidates(input = {}) {
       monetizationScore,
       rankingScore: 0
     };
-    candidate.rankingScore = rankingScoreFor(candidate);
+    candidate.rankingScore = rankingScoreForCandidate(candidate, {
+      calibrationWeights,
+      qualityPriorByDomain
+    });
     candidates.push(candidate);
   }
 
@@ -131,6 +171,6 @@ function selectCandidates(input = {}) {
 
 module.exports = {
   selectCandidates,
-  rankingScoreFor,
+  rankingScoreFor: rankingScoreForCandidate,
   byDeterministicOrder
 };

@@ -13,6 +13,10 @@ Local-first, file-based, audit-oriented research orchestration scaffold built on
 - Mutation governance, kill-switch, and operator authorization enforcement enabled
 - Internal RLHF workflow automation enabled for deterministic draft generation, linting, and manual handoff packaging
 - RLHF drafts are always AI-assisted and marked human-review-required
+- Phase 6 deterministic outcome feedback loop enabled (operator-entered outcomes, calibration, portfolio intelligence)
+- Outcome capture enforces idempotency keys, chain-hash integrity, and chain-head state anchoring
+- Calibration and outcome mutation paths are kill-switch-gated and operator-only
+- Weekly/monthly intelligence artifacts are generated internally without external side effects
 
 ## Key directories
 - `openclaw-bridge/` runtime/control-plane scaffold
@@ -25,3 +29,4 @@ Supervisor direct tool execution remains blocked.
 Mutation requires explicit operator approval and governance checks.
 External RLHF submission to third-party platforms is manual-only.
 Platform login, attestation, and final submission actions are always human-operated.
+Outcome ingestion is operator-entered only.

@@ -66,6 +66,9 @@ jobs:
       - name: Phase 5 policy verification
         run: bash scripts/verify-phase5-policy.sh
 
+      - name: Phase 6 policy verification
+        run: bash scripts/verify-phase6-policy.sh
+
       - name: Test suite
         run: node --test tests/**/*.test.js
 

@@ -202,6 +202,70 @@ async function reconcileDraftArtifactStoreFromState(filePath, state) {
   };
 }
 
+function readCalibrationWeightsFromState(state) {
+  const weights = state
+    && state.rlhfOutcomes
+    && state.rlhfOutcomes.calibration
+    && isPlainObject(state.rlhfOutcomes.calibration.weights)
+    ? state.rlhfOutcomes.calibration.weights
+    : null;
+  const fallback = { complexity: 0.35, monetization: 0.35, qualitySignal: 0.30 };
+  if (!weights) {
+    return fallback;
+  }
+  const complexity = Number(weights.complexity);
+  const monetization = Number(weights.monetization);
+  const qualitySignal = Number(weights.qualitySignal);
+  const sum = complexity + monetization + qualitySignal;
+  if (
+    !Number.isFinite(complexity) || !Number.isFinite(monetization) || !Number.isFinite(qualitySignal)
+    || complexity < 0 || monetization < 0 || qualitySignal < 0
+    || Math.abs(sum - 1) > 0.000001
+  ) {
+    return fallback;
+  }
+  return { complexity, monetization, qualitySignal };
+}
+
+function buildQualityPriorByDomainFromState(state) {
+  const drafts = isPlainObject(state && state.rlhfWorkflows) && Array.isArray(state.rlhfWorkflows.drafts)
+    ? state.rlhfWorkflows.drafts
+    : [];
+  const outcomes = isPlainObject(state && state.rlhfOutcomes) && Array.isArray(state.rlhfOutcomes.records)
+    ? state.rlhfOutcomes.records
+    : [];
+  const draftDomainBySequence = new Map();
+  for (const draft of drafts) {
+    const sequence = Number(draft.sequence || 0);
+    if (sequence <= 0) continue;
+    const domainTag = safeString(draft.domainTag) || "general-research";
+    draftDomainBySequence.set(sequence, domainTag);
+  }
+
+  const byDomain = new Map();
+  for (const outcome of outcomes) {
+    if (!outcome || outcome.result === "pending") {
+      continue;
+    }
+    const draftSequence = Number(outcome.draftSequence || 0);
+    const domainTag = draftDomainBySequence.get(draftSequence);
+    if (!domainTag) {
+      continue;
+    }
+    const score = Math.max(0, Math.min(100, Number.parseInt(String(outcome.score || "0"), 10) || 0));
+    const current = byDomain.get(domainTag) || { total: 0, count: 0 };
+    current.total += score;
+    current.count += 1;
+    byDomain.set(domainTag, current);
+  }
+
+  return Object.fromEntries(
+    [...byDomain.entries()]
+      .map(([domainTag, stats]) => [domainTag, stats.count === 0 ? 0 : Math.floor(stats.total / stats.count)])
+      .sort((left, right) => left[0].localeCompare(right[0]))
+  );
+}
+
 function createNoopResult(input = {}) {
   return {
     ok: true,
@@ -261,6 +325,8 @@ function createRlhfPipelineRunner(options = {}) {
       existingDrafts: snapshot.rlhfWorkflows && Array.isArray(snapshot.rlhfWorkflows.drafts) ? snapshot.rlhfWorkflows.drafts : [],
       domainAllowlist,
       monetizationSnapshot,
+      calibrationWeights: readCalibrationWeightsFromState(snapshot),
+      qualityPriorByDomain: buildQualityPriorByDomainFromState(snapshot),
       limit: candidateLimit
     });
 

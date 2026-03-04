@@ -33,6 +33,54 @@ Handling:
 - Block draft persistence for the candidate.
 - Mark candidate queue entry as lint-rejected.
 
+## Outcome Idempotency Conflict
+Detection:
+- `idempotencyKey` is replayed with a different normalized payload.
+
+Handling:
+- Fail closed with `RLHF_OUTCOME_IDEMPOTENCY_CONFLICT`.
+- No duplicate outcome is inserted.
+
+## Outcome Pending/Finalized Semantics Violation
+Detection:
+- `pending` outcome has non-zero score.
+- Finalized outcome has `manualSubmissionConfirmed=false`.
+
+Handling:
+- Reject write with `RLHF_OUTCOME_PENDING_SCORE_INVALID` or `RLHF_OUTCOME_MANUAL_CONFIRMATION_REQUIRED`.
+
+## Outcome Chain Anchor Mismatch
+Detection:
+- Canonical state chain anchor does not match runtime outcome stream head.
+
+Handling:
+- Fail closed with `RLHF_OUTCOME_STATE_CHAIN_INVALID` or `RLHF_OUTCOME_CHAIN_ANCHOR_MISMATCH`.
+- Require operator repair workflow before writes continue.
+
+## Outcome Artifact Corruption
+Detection:
+- Outcome NDJSON parse failure or chain continuity mismatch.
+
+Handling:
+- Fail closed with `RLHF_OUTCOME_ARTIFACT_CORRUPTED` / `RLHF_OUTCOME_CHAIN_CONTINUITY_INVALID`.
+- Allow only explicit operator tail-repair path for truncated trailing records.
+
+## Phase 6 Kill-Switch Denial
+Detection:
+- Outcome record or calibration apply attempted while kill-switch is active.
+
+Handling:
+- Reject with `RLHF_OUTCOME_KILL_SWITCH_ACTIVE` or `RLHF_CALIBRATION_KILL_SWITCH_ACTIVE`.
+- No state mutation committed.
+
+## Empty Calibration/Reporting Windows
+Detection:
+- Insufficient finalized outcomes for calibration or no draft/outcome activity for reporting.
+
+Handling:
+- Deterministic no-op response.
+- No sequence/timestamp/calibration mutation in canonical state.
+
 ## Unauthorized RLHF Review Transition
 Detection:
 - Supervisor or non-operator attempts status mutation.

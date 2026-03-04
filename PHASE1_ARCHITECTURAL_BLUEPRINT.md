@@ -12,6 +12,7 @@ Core outcomes:
 - Preflight payload validation checks implemented to catch oversized/abusive outbound requests early.
 - Comprehensive workload integrity controls enforced (SBOM, digest matching, runtime policy scanning).
 - Internal RLHF workflow automation explicitly bounded to deterministic draft generation, compliance linting, and manual packaging.
+- Deterministic Outcome Intelligence integrated for operator-entered feedback loops, trajectory scoring, calibration, and portfolio planning.
 - Audit, threat-model, and governance documentation scaffolded for formal review.
 
 See:

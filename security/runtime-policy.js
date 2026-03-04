@@ -85,7 +85,7 @@ const RUNTIME_POLICY = deepFreeze({
     useCanonicalJsonSerialization: true,
     prohibitDirectGlobalTime: true,
     prohibitDirectGlobalRandomness: true,
-    runtimeStateSchemaVersion: 5,
+    runtimeStateSchemaVersion: 6,
     ndjsonOrderingAuthority: "sequence",
   },
   researchMcp: {
@@ -160,8 +160,8 @@ function validateRuntimePolicy(policyInput = RUNTIME_POLICY) {
   if (!isPlainObject(policy.determinism)) {
     errors.push("determinism policy missing");
   } else {
-    if (policy.determinism.runtimeStateSchemaVersion !== 5) {
-      errors.push("runtime state schemaVersion must be 5 in Phase 5");
+    if (policy.determinism.runtimeStateSchemaVersion !== 6) {
+      errors.push("runtime state schemaVersion must be 6 in Phase 6");
     }
     if (policy.determinism.ndjsonOrderingAuthority !== "sequence") {
       errors.push("ndjson ordering authority must be sequence");

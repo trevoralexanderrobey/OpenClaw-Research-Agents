@@ -23,3 +23,7 @@
 ## RLHF Review Pipeline
 - Automates internal draft preparation, formatting, and compliance linting.
 - Output explicitly constrained to deterministic manual-handoff packaging; absolutely no automated external submission.
+
+## Outcome Intelligence Pipeline
+- Computes deterministic quality scoring and calibration from operator-entered feedback.
+- Generates weekly/monthly intelligence artifacts without autonomous external side effects.
