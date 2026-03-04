@@ -10,6 +10,45 @@ fail() {
   exit 1
 }
 
+has_rg() {
+  command -v rg >/dev/null 2>&1
+}
+
+search_quiet() {
+  local pattern="$1"
+  local file_path="$2"
+  if has_rg; then
+    rg -q -- "$pattern" "$file_path"
+    return
+  fi
+  grep -Eq -- "$pattern" "$file_path"
+}
+
+search_fixed_js_tree() {
+  local signature="$1"
+  local root_dir="$2"
+  if has_rg; then
+    rg -n --fixed-strings --glob '*.js' --glob '!base-mcp.js' -- "$signature" "$root_dir" || true
+    return
+  fi
+
+  local out=""
+  while IFS= read -r file_path; do
+    local hits
+    hits="$(grep -nF -- "$signature" "$file_path" || true)"
+    if [[ -n "$hits" ]]; then
+      while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        out+="${file_path}:${line}"$'\n'
+      done <<<"$hits"
+    fi
+  done < <(find "$root_dir" -type f -name '*.js' ! -name 'base-mcp.js' | sort)
+
+  if [[ -n "$out" ]]; then
+    printf "%s" "$out"
+  fi
+}
+
 if [[ ! -d "$MCP_DIR" ]]; then
   fail "MCP directory not found: $MCP_DIR"
 fi
@@ -21,14 +60,14 @@ for f in "$MCP_DIR"/*.js; do
     continue
   fi
 
-  if ! rg -q "extends\\s+BaseMcp" "$f"; then
+  if ! search_quiet "extends\\s+BaseMcp" "$f"; then
     fail "MCP file does not extend BaseMcp: $f"
   fi
 done
 
 bad_network=""
 for signature in "fetch(" "https.request(" "http.request("; do
-  hits="$(rg -n --fixed-strings --glob '*.js' --glob '!base-mcp.js' "$signature" "$MCP_DIR" || true)"
+  hits="$(search_fixed_js_tree "$signature" "$MCP_DIR")"
   if [[ -n "$hits" ]]; then
     bad_network+="$hits"$'\n'
   fi
@@ -39,10 +78,10 @@ if [[ -n "$bad_network" ]]; then
   fail "Direct network call found outside base-mcp wrapper"
 fi
 
-if ! rg -q "allowedHosts:\\s*\\[\\s*\"api\\.semanticscholar\\.org\"\\s*\\]" "$EGRESS_FILE"; then
+if ! search_quiet "allowedHosts:\\s*\\[\\s*\"api\\.semanticscholar\\.org\"\\s*\\]" "$EGRESS_FILE"; then
   fail "semantic-scholar egress allowlist missing"
 fi
-if ! rg -q "allowedHosts:\\s*\\[\\s*\"export\\.arxiv\\.org\"\\s*\\]" "$EGRESS_FILE"; then
+if ! search_quiet "allowedHosts:\\s*\\[\\s*\"export\\.arxiv\\.org\"\\s*\\]" "$EGRESS_FILE"; then
   fail "arxiv egress allowlist missing"
 fi
 
@@ -69,10 +108,10 @@ if (JSON.stringify([...seen].sort()) !== JSON.stringify([...allowed].sort())) {
 }
 NODE
 
-if ! rg -q "withGovernanceTransaction\\(" "$MCP_DIR/base-mcp.js"; then
+if ! search_quiet "withGovernanceTransaction\\(" "$MCP_DIR/base-mcp.js"; then
   fail "Governance transaction wrapper missing in base MCP"
 fi
-if ! rg -q "tx\\.applyUsage\\(" "$MCP_DIR/base-mcp.js"; then
+if ! search_quiet "tx\\.applyUsage\\(" "$MCP_DIR/base-mcp.js"; then
   fail "API governance usage limiter call missing in base MCP"
 fi
 
@@ -82,7 +121,7 @@ for f in "$MCP_DIR"/*.js; do
   if [[ "$base_name" == *".stub.js" || "$base_name" == "base-mcp.js" || "$base_name" == "mcp-service.js" ]]; then
     continue
   fi
-  if ! rg -q "inputSchema" "$f"; then
+  if ! search_quiet "inputSchema" "$f"; then
     fail "Schema validation missing in MCP module: $f"
   fi
 done
