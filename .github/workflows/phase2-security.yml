@@ -74,6 +74,16 @@ jobs:
             scripts/detect-escalation.js
             scripts/generate-phase13-artifacts.js
             scripts/verify-phase13-policy.sh
+            scripts/verify-phase14-policy.sh
+            scripts/verify-phase15-policy.sh
+            scripts/verify-phase16-policy.sh
+            scripts/verify-phase17-policy.sh
+            scripts/run-research-task.js
+            scripts/list-research-tasks.js
+            scripts/view-research-output.js
+            scripts/view-interaction-log.js
+            scripts/test-llm-connection.js
+            scripts/generate-phase14-artifacts.js
             scripts/verify-phase8-ci-health.js
             scripts/build-verify.sh
           )
@@ -150,6 +160,33 @@ jobs:
         run: bash scripts/verify-phase12-policy.sh
       - name: Phase 13 policy verification
         run: bash scripts/verify-phase13-policy.sh
+      - name: Phase 14 policy verification
+        run: bash scripts/verify-phase14-policy.sh
+      - name: Phase 15 policy verification
+        run: bash scripts/verify-phase15-policy.sh
+      - name: Phase 16 policy verification
+        run: bash scripts/verify-phase16-policy.sh
+      - name: Phase 17 policy verification
+        run: bash scripts/verify-phase17-policy.sh
+
+      - name: Phase 14 smoke test
+        run: |
+          node scripts/run-research-task.js \
+            --task "Summarize the sample input documents" \
+            --type summarize \
+            --input workspace/research-input/sample/ \
+            --output workspace/research-output/ci-smoke-test/ \
+            --provider mock \
+            --confirm
+
+      - name: Phase 15 routed queue smoke test
+        run: node --test tests/core/phase15-lane-queue.test.js
+
+      - name: Phase 16 ingestion dry-run smoke test
+        run: node --test tests/core/phase16-ingestion-pipeline.test.js
+
+      - name: Phase 17 restart/resume smoke test
+        run: node --test tests/core/phase17-resume-orchestrator.test.js
 
       - name: Test suite
         run: node --test tests/**/*.test.js

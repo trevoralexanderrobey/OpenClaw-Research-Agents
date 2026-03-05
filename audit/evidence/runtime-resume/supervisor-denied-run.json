@@ -1,0 +1,11 @@
+{
+  "phase": "phase17",
+  "scenario": "resume_supervisor_denied",
+  "result": "blocked",
+  "details": {
+    "resume": "open_loop_requeue",
+    "approval_chain": [
+      "supervisor_denied"
+    ]
+  }
+}

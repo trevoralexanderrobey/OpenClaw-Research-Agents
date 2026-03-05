@@ -1,0 +1,12 @@
+{
+  "phase": "phase17",
+  "scenario": "resume_supervisor_approved",
+  "result": "allowed",
+  "details": {
+    "resume": "open_loop_requeue",
+    "approval_chain": [
+      "supervisor_approved",
+      "governance_approved"
+    ]
+  }
+}

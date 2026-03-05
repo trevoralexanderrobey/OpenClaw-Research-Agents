@@ -278,6 +278,104 @@ Detection:
 Handling:
 - Mark ledger integrity invalid (`tamper_detected=true`).
 - Block startup integrity and protected override workflows until remediated.
+
+## Phase 14 Supervisor Approval Missing
+Detection:
+- `agent-engine.executeTask` called without `context.supervisorDecision.approved === true`.
+
+Handling:
+- Fail closed with `SUPERVISOR_APPROVAL_REQUIRED`.
+- Reject before LLM call.
+
+## Phase 14 Supervisor Denial
+Detection:
+- Supervisor decision returns `approved=false`.
+
+Handling:
+- Task transitions to `rejected`.
+- Governance rejection is logged.
+- LLM adapter is not invoked.
+
+## Phase 14 LLM Provider Unavailable / Misconfigured
+Detection:
+- Provider endpoint unavailable, API key missing, or request returns non-success.
+
+Handling:
+- Task transitions to `failed`.
+- Failure reason recorded in output metadata and governance records.
+- Interaction log remains append-only and chain-valid.
+
+## Phase 14 Interaction Log Chain Integrity Failure
+Detection:
+- Sequence, `prev_chain_hash`, `entry_hash`, or `chain_hash` mismatch during append.
+
+Handling:
+- Fail closed with `PHASE14_INTERACTION_CHAIN_INVALID`.
+- Block further interaction appends until repaired.
+
+## Phase 15 Role Boundary Violation
+Detection:
+- Role dispatch attempts action not allowed by autonomy ladder policy.
+
+Handling:
+- Reject with `PHASE15_ROLE_ACTION_DENIED`.
+- No downstream execution.
+
+## Phase 15 Comms Tamper
+Detection:
+- Envelope hash mismatch or blackboard chain hash mismatch.
+
+Handling:
+- Tamper findings emitted by comms bus validation.
+- Operator repair required before trusted replay.
+
+## Phase 16 Connector Misconfiguration
+Detection:
+- Missing connector endpoint/config for requested source.
+
+Handling:
+- Fail with `PHASE16_CONNECTOR_MISSING` or `PHASE16_MCP_SERVER_NOT_CONFIGURED`.
+- No partial write beyond deterministic job/error artifacts.
+
+## Phase 16 Source Ledger Tamper
+Detection:
+- `entry_hash`, chain link, or chain head mismatch in source ledger.
+
+Handling:
+- `verifyChainIntegrity()` returns invalid.
+- Ingestion trust fails closed until repaired.
+
+## Phase 17 Runtime State Corruption
+Detection:
+- `state/runtime/state.json` malformed or schema-incompatible.
+
+Handling:
+- Fail with `PHASE17_RUNTIME_STATE_CORRUPTED`.
+- Resume orchestration does not execute pending work.
+
+## Phase 17 Non-Allowlisted Tool Image
+Detection:
+- Requested runtime tool image is missing from allowlist or not digest-pinned.
+
+Handling:
+- Reject with `TOOL_IMAGE_NOT_FOUND` / `TOOL_IMAGE_DIGEST_REQUIRED`.
+- Runtime execution blocked.
+
+## Phase 17 Resume Approval Recheck Failure
+Detection:
+- Requeued loop lacks renewed supervisor approval or governance approval.
+
+Handling:
+- Resume flow blocks execution for that loop.
+- Denial recorded as governance execution event; no unsafe bypass allowed.
+
+## Cline supervisor policy gate failure
+Detection:
+- Required Cline supervisor contract markers are missing from docs/rules/workflow gates.
+
+Handling:
+- Fail closed in CI and local policy verification.
+- Follow the runbook guidance in `docs/supervisor-architecture.md` to restore required contract language and blocking gate markers.
 - Require explicit operator review and approved correction.
 
 ## Phase 9 Phase Completeness Reconciliation Failure

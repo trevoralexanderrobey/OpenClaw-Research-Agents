@@ -1,0 +1,16 @@
+{
+  "files": [
+    {
+      "file": "resume-sample.json",
+      "sha256": "430f1f5e5698e3df6a36b3181bf7f6717592c9a1fa2a83cc5d0127bf4e6aec17"
+    },
+    {
+      "file": "supervisor-approved-run.json",
+      "sha256": "9c9eb22d61e648edae9aa68a4ebd485b3202dc8168180a5521d15c732948184c"
+    },
+    {
+      "file": "supervisor-denied-run.json",
+      "sha256": "c083ff5d75e02196eb8a0b8dd5193ed304211b6c105635d1c701e92d5c96bb30"
+    }
+  ]
+}

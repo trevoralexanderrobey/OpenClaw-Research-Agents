@@ -266,6 +266,95 @@ const PHASE13_REQUIRED = Object.freeze([
   "audit/evidence/access-control/hash-manifest.json"
 ]);
 
+const PHASE14_REQUIRED = Object.freeze([
+  "config/agent-config.json",
+  "config/llm-providers.json",
+  "openclaw-bridge/core/agent-engine.js",
+  "openclaw-bridge/core/governance-bridge.js",
+  "openclaw-bridge/core/supervisor-authority.js",
+  "openclaw-bridge/core/llm-adapter.js",
+  "openclaw-bridge/core/interaction-log.js",
+  "openclaw-bridge/core/task-definition-schema.js",
+  "openclaw-bridge/core/research-output-manager.js",
+  "security/phase14-startup-integrity.js",
+  "scripts/_phase14-agent-utils.js",
+  "scripts/verify-phase14-baseline.js",
+  "scripts/run-research-task.js",
+  "scripts/list-research-tasks.js",
+  "scripts/view-research-output.js",
+  "scripts/view-interaction-log.js",
+  "scripts/test-llm-connection.js",
+  "scripts/generate-phase14-artifacts.js",
+  "scripts/verify-phase14-policy.sh",
+  "tests/core/_phase14-helpers.js",
+  "tests/core/phase14-llm-adapter.test.js",
+  "tests/core/phase14-interaction-log.test.js",
+  "tests/core/phase14-task-definition.test.js",
+  "tests/core/phase14-research-output.test.js",
+  "tests/core/phase14-governance-bridge.test.js",
+  "tests/core/phase14-agent-engine.test.js",
+  "tests/core/phase14-supervisor-authority.test.js",
+  "tests/security/phase14-policy-gate.test.js",
+  "tests/security/phase14-startup-integrity.test.js",
+  "docs/phase14-agent-engine.md",
+  "audit/evidence/agent-engine/schema-snapshot.json",
+  "audit/evidence/agent-engine/mock-task-execution-sample.json",
+  "audit/evidence/agent-engine/interaction-log-sample.json",
+  "audit/evidence/agent-engine/research-output-sample.json",
+  "audit/evidence/agent-engine/governance-bridge-sample.json",
+  "audit/evidence/agent-engine/phase14-gate-results.json",
+  "audit/evidence/agent-engine/hash-manifest.json"
+]);
+
+const PHASE15_REQUIRED = Object.freeze([
+  "config/agent-topology.json",
+  "config/autonomy-ladder.json",
+  "openclaw-bridge/core/agent-registry.js",
+  "openclaw-bridge/core/role-router.js",
+  "openclaw-bridge/core/lane-queue.js",
+  "openclaw-bridge/core/comms-bus.js",
+  "openclaw-bridge/core/autonomy-ladder.js",
+  "openclaw-bridge/core/heartbeat-state.js",
+  "scripts/verify-phase15-policy.sh",
+  "tests/core/phase15-lane-queue.test.js",
+  "tests/security/phase15-policy-gate.test.js",
+  "docs/phase15-multi-agent-topology.md",
+  "audit/evidence/multi-agent-topology/queue-order-sample.json",
+  "audit/evidence/multi-agent-topology/hash-manifest.json"
+]);
+
+const PHASE16_REQUIRED = Object.freeze([
+  "integrations/mcp/mcp-client.js",
+  "integrations/mcp/arxiv-client.js",
+  "integrations/mcp/semantic-scholar-client.js",
+  "workflows/research-ingestion/ingestion-pipeline.js",
+  "workflows/research-ingestion/normalizer.js",
+  "workflows/research-ingestion/citation-metrics.js",
+  "workflows/research-ingestion/source-ledger.js",
+  "scripts/verify-phase16-policy.sh",
+  "tests/core/phase16-ingestion-pipeline.test.js",
+  "tests/security/phase16-policy-gate.test.js",
+  "docs/phase16-mcp-ingestion.md",
+  "audit/evidence/research-ingestion/source-ledger-sample.json",
+  "audit/evidence/research-ingestion/hash-manifest.json"
+]);
+
+const PHASE17_REQUIRED = Object.freeze([
+  "openclaw-bridge/execution/tool-image-catalog.js",
+  "openclaw-bridge/execution/container-runtime.js",
+  "openclaw-bridge/state/persistent-store.js",
+  "openclaw-bridge/state/state-hydrator.js",
+  "openclaw-bridge/state/open-loop-manager.js",
+  "openclaw-bridge/core/restart-resume-orchestrator.js",
+  "state/runtime/state.sample.json",
+  "scripts/verify-phase17-policy.sh",
+  "tests/core/phase17-resume-orchestrator.test.js",
+  "tests/security/phase17-policy-gate.test.js",
+  "docs/phase17-runtime-hardening-and-resume.md",
+  "audit/evidence/runtime-resume/resume-sample.json",
+  "audit/evidence/runtime-resume/hash-manifest.json"
+]);
+
 const CLINE_REQUIRED = Object.freeze([
   "docs/supervisor-architecture.md",
   ".clinerules",
@@ -333,6 +422,10 @@ function createPhaseCompletenessValidator(options = {}) {
     const phase11Missing = missingFromSet(rootDir, PHASE11_REQUIRED);
     const phase12Missing = missingFromSet(rootDir, PHASE12_REQUIRED);
     const phase13Missing = missingFromSet(rootDir, PHASE13_REQUIRED);
+    const phase14Missing = missingFromSet(rootDir, PHASE14_REQUIRED);
+    const phase15Missing = missingFromSet(rootDir, PHASE15_REQUIRED);
+    const phase16Missing = missingFromSet(rootDir, PHASE16_REQUIRED);
+    const phase17Missing = missingFromSet(rootDir, PHASE17_REQUIRED);
     const clineMissing = missingFromSet(rootDir, CLINE_REQUIRED);
 
     const workflowText = readTextIfExists(path.join(rootDir, ".github/workflows/phase2-security.yml"));
@@ -371,7 +464,11 @@ function createPhaseCompletenessValidator(options = {}) {
       "bash scripts/verify-phase10-policy.sh",
       "bash scripts/verify-phase11-policy.sh",
       "bash scripts/verify-phase12-policy.sh",
-      "bash scripts/verify-phase13-policy.sh"
+      "bash scripts/verify-phase13-policy.sh",
+      "bash scripts/verify-phase14-policy.sh",
+      "bash scripts/verify-phase15-policy.sh",
+      "bash scripts/verify-phase16-policy.sh",
+      "bash scripts/verify-phase17-policy.sh"
     ]) {
       if (!workflowText.includes(marker)) {
         contradictions.push(canonicalize({
@@ -412,6 +509,10 @@ function createPhaseCompletenessValidator(options = {}) {
       phaseStatus("phase11", phase11Missing),
       phaseStatus("phase12", phase12Missing),
       phaseStatus("phase13", phase13Missing),
+      phaseStatus("phase14", phase14Missing),
+      phaseStatus("phase15", phase15Missing),
+      phaseStatus("phase16", phase16Missing),
+      phaseStatus("phase17", phase17Missing),
       phaseStatus("cline", clineMissing)
     ];
 
@@ -428,6 +529,10 @@ function createPhaseCompletenessValidator(options = {}) {
       ...phase11Missing,
       ...phase12Missing,
       ...phase13Missing,
+      ...phase14Missing,
+      ...phase15Missing,
+      ...phase16Missing,
+      ...phase17Missing,
       ...clineMissing
     ]);
 
@@ -480,6 +585,10 @@ module.exports = {
   PHASE11_REQUIRED,
   PHASE12_REQUIRED,
   PHASE13_REQUIRED,
+  PHASE14_REQUIRED,
+  PHASE15_REQUIRED,
+  PHASE16_REQUIRED,
+  PHASE17_REQUIRED,
   CLINE_REQUIRED,
   CONTRADICTION_RULES
 };

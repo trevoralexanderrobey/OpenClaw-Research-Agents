@@ -3,12 +3,14 @@
 const fs = require("node:fs/promises");
 const path = require("node:path");
 
-const { nowMs } = require("../core/time-provider.js");
+const { nowMs, createTimeProvider } = require("../core/time-provider.js");
 const { randomHex } = require("../core/entropy-provider.js");
 
 const CONTROL_PLANE_STATE_VERSION = 2;
 const DEFAULT_STORE_PATH = "./data/control-plane-state.json";
 const DEFAULT_DEBOUNCE_MS = 1000;
+const PHASE17_RUNTIME_STATE_VERSION = "phase17-runtime-state-v1";
+const DEFAULT_PHASE17_RUNTIME_STATE_PATH = "./state/runtime/state.json";
 
 function normalizeDebounceMs(value) {
   const parsed = Number.parseInt(String(value ?? "").trim(), 10);
@@ -26,6 +28,10 @@ function resolveStorePath(rawPath) {
 
 function normalizeStringLineEndings(input) {
   return String(input).replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+}
+
+function isoFromNowMs(valueMs = nowMs()) {
+  return createTimeProvider({ fixedNowMs: valueMs }).nowIso();
 }
 
 function isPlainObject(value) {
@@ -185,8 +191,162 @@ function createPersistentStore(options = {}) {
   };
 }
 
+function resolveRuntimeStatePath(rawPath) {
+  const fromEnv = typeof process.env.PHASE17_RUNTIME_STATE_PATH === "string"
+    ? process.env.PHASE17_RUNTIME_STATE_PATH.trim()
+    : "";
+  const candidate = typeof rawPath === "string" && rawPath.trim()
+    ? rawPath.trim()
+    : fromEnv || DEFAULT_PHASE17_RUNTIME_STATE_PATH;
+  return path.resolve(candidate);
+}
+
+function defaultRuntimeState() {
+  return {
+    schemaVersion: PHASE17_RUNTIME_STATE_VERSION,
+    lastUpdatedAt: "1970-01-01T00:00:00.000Z",
+    recentDecisions: [],
+    openLoops: [],
+    laneSnapshots: {},
+  };
+}
+
+function normalizeRuntimeState(state) {
+  const source = isPlainObject(state) ? state : {};
+  const recentDecisions = Array.isArray(source.recentDecisions)
+    ? source.recentDecisions.map((entry) => canonicalize(entry))
+    : [];
+  const openLoops = Array.isArray(source.openLoops)
+    ? source.openLoops.map((entry) => canonicalize(entry))
+    : [];
+  const laneSnapshots = isPlainObject(source.laneSnapshots)
+    ? canonicalize(source.laneSnapshots)
+    : {};
+
+  recentDecisions.sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0));
+  openLoops.sort((left, right) => String(left.loopId || "").localeCompare(String(right.loopId || "")));
+
+  return canonicalize({
+    schemaVersion: String(source.schemaVersion || PHASE17_RUNTIME_STATE_VERSION),
+    lastUpdatedAt: String(source.lastUpdatedAt || "1970-01-01T00:00:00.000Z"),
+    recentDecisions,
+    openLoops,
+    laneSnapshots,
+  });
+}
+
+async function readRuntimeStateFile(runtimeStatePath) {
+  try {
+    const raw = await fs.readFile(runtimeStatePath, "utf8");
+    const parsed = JSON.parse(normalizeStringLineEndings(raw));
+    return normalizeRuntimeState(parsed);
+  } catch (error) {
+    if (error && error.code === "ENOENT") {
+      return defaultRuntimeState();
+    }
+    if (error && error.name === "SyntaxError") {
+      const malformed = new Error("Runtime state file is corrupted");
+      malformed.code = "PHASE17_RUNTIME_STATE_CORRUPTED";
+      throw malformed;
+    }
+    throw error;
+  }
+}
+
+async function writeRuntimeStateFile(runtimeStatePath, state) {
+  const directory = path.dirname(runtimeStatePath);
+  await fs.mkdir(directory, { recursive: true });
+  const normalized = normalizeRuntimeState(state);
+  const tempPath = `${runtimeStatePath}.tmp-${process.pid}-${nowMs()}-${randomHex(8)}`;
+  await fs.writeFile(tempPath, serializeEnvelope(normalized), { encoding: "utf8" });
+  await fs.rename(tempPath, runtimeStatePath);
+  return normalized;
+}
+
+async function loadRuntimeState(options = {}) {
+  const runtimeStatePath = resolveRuntimeStatePath(options.path);
+  const state = await readRuntimeStateFile(runtimeStatePath);
+  return canonicalize({ path: runtimeStatePath, state });
+}
+
+async function saveRuntimeState(state, options = {}) {
+  const runtimeStatePath = resolveRuntimeStatePath(options.path);
+  const normalized = normalizeRuntimeState(state);
+  normalized.lastUpdatedAt = isoFromNowMs(nowMs());
+  const persisted = await writeRuntimeStateFile(runtimeStatePath, normalized);
+  return canonicalize({ ok: true, path: runtimeStatePath, state: persisted });
+}
+
+async function appendRecentDecision(entry = {}, options = {}) {
+  const loaded = await loadRuntimeState(options);
+  const state = normalizeRuntimeState(loaded.state);
+  const nextSequence = (state.recentDecisions.length > 0
+    ? Math.max(...state.recentDecisions.map((record) => Number(record.sequence || 0)))
+    : 0) + 1;
+
+  const persistedEntry = canonicalize({
+    sequence: nextSequence,
+    decisionId: String(entry.decisionId || `rt-dec-${nextSequence}`),
+    timestamp: String(entry.timestamp || isoFromNowMs(nowMs())),
+    type: String(entry.type || "decision"),
+    result: String(entry.result || "recorded"),
+    details: isPlainObject(entry.details) ? canonicalize(entry.details) : {},
+  });
+  state.recentDecisions.push(persistedEntry);
+  state.recentDecisions.sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0));
+  await saveRuntimeState(state, options);
+  return persistedEntry;
+}
+
+async function registerOpenLoop(loopEntry = {}, options = {}) {
+  const loaded = await loadRuntimeState(options);
+  const state = normalizeRuntimeState(loaded.state);
+  const loopId = String(loopEntry.loopId || loopEntry.loop_id || `loop-${randomHex(8)}`);
+  const normalizedEntry = canonicalize({
+    loopId,
+    sessionId: String(loopEntry.sessionId || loopEntry.session_id || "default"),
+    taskEnvelope: isPlainObject(loopEntry.taskEnvelope) ? canonicalize(loopEntry.taskEnvelope) : {},
+    createdAt: String(loopEntry.createdAt || isoFromNowMs(nowMs())),
+    status: "open",
+  });
+
+  const withoutExisting = state.openLoops.filter((entry) => String(entry.loopId || "") !== loopId);
+  withoutExisting.push(normalizedEntry);
+  withoutExisting.sort((left, right) => String(left.loopId || "").localeCompare(String(right.loopId || "")));
+  state.openLoops = withoutExisting;
+  await saveRuntimeState(state, options);
+  return normalizedEntry;
+}
+
+async function resolveOpenLoop(loopId, options = {}) {
+  const normalizedLoopId = String(loopId || "").trim();
+  if (!normalizedLoopId) {
+    const error = new Error("loopId is required");
+    error.code = "PHASE17_LOOP_ID_REQUIRED";
+    throw error;
+  }
+  const loaded = await loadRuntimeState(options);
+  const state = normalizeRuntimeState(loaded.state);
+  const before = state.openLoops.length;
+  state.openLoops = state.openLoops.filter((entry) => String(entry.loopId || "") !== normalizedLoopId);
+  await saveRuntimeState(state, options);
+  return {
+    ok: true,
+    resolved: before !== state.openLoops.length,
+    loopId: normalizedLoopId,
+  };
+}
+
 module.exports = {
   createPersistentStore,
   CONTROL_PLANE_STATE_VERSION,
   DEFAULT_STORE_PATH,
+  PHASE17_RUNTIME_STATE_VERSION,
+  DEFAULT_PHASE17_RUNTIME_STATE_PATH,
+  resolveRuntimeStatePath,
+  loadRuntimeState,
+  saveRuntimeState,
+  appendRecentDecision,
+  registerOpenLoop,
+  resolveOpenLoop,
 };

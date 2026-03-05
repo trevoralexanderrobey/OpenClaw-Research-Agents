@@ -1,4 +1,4 @@
-# Attack Surface Enumeration (Phase 13)
+# Attack Surface Enumeration (Phase 17)
 
 ## Open Ports
 - `127.0.0.1:18789` (bridge control plane)
@@ -166,6 +166,47 @@ Mitigation:
 - Access decisions are immutably chain-hashed in a dedicated Phase 13 access decision ledger.
 - Privilege escalation detection is advisory-only (`advisory_only: true`, `auto_revoke_blocked: true`) and cannot auto-revoke tokens/sessions.
 - Session governance binds sessions to tokens deterministically; revoked/expired tokens invalidate session validity.
+
+## Phase 14 Core Agent Engine Surface
+- New local execution surface:
+  - `scripts/run-research-task.js`
+  - `openclaw-bridge/core/*` Phase 14 modules
+- LLM interaction surface is explicitly constrained:
+  - network allowed only in `openclaw-bridge/core/llm-adapter.js`
+  - providers are operator-configured, default `mock`
+- Supervisor approval receipt is mandatory before execution.
+- Governance approval is mandatory after supervisor approval.
+- Interaction log (`security/interaction-log.json`) is append-only and chain-hashed.
+- Output artifacts are local-only under `workspace/research-output/`.
+
+## Phase 15 Multi-Agent Topology Surface
+- Local file comms surface:
+  - `workspace/comms/inbox`
+  - `workspace/comms/outbox`
+  - `workspace/comms/blackboard`
+  - `workspace/comms/events`
+- Role dispatch surface remains supervisor-gated.
+- Autonomy ladder policies constrain role/action execution and optional human approval requirements.
+- Comms envelopes include deterministic hashes; tamper detection is available.
+
+## Phase 16 MCP Ingestion Surface
+- New ingestion network surface:
+  - `integrations/mcp/mcp-client.js`
+  - `integrations/mcp/arxiv-client.js`
+  - `integrations/mcp/semantic-scholar-client.js`
+- Ingestion normalization and indexing paths remain local-only:
+  - `workspace/research-raw`
+  - `workspace/research-normalized`
+  - `workspace/research-index`
+- Source ledger is append-only chain-hashed for tamper evidence.
+
+## Phase 17 Runtime Resume Surface
+- New runtime state surface:
+  - `state/runtime/state.json` (gitignored runtime)
+  - `state/runtime/state.sample.json` (template)
+- Resume orchestrator requeues pending loops from local state only.
+- Resumed execution path requires renewed supervisor and governance approvals.
+- Tool image allowlist and digest-pinning policy gate runtime execution.
 
 Mitigation:
 - Default egress deny-all.

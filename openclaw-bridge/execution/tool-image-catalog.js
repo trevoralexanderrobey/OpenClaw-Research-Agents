@@ -55,6 +55,37 @@ function resolveToolImageReference(toolSlug, options = {}) {
   return typeof BUILTIN_TOOL_IMAGES[slug] === "string" ? BUILTIN_TOOL_IMAGES[slug].trim() : "";
 }
 
+function getToolImage(toolSlug, options = {}) {
+  return resolveToolImageReference(toolSlug, options);
+}
+
+function validateToolImagePolicy(toolSlug, options = {}) {
+  const slug = normalizeSlug(toolSlug);
+  if (!slug) {
+    const error = new Error("toolSlug is required");
+    error.code = "TOOL_IMAGE_SLUG_REQUIRED";
+    throw error;
+  }
+
+  const image = resolveToolImageReference(slug, options);
+  if (!image) {
+    const error = new Error(`No image mapping found for tool '${slug}'`);
+    error.code = "TOOL_IMAGE_NOT_FOUND";
+    throw error;
+  }
+  if (!isDigestPinned(image)) {
+    const error = new Error(`Tool image for '${slug}' must be digest pinned`);
+    error.code = "TOOL_IMAGE_DIGEST_REQUIRED";
+    throw error;
+  }
+
+  return {
+    valid: true,
+    toolSlug: slug,
+    image,
+  };
+}
+
 function assertCatalogDigestOnly(catalog = BUILTIN_TOOL_IMAGES) {
   for (const [slug, ref] of Object.entries(catalog)) {
     if (!isDigestPinned(ref)) {
@@ -84,6 +115,8 @@ module.exports = {
   BUILTIN_TOOL_IMAGES,
   getToolImageCatalog,
   resolveToolImageReference,
+  getToolImage,
+  validateToolImagePolicy,
   calculateToolRegistryChecksum,
   assertCatalogDigestOnly,
   assertRegistryChecksumLocked

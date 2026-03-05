@@ -324,8 +324,68 @@ function createContainerRuntime(options = {}) {
     };
   }
 
+  async function runToolInContainer(toolSlug, payload = {}, runtimeContext = {}) {
+    const slug = normalizeString(toolSlug).toLowerCase();
+    if (!slug) {
+      throw makeFailure("INVALID_CONTAINER_REQUEST", "toolSlug is required");
+    }
+    if (!isPlainObject(payload)) {
+      throw makeFailure("INVALID_CONTAINER_REQUEST", "payload must be an object");
+    }
+
+    const modelInput = {
+      image: payload.image,
+      args: Array.isArray(payload.args) ? payload.args : [],
+      env: isPlainObject(payload.env) ? payload.env : {},
+      resourceLimits: isPlainObject(payload.resourceLimits) ? payload.resourceLimits : resolveResourceLimits(slug, {
+        policies: options.resourcePolicies,
+        allowDefault: true
+      }),
+      toolSlug: slug,
+      sandboxConfig: isPlainObject(payload.sandboxConfig) ? payload.sandboxConfig : {
+        runAsNonRoot: true,
+        privileged: false,
+        hostNetwork: false,
+        hostPID: false,
+        hostMounts: false,
+        readOnlyRootFilesystem: true,
+        capabilitiesDrop: ["ALL"],
+        writableVolumes: ["scratch"]
+      },
+      signatureVerified: payload.signatureVerified === true,
+      inputArtifacts: Array.isArray(payload.inputArtifacts) ? payload.inputArtifacts : [],
+      requestId: payload.requestId,
+      principalHash: payload.principalHash,
+      policySnapshot: payload.policySnapshot,
+      credentialHandle: payload.credentialHandle,
+      mcpVolumeNamespace: payload.mcpVolumeNamespace
+    };
+
+    return runContainer(modelInput, runtimeContext);
+  }
+
+  function getRuntimePolicy(toolSlug) {
+    const slug = normalizeString(toolSlug).toLowerCase();
+    if (!slug) {
+      throw makeFailure("INVALID_CONTAINER_REQUEST", "toolSlug is required");
+    }
+    const resourceLimits = resolveResourceLimits(slug, {
+      policies: options.resourcePolicies,
+      allowDefault: true
+    });
+    const egress = validateEgressPolicy(slug, options.egressPolicies, { allowDefault: true });
+    return {
+      toolSlug: slug,
+      resourceLimits,
+      egressPolicy: egress.policy || null,
+      runtimePolicyVersion: RUNTIME_POLICY.schemaVersion
+    };
+  }
+
   return {
     runContainer,
+    runToolInContainer,
+    getRuntimePolicy,
     stopContainer,
     inspectContainer,
     listActiveExecutions,
