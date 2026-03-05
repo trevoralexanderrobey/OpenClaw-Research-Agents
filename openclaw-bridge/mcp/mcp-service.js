@@ -8,6 +8,7 @@ const { createOperatorAuthorization } = require("../../security/operator-authori
 const { createMutationControl } = require("../../security/mutation-control.js");
 const { verifyPhase7StartupIntegrity } = require("../../security/phase7-startup-integrity.js");
 const { verifyPhase8StartupIntegrity } = require("../../security/phase8-startup-integrity.js");
+const { verifyPhase9StartupIntegrity } = require("../../security/phase9-startup-integrity.js");
 const { createMonetizationEngine } = require("../../analytics/monetization-engine.js");
 const { createSemanticScholarMcp } = require("./semantic-scholar-mcp.js");
 const { createArxivMcp } = require("./arxiv-mcp.js");
@@ -209,6 +210,7 @@ function createMcpService(options = {}) {
         await verifyStoredReplay();
         await verifyPhase7StartupIntegrity({ apiGovernance, logger });
         await verifyPhase8StartupIntegrity({ apiGovernance, logger });
+        await verifyPhase9StartupIntegrity({ apiGovernance, logger });
         return { ok: true };
       })().catch((error) => {
         initializePromise = null;

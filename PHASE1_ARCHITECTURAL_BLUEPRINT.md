@@ -15,6 +15,7 @@ Core outcomes:
 - Deterministic Outcome Intelligence integrated for operator-entered feedback loops, trajectory scoring, calibration, and portfolio planning.
 - Internal Experiment Governance enables deterministic assignment, internal-only analysis, and pre-registration locked decision ledgers without external autonomous side-effects.
 - Deterministic internal compliance governance allows configuration of runtime attestation, evidence bundled generation, and operator-governed release gating.
+- Governance automation adds continuous read-only monitor workflows, policy drift detection, and guaranteed Immutable operator override ledgers.
 - Audit, threat-model, and governance documentation scaffolded for formal review.
 
 See:

@@ -1,0 +1,78 @@
+{
+  "baselineCiRunId": "22698188722",
+  "baselineCommit": "c006a0925840d24f7eac02d414a66ce254e98419",
+  "clineMarkers": [
+    "Cline (VSCode Insiders extension) is the supervisor interface",
+    "Protected mutations require operator role, scoped approval token, governance transaction wrapper, and kill-switch-open state",
+    "No autonomous external submission"
+  ],
+  "historicalRunId": "22658655231",
+  "phase8ModuleHashes": {
+    "workflows/compliance-governance/compliance-decision-ledger.js": "be0dff6e9a1176e242fb0ba714874a687e407fe6b30213b0309720753b4992aa",
+    "workflows/compliance-governance/compliance-schema.js": "13141170df6e192d7132536cc355db86a8d8d8655ed0de0276fcf5b393214383",
+    "workflows/compliance-governance/compliance-validator.js": "f96f8b910eded7144bf69ea83eed2effa4f4058d328894071a934f284822a6d1",
+    "workflows/compliance-governance/evidence-bundle-builder.js": "cce39a5ac97c78993e5ac4280071c6fdc159be3b0a35421d778ca28f9ca2686f",
+    "workflows/compliance-governance/release-gate-governor.js": "eaf62651f1782d48f158b2c26561056f6e9b872a25a136da2c53817c92e99ecb",
+    "workflows/compliance-governance/runtime-attestation-engine.js": "27751ebfc30e432c3fdccc3fdc76d7cd8995b65a0f9f4b5f366584bb4703d1b8"
+  },
+  "phase8RequiredArtifacts": [
+    "workflows/compliance-governance/compliance-decision-ledger.js",
+    "workflows/compliance-governance/compliance-schema.js",
+    "workflows/compliance-governance/compliance-validator.js",
+    "workflows/compliance-governance/evidence-bundle-builder.js",
+    "workflows/compliance-governance/release-gate-governor.js",
+    "workflows/compliance-governance/runtime-attestation-engine.js",
+    "analytics/compliance-explainability/attestation-explainer.js",
+    "analytics/compliance-explainability/gate-rationale.js",
+    "security/phase8-startup-integrity.js",
+    "scripts/generate-phase8-artifacts.js",
+    "scripts/migrate-state-v7-to-v8.js",
+    "scripts/verify-phase8-policy.sh",
+    "scripts/verify-phase8-ci-health.js",
+    "docs/phase8-compliance-attestation.md",
+    "tests/security/_phase8-helpers.js",
+    "tests/security/compliance-decision-ledger.test.js",
+    "tests/security/compliance-explainability.test.js",
+    "tests/security/evidence-bundle-builder.test.js",
+    "tests/security/phase8-ci-health.test.js",
+    "tests/security/phase8-policy-gate.test.js",
+    "tests/security/phase8-startup-integrity.test.js",
+    "tests/security/release-gate-governor.test.js",
+    "tests/security/runtime-attestation-engine.test.js",
+    "tests/security/state-schema-v8.test.js",
+    "tests/fixtures/phase8-ci/jobs-blocking.json",
+    "tests/fixtures/phase8-ci/runs-merge-sha-blocking.json",
+    "tests/fixtures/phase8-ci/runs-merge-sha-success.json",
+    "tests/fixtures/phase8-ci/runs-superseded-failure-then-success.json"
+  ],
+  "requiredClauses": [
+    {
+      "file": "docs/supervisor-architecture.md",
+      "id": "supervisor-non-mutation-boundary",
+      "recommended_fix": "Restore explicit supervisor non-mutation boundary clause",
+      "severity": "critical",
+      "text": "Supervisor is orchestration/approval-facing only and is not a privileged mutation executor"
+    },
+    {
+      "file": "docs/supervisor-architecture.md",
+      "id": "operator-approval-token-required",
+      "recommended_fix": "Restore operator approval-token requirement clause",
+      "severity": "critical",
+      "text": "Protected mutations require operator role, scoped approval token, governance transaction wrapper, and kill-switch-open state"
+    },
+    {
+      "file": "security/mutation-control.js",
+      "id": "kill-switch-precedence",
+      "recommended_fix": "Restore kill-switch precedence enforcement",
+      "severity": "critical",
+      "text": "requireKillSwitchOpen"
+    },
+    {
+      "file": "docs/phase8-compliance-attestation.md",
+      "id": "evidence-integrity-claim",
+      "recommended_fix": "Restore Phase 8 deterministic evidence integrity statement",
+      "severity": "high",
+      "text": "All JSON outputs are canonicalized and deterministic"
+    }
+  ]
+}

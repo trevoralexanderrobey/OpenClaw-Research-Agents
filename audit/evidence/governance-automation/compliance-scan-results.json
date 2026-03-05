@@ -1,0 +1,34 @@
+{
+  "compliant": true,
+  "evidence": {
+    "baseline_commit": "c006a0925840d24f7eac02d414a66ce254e98419",
+    "checked_files": [
+      ".clinerules",
+      ".vscode/extensions.json",
+      ".vscode/settings.json",
+      "docs/supervisor-architecture.md",
+      "security/cline-extension-allowlist.json",
+      "workflows/compliance-governance/compliance-decision-ledger.js",
+      "workflows/compliance-governance/compliance-schema.js",
+      "workflows/compliance-governance/compliance-validator.js",
+      "workflows/compliance-governance/evidence-bundle-builder.js",
+      "workflows/compliance-governance/release-gate-governor.js",
+      "workflows/compliance-governance/runtime-attestation-engine.js"
+    ],
+    "phase8_integrity": {
+      "decision_ledger_valid": true,
+      "evidence_bundle_count": 0
+    },
+    "phase8_module_hashes": {
+      "workflows/compliance-governance/compliance-decision-ledger.js": "be0dff6e9a1176e242fb0ba714874a687e407fe6b30213b0309720753b4992aa",
+      "workflows/compliance-governance/compliance-schema.js": "13141170df6e192d7132536cc355db86a8d8d8655ed0de0276fcf5b393214383",
+      "workflows/compliance-governance/compliance-validator.js": "f96f8b910eded7144bf69ea83eed2effa4f4058d328894071a934f284822a6d1",
+      "workflows/compliance-governance/evidence-bundle-builder.js": "cce39a5ac97c78993e5ac4280071c6fdc159be3b0a35421d778ca28f9ca2686f",
+      "workflows/compliance-governance/release-gate-governor.js": "eaf62651f1782d48f158b2c26561056f6e9b872a25a136da2c53817c92e99ecb",
+      "workflows/compliance-governance/runtime-attestation-engine.js": "27751ebfc30e432c3fdccc3fdc76d7cd8995b65a0f9f4b5f366584bb4703d1b8"
+    },
+    "policy_gates_blocking": true,
+    "runtime_state_schema_version": 8
+  },
+  "violations": []
+}

@@ -43,6 +43,7 @@ jobs:
             scripts/migrate-state-v7-to-v8.js
             scripts/generate-phase8-artifacts.js
             scripts/verify-phase8-policy.sh
+            scripts/verify-phase9-policy.sh
             scripts/verify-phase8-ci-health.js
             scripts/build-verify.sh
           )
@@ -109,6 +110,8 @@ jobs:
 
       - name: Phase 8 policy verification
         run: bash scripts/verify-phase8-policy.sh
+      - name: Phase 9 policy verification
+        run: bash scripts/verify-phase9-policy.sh
 
       - name: Test suite
         run: node --test tests/**/*.test.js

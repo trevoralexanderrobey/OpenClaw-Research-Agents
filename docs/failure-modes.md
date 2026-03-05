@@ -260,6 +260,37 @@ Handling:
 - Reject with token/policy validation errors.
 - Keep release decisions transaction-bound and operator-approved only.
 
+## Phase 9 Drift Detection Alert
+Detection:
+- Baseline contract clause missing, contradicted, or weakened.
+- Policy-gate skip logic reintroduced.
+- Autonomous boundary language introduced.
+
+Handling:
+- Fail closed in startup integrity and compliance scans.
+- Emit deterministic drift report for operator review.
+- Do not apply remediation automatically.
+
+## Phase 9 Override Ledger Integrity Mismatch
+Detection:
+- Override ledger sequence, entry hash, prev-chain hash, chain hash, or chain head mismatch.
+
+Handling:
+- Mark ledger integrity invalid (`tamper_detected=true`).
+- Block startup integrity and protected override workflows until remediated.
+- Require explicit operator review and approved correction.
+
+## Phase 9 Phase Completeness Reconciliation Failure
+Detection:
+- Required Phase 2–8 artifact missing.
+- Cross-phase contract contradiction detected.
+- Blocking policy gate wiring missing from CI/build/package chains.
+
+Handling:
+- Fail closed with completeness report.
+- Treat as blocking drift from frozen baseline.
+- Restore missing artifacts/contracts and rerun full policy/test validation set.
+
 ## Cline supervisor policy gate failure
 Detection:
 - `scripts/verify-cline-supervisor-policy.sh` fails due to missing/contradictory Cline supervisor contract markers or missing config artifacts.

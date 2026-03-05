@@ -3,6 +3,10 @@
 ## Scope
 Phase 8 introduces deterministic internal compliance governance for runtime attestation, evidence bundle generation, and operator-governed release decisions.
 
+Phase 9 dependency note:
+- Phase 8 contracts and evidence outputs are frozen inputs to Phase 9 compliance monitoring and drift detection.
+- Phase 8 release-gate evaluation/decision artifacts feed the Phase 9 compliance scanner and phase completeness reconciliation checks.
+
 Boundaries:
 - No autonomous external execution.
 - No automated login/browser/submission behavior.

@@ -35,3 +35,7 @@
 ## Compliance and Release Gating
 - Attestation logic evaluates evidence bundle generation requirements continuously.
 - Applies pre-flight check verifications against compliance chain before handling requests.
+
+## Governance Automation
+- Executes deterministic read-only compliance sweeps preventing silent drift.
+- Formalizes tamper-evident ledger patterns for override resolution tracking.

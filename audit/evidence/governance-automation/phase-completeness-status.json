@@ -1,0 +1,56 @@
+{
+  "baseline_reference": {
+    "ci_run": "22698188722",
+    "commit": "c006a0925840d24f7eac02d414a66ce254e98419"
+  },
+  "compliant": true,
+  "contradictions": [],
+  "missing_artifacts": [],
+  "phase_status": [
+    {
+      "complete": true,
+      "missing_artifacts": [],
+      "phase": "phase2"
+    },
+    {
+      "complete": true,
+      "missing_artifacts": [],
+      "phase": "phase3"
+    },
+    {
+      "complete": true,
+      "missing_artifacts": [],
+      "phase": "phase4"
+    },
+    {
+      "complete": true,
+      "missing_artifacts": [],
+      "phase": "phase5"
+    },
+    {
+      "complete": true,
+      "missing_artifacts": [],
+      "phase": "phase6"
+    },
+    {
+      "complete": true,
+      "missing_artifacts": [],
+      "phase": "phase7"
+    },
+    {
+      "complete": true,
+      "missing_artifacts": [],
+      "phase": "phase8"
+    },
+    {
+      "complete": true,
+      "missing_artifacts": [],
+      "phase": "phase9"
+    },
+    {
+      "complete": true,
+      "missing_artifacts": [],
+      "phase": "cline"
+    }
+  ]
+}

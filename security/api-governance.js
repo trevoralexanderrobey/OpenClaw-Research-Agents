@@ -156,6 +156,11 @@ function buildDefaultComplianceGovernanceState() {
       nextSequence: 0,
       chainHead: ""
     },
+    operatorOverrideLedger: {
+      records: [],
+      nextSequence: 0,
+      chainHead: ""
+    },
     nextAttestationSequence: 0,
     nextEvidenceBundleSequence: 0,
     nextReleaseGateSequence: 0
@@ -525,6 +530,50 @@ function normalizeComplianceDecisionLedgerState(value) {
   });
 }
 
+function normalizeOperatorOverrideLedgerRecord(value) {
+  const source = isPlainObject(value) ? value : {};
+  return canonicalize({
+    sequence: Math.max(1, parsePositiveInt(source.sequence, 1)),
+    override_id: typeof source.override_id === "string" ? source.override_id.trim() : "",
+    scope: typeof source.scope === "string" ? source.scope.trim() : "",
+    timestamp: typeof source.timestamp === "string" ? source.timestamp : "",
+    operator: {
+      role: typeof source.operator === "object" && source.operator && typeof source.operator.role === "string"
+        ? source.operator.role.trim()
+        : "",
+      id: typeof source.operator === "object" && source.operator && typeof source.operator.id === "string"
+        ? source.operator.id.trim()
+        : ""
+    },
+    approval_token_scope: typeof source.approval_token_scope === "string" ? source.approval_token_scope.trim() : "",
+    reason: typeof source.reason === "string" ? source.reason : "",
+    phase_impact: typeof source.phase_impact === "string" ? source.phase_impact : "",
+    override_policy: typeof source.override_policy === "string" ? source.override_policy : "",
+    governance_transaction_id: typeof source.governance_transaction_id === "string" ? source.governance_transaction_id.trim() : "",
+    prev_chain_hash: normalizeHash(source.prev_chain_hash, ""),
+    entry_hash: normalizeHash(source.entry_hash, ""),
+    chain_hash: normalizeHash(source.chain_hash, "")
+  });
+}
+
+function normalizeOperatorOverrideLedgerState(value) {
+  const source = isPlainObject(value) ? value : {};
+  const records = Array.isArray(source.records)
+    ? source.records
+      .map((entry) => normalizeOperatorOverrideLedgerRecord(entry))
+      .sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0))
+    : [];
+  const observedMaxSequence = records.reduce((max, record) => Math.max(max, Number(record.sequence || 0)), 0);
+  return canonicalize({
+    records,
+    nextSequence: Math.max(
+      observedMaxSequence,
+      Math.max(0, Number.parseInt(String(source.nextSequence ?? "0"), 10) || 0)
+    ),
+    chainHead: normalizeHash(source.chainHead, "")
+  });
+}
+
 function normalizeComplianceActiveReleasePolicy(value) {
   const source = isPlainObject(value) ? value : {};
   const requiredChecks = Array.isArray(source.requiredChecks)
@@ -684,6 +733,7 @@ function normalizeComplianceGovernanceState(value) {
     releaseGates,
     activeReleasePolicy,
     decisionLedger: normalizeComplianceDecisionLedgerState(source.decisionLedger),
+    operatorOverrideLedger: normalizeOperatorOverrideLedgerState(source.operatorOverrideLedger),
     nextAttestationSequence: Math.max(
       observedMaxAttestationSequence,
       Math.max(0, Number.parseInt(String(source.nextAttestationSequence ?? "0"), 10) || 0)

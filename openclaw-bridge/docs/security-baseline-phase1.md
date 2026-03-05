@@ -49,3 +49,8 @@
 - Evidence generation and compliance attestations are entirely deterministic and internal.
 - Tamper-evident governance requires operator authority for any release decision modifications.
 - Autonomous attestation publishing or remote evidence submission pathways are blocked.
+
+## Governance Automation Boundary
+- Drift and Remediation output enforces operator-only approval mapping.
+- Automatic baseline modifications are denied; remediation requests must remain read-only outputs until manually applied.
+- All Phase checks verify and fail-closed prior to opening the execution interfaces.

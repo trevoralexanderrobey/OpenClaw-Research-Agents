@@ -27,6 +27,10 @@ Local-first, file-based, audit-oriented research orchestration scaffold built on
 - Phase 8 startup integrity gate verifies compliance decision ledger anchor + evidence bundle integrity and fails closed before MCP service handling
 - Phase 8 release decisions are operator-approved only and cannot autonomously trigger external actions
 - Deterministic explainability and audit evidence artifacts are generated under `audit/evidence/phase8/`
+- Phase 9 governance automation enabled (read-only compliance monitoring, policy drift detection, deterministic remediation recommendations, immutable override ledger, phase completeness reconciliation)
+- Phase 9 drift/remediation pathways are operator-governed and non-autonomous; no automatic mutation execution is introduced
+- Phase 9 startup integrity gate verifies compliance monitor, drift detector, override ledger integrity, and completeness reconciliation before MCP method handling
+- Deterministic governance automation evidence artifacts are generated under `audit/evidence/governance-automation/`
 
 ## Key directories
 - `openclaw-bridge/` runtime/control-plane scaffold
@@ -42,6 +46,7 @@ Platform login, attestation, and final submission actions are always human-opera
 Outcome ingestion is operator-entered only.
 Phase 7 experimentation/rollout logic is internal-only and never submits externally.
 Phase 8 compliance attestation/release-gate logic is internal-only and never submits externally.
+Phase 9 governance monitoring/drift/remediation logic is internal-only and never submits externally.
 
 ## Supervisor Model (Cline)
 - Cline (VSCode Insiders extension) is the supervisor interface for supervised orchestration and approval-facing workflows.

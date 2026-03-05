@@ -1,0 +1,11 @@
+{
+  "integrity": {
+    "tamper_detected": false,
+    "valid": true
+  },
+  "ledger": {
+    "chainHead": "",
+    "nextSequence": 0,
+    "records": []
+  }
+}

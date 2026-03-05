@@ -84,6 +84,17 @@ Mitigation:
   - compliance ledger tail repair (`repairComplianceLedgerTail`)
 - Startup performs mandatory fail-closed Phase 8 integrity checks before MCP method handling.
 
+## Phase 9 Governance Automation & Escalation Surface
+- Internal-only modules:
+  - `workflows/governance-automation/*`
+  - `security/phase9-startup-integrity.js`
+- Monitoring and drift detection paths are read-only and do not execute external actions.
+- Remediation recommender is output-only; it generates operator review artifacts and does not apply changes automatically.
+- Override execution remains operator-only, approval-token-scoped, transaction-bound, and kill-switch-gated.
+- No browser/login automation, credential automation, or autonomous external submission is introduced.
+- No new egress domains or dynamic endpoint expansion is introduced.
+- Startup performs mandatory fail-closed Phase 9 integrity checks before MCP method handling.
+
 Mitigation:
 - Default egress deny-all.
 - HTTPS required.

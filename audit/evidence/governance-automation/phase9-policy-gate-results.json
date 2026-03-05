@@ -1,0 +1,10 @@
+{
+  "baseline_ci_run": "22698188722",
+  "baseline_commit": "c006a0925840d24f7eac02d414a66ce254e98419",
+  "command": "bash scripts/verify-phase9-policy.sh --root /Users/trevorrobey/OpenClaw-Research-Agents",
+  "historical_run": "22658655231",
+  "passed": true,
+  "status": 0,
+  "stderr": "",
+  "stdout": "Phase 9 policy verification passed"
+}

@@ -22,10 +22,11 @@
     "phase6:verify": "bash scripts/verify-phase6-policy.sh",
     "phase7:verify": "bash scripts/verify-phase7-policy.sh",
     "verify:cline-supervisor": "bash scripts/verify-cline-supervisor-policy.sh",
+    "phase9:verify": "bash scripts/verify-phase9-policy.sh",
     "lifecycle:verify": "bash scripts/verify-no-lifecycle-hooks.sh",
     "globals:lint": "bash scripts/lint-restricted-globals.sh",
     "build:verify": "bash scripts/build-verify.sh",
-    "phase2:gates": "bash scripts/cleanroom-purge-validate.sh && bash scripts/verify-no-lifecycle-hooks.sh && bash scripts/verify-npm-cache-checksum.sh && node scripts/validate-runtime-policy.js && bash scripts/verify-tool-registry-checksum.sh && bash scripts/verify-container-digest.sh && bash scripts/lint-restricted-globals.sh && bash scripts/verify-mcp-policy.sh && bash scripts/verify-mutation-policy.sh && bash scripts/verify-phase5-policy.sh && bash scripts/verify-phase6-policy.sh && bash scripts/verify-phase7-policy.sh && bash scripts/verify-cline-supervisor-policy.sh && bash scripts/verify-phase8-policy.sh && node --test tests/**/*.test.js",
+    "phase2:gates": "bash scripts/cleanroom-purge-validate.sh && bash scripts/verify-no-lifecycle-hooks.sh && bash scripts/verify-npm-cache-checksum.sh && node scripts/validate-runtime-policy.js && bash scripts/verify-tool-registry-checksum.sh && bash scripts/verify-container-digest.sh && bash scripts/lint-restricted-globals.sh && bash scripts/verify-mcp-policy.sh && bash scripts/verify-mutation-policy.sh && bash scripts/verify-phase5-policy.sh && bash scripts/verify-phase6-policy.sh && bash scripts/verify-phase7-policy.sh && bash scripts/verify-cline-supervisor-policy.sh && bash scripts/verify-phase8-policy.sh && bash scripts/verify-phase9-policy.sh && node --test tests/**/*.test.js",
     "phase3:audit": "bash scripts/generate-phase3-audit-artifacts.sh",
     "phase4:audit": "bash scripts/generate-phase4-audit-artifacts.sh",
     "phase8:verify": "bash scripts/verify-phase8-policy.sh"
