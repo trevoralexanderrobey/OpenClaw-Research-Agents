@@ -1,0 +1,1 @@
+OpenClaw emphasizes local-first, deterministic workflows with explicit operator approval for protected actions.

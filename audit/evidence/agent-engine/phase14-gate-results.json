@@ -1,0 +1,4 @@
+{
+  "command": "bash scripts/verify-phase14-policy.sh",
+  "result": 0
+}

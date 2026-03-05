@@ -13,3 +13,9 @@ security/artifact-signing-key.json
 security/token-store.json
 security/access-decision-ledger.json
 security/session-store.json
+config/llm-providers.local.json
+security/interaction-log.json
+workspace/research-output/*
+!workspace/research-output/.gitkeep
+state/runtime/state.json
+workspace/memory/research-ingestion.ndjson

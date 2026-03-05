@@ -1,0 +1,1 @@
+Research agents should produce auditable output artifacts and preserve governance controls end-to-end.

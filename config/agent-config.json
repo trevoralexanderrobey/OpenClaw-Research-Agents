@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "phase14-agent-config-v1",
+  "defaultProvider": "mock",
+  "defaultModel": "mock-v1",
+  "inputDir": "workspace/research-input/",
+  "outputDir": "workspace/research-output/",
+  "interactionLogPath": "security/interaction-log.json",
+  "taskTimeoutMs": 120000,
+  "maxTokensPerRequest": 4000,
+  "rlhfAutoGenerate": true,
+  "requireSupervisorApproval": true,
+  "statusIndexFile": "tasks-index.json"
+}

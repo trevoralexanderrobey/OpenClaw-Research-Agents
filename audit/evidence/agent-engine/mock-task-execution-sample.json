@@ -1,0 +1,6 @@
+{
+  "command": "node scripts/run-research-task.js --task ... --confirm",
+  "status": 0,
+  "stderr": "",
+  "stdout": "{\n  \"manifest_path\": \"/Users/trevorrobey/OpenClaw-Research-Agents/workspace/research-output/task-f88ade037cc95e348ef3d9cc/manifest.json\",\n  \"metadata_path\": \"/Users/trevorrobey/OpenClaw-Research-Agents/workspace/research-output/task-f88ade037cc95e348ef3d9cc/metadata.json\",\n  \"model\": \"mock-v1\",\n  \"ok\": true,\n  \"output_path\": \"/Users/trevorrobey/OpenClaw-Research-Agents/workspace/research-output/task-f88ade037cc95e348ef3d9cc/output.md\",\n  \"provider\": \"mock\",\n  \"status\": \"completed\",\n  \"task_id\": \"task-f88ade037cc95e348ef3d9cc\",\n  \"token_count\": 36\n}"
+}

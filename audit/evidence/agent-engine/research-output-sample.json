@@ -1,0 +1,20 @@
+{
+  "schema_version": "phase14-output-index-v1",
+  "tasks": [
+    {
+      "completed_at": "1970-01-01T00:00:00.000Z",
+      "error_code": "",
+      "error_message": "",
+      "manifest_path": "task-f88ade037cc95e348ef3d9cc/manifest.json",
+      "metadata_path": "task-f88ade037cc95e348ef3d9cc/metadata.json",
+      "model": "mock-v1",
+      "output_format": "markdown",
+      "output_path": "task-f88ade037cc95e348ef3d9cc/output.md",
+      "provider": "mock",
+      "started_at": "1970-01-01T00:00:00.000Z",
+      "status": "completed",
+      "task_id": "task-f88ade037cc95e348ef3d9cc",
+      "type": "summarize"
+    }
+  ]
+}

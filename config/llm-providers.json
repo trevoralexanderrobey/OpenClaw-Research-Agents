@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "phase14-llm-providers-v1",
+  "providers": {
+    "mock": {
+      "enabled": true,
+      "model": "mock-v1"
+    },
+    "local": {
+      "enabled": false,
+      "endpoint": "http://localhost:11434/api/generate",
+      "model": "llama3.1"
+    },
+    "openai": {
+      "enabled": false,
+      "endpoint": "https://api.openai.com/v1/responses",
+      "model": "gpt-4.1-mini",
+      "apiKeyEnv": "OPENAI_API_KEY"
+    },
+    "anthropic": {
+      "enabled": false,
+      "endpoint": "https://api.anthropic.com/v1/messages",
+      "model": "claude-3-5-sonnet-latest",
+      "apiKeyEnv": "ANTHROPIC_API_KEY"
+    },
+    "openrouter": {
+      "enabled": false,
+      "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+      "model": "openai/gpt-4o-mini",
+      "apiKeyEnv": "OPENROUTER_API_KEY"
+    }
+  }
+}

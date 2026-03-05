@@ -1,0 +1,1 @@
+Cline supervisor authority remains orchestration-only and cannot bypass operator mutation boundaries.

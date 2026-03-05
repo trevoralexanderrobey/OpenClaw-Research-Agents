@@ -1,0 +1,28 @@
+{
+  "chain_head": "d948b9ca8c526bda58ddedfcbf35bcd2923fba56a7704dcee4601841036a3a89",
+  "entries": [
+    {
+      "chain_hash": "d948b9ca8c526bda58ddedfcbf35bcd2923fba56a7704dcee4601841036a3a89",
+      "duration_ms": 0,
+      "entry_hash": "90314d864683f315ea84d52cce7a07a9ef7bdf45132d9134255330c7601ce5b8",
+      "interaction_id": "int-1",
+      "metadata": {
+        "prompt_hash": "f805ca74076e528234dc4b6a6525ae1cc5800d74da79357c4646313adab9544d",
+        "response_hash": "883486c732ab517e01500659f607f43bf1d22456f7831f937143a4d6c378269b"
+      },
+      "model": "mock-v1",
+      "prev_chain_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "prompt_hash": "f805ca74076e528234dc4b6a6525ae1cc5800d74da79357c4646313adab9544d",
+      "prompt_preview": "You are a local-first research agent.\nTask Type: summarize\nTask Description: Summarize the sample input documents\nOutput Format: markdown\nConstraints: {}\nInput Documents:\n--- DOC 1: workspace/research-input/sample/doc-1.txt ---\nOpenClaw emphasizes local-fi",
+      "provider": "mock",
+      "response_hash": "883486c732ab517e01500659f607f43bf1d22456f7831f937143a4d6c378269b",
+      "response_preview": "Mock completion (mock-v1)\nDigest: c0a839960dbfb3378ddf2e7958e71832f1062b26fa0e903934cb057e2e9bfc11\nFocus: You are a local-first research agent.\nSummary: Deterministic mock response generated from canonical prompt hash.",
+      "sequence": 1,
+      "task_id": "task-f88ade037cc95e348ef3d9cc",
+      "timestamp": "1970-01-01T00:00:00.000Z",
+      "token_count": 36
+    }
+  ],
+  "next_sequence": 1,
+  "schema_version": "phase14-interaction-log-v1"
+}

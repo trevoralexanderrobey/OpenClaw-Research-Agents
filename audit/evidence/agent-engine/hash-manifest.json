@@ -1,0 +1,28 @@
+{
+  "files": [
+    {
+      "file": "governance-bridge-sample.json",
+      "sha256": "ff9650e75d5b465c533d7657ba420ffa00f16537a566a9399ef59e13f147792d"
+    },
+    {
+      "file": "interaction-log-sample.json",
+      "sha256": "7c6cb1e6902075653ed4641f01b5f0702c03788f95742748185b9e5f28304440"
+    },
+    {
+      "file": "mock-task-execution-sample.json",
+      "sha256": "5a27d0af6221ef771ff1d63f8d4093cee816637867e90c4343587be81ba485fd"
+    },
+    {
+      "file": "phase14-gate-results.json",
+      "sha256": "0c85cb56bbdf1d05baf1afc914bca35bc70cbf83ca7580181f923c1a8f03f9f2"
+    },
+    {
+      "file": "research-output-sample.json",
+      "sha256": "021e0c6514a22e935dda5110eabfa5ee12c440ea9bbb421dae77c01ee8d1a912"
+    },
+    {
+      "file": "schema-snapshot.json",
+      "sha256": "fdaae25c8af5220208961968d90d984fa86608b5972c205f4ee4ea2a7ca039a7"
+    }
+  ]
+}

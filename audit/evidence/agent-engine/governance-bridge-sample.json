@@ -1,0 +1,11 @@
+{
+  "supervisor_approved_run": {
+    "exit_status": 0,
+    "stdout": "{\n  \"manifest_path\": \"/Users/trevorrobey/OpenClaw-Research-Agents/workspace/research-output/task-f88ade037cc95e348ef3d9cc/manifest.json\",\n  \"metadata_path\": \"/Users/trevorrobey/OpenClaw-Research-Agents/workspace/research-output/task-f88ade037cc95e348ef3d9cc/metadata.json\",\n  \"model\": \"mock-v1\",\n  \"ok\": true,\n  \"output_path\": \"/Users/trevorrobey/OpenClaw-Research-Agents/workspace/research-output/task-f88ade037cc95e348ef3d9cc/output.md\",\n  \"provider\": \"mock\",\n  \"status\": \"completed\",\n  \"task_id\": \"task-f88ade037cc95e348ef3d9cc\",\n  \"token_count\": 36\n}"
+  },
+  "supervisor_denied_run": {
+    "exit_status": 1,
+    "stderr": "SyntaxError: Unexpected non-whitespace character after JSON at position 104264 (line 2649 column 1)\n    at JSON.parse (<anonymous>)\n    at readJsonFileIfExists (/Users/trevorrobey/OpenClaw-Research-Agents/workflows/access-control/access-control-common.js:73:17)\n    at readState (/Users/trevorrobey/OpenClaw-Research-Agents/workflows/access-control/access-decision-ledger.js:127:27)\n    at /Users/trevorrobey/OpenClaw-Research-Agents/workflows/access-control/access-decision-ledger.js:141:21",
+    "stdout": ""
+  }
+}
