@@ -1,0 +1,10 @@
+{
+  "editor.formatOnSave": true,
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "cline": {
+    "enforcePolicy": true,
+    "workspaceConfigPath": ".clinerules",
+    "autoApprove": false
+  }
+}
