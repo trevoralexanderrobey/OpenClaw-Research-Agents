@@ -1,6 +1,6 @@
-# Phase 1 Architectural Blueprint (Implemented Scaffold)
+# Architectural Blueprint (Implemented Scaffold)
 
-This repository now contains the Phase 1 implementation scaffold for OpenClaw Research Agents.
+This repository now contains the full 17-Phase architecture scaffold for OpenClaw Research Agents.
 
 Core outcomes:
 - Clean-room derivative controls recorded.
@@ -20,6 +20,10 @@ Core outcomes:
 - Recovery Assurance capabilities added including fail-closed checkpoints, strict human-gated restore pipelines, and read-only continuity drill automation.
 - Deterministic Supply Chain Security enables internal SBOM generation, dependency integrity verification, and operator-gated dependency patching bounds.
 - Deterministic Access Control and Identity Governance enforces local-only canonical RBAC policies, operator-gated token lifecycle, and fail-closed permission boundaries.
+- Core Research Agent Engine (Phase 14) implements supervisor-gated research tasks, deterministic mock LLM execution, and writes deterministic output artifacts.
+- Multi-Agent Topology (Phase 15) integrates deterministic lane queues, communication buses, and multi-actor interaction logging.
+- MCP Research Ingestion (Phase 16) normalizes external knowledge ingestion via structured, strict local integration pathways.
+- Runtime Hardening and Resume Orchestration (Phase 17) guarantees deterministic persistent state resumption across execution boundaries and component failures.
 - Audit, threat-model, and governance documentation scaffolded for formal review.
 
 See:

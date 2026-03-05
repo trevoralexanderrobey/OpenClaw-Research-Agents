@@ -1,4 +1,4 @@
-# Runtime Core Architecture (Phase 1)
+# Runtime Core Architecture
 
 ## Control-plane responsibilities
 - Gateway ingress and transport multiplexing.
@@ -55,3 +55,11 @@
 ## Access Control & Identity Governance
 - Implements deterministic, local-only access control across all operator-gated workflows using canonical RBAC.
 - Governs session state and fail-closed permission boundaries without autonomous external Identity Provider mechanisms.
+
+## Research Agent Execution Engine (Phase 14-15)
+- Orchestrates multi-agent topologies utilizing deterministic queue lanes and explicit comms buses.
+- Constrains direct task execution behind the Supervisor mandatory approval gate (`supervisorDecision.approved`).
+
+## Runtime Hardening & Data Normalization (Phase 16-17)
+- Unifies structured MCP retrieval schemas into the deterministic internal logic pipeline.
+- Enforces resilient resume mechanisms orchestrating local session state checkpoints through runtime failures.

@@ -1,4 +1,4 @@
-# Security Baseline (Phase 1)
+# Security Baseline
 
 ## Container isolation baseline
 - Non-root user
@@ -72,3 +72,8 @@
 ## Access Control & Identity Governance Boundary
 - Entirely local system prohibiting network IdP dependencies.
 - Prevents any automated lifecycle rotation actions outside strict authorized governance token loops.
+
+## Agent Autonomy & Ingestion Boundary (Phase 14-17)
+- Direct agent automation execution paths without operator/supervisor gate approvals strictly fail.
+- Re-injected resume loops cannot bypass or substitute previously completed local authorization verifications.
+- Network activity is formally isolated to verified MCP endpoints and the scoped `openclaw-bridge/core/llm-adapter.js` interface.
