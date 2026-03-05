@@ -1,0 +1,12 @@
+{
+  "phase": "phase15",
+  "scenario": "supervisor_denied",
+  "result": "blocked",
+  "details": {
+    "path": "role_router_dispatch",
+    "supervisor_decision": {
+      "approved": false,
+      "reason": "missing_confirm"
+    }
+  }
+}

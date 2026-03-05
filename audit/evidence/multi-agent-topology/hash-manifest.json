@@ -1,0 +1,16 @@
+{
+  "files": [
+    {
+      "file": "queue-order-sample.json",
+      "sha256": "23fbb05bc3346521da0a0174fe77df23b46e001051d3e6865ed74c9ad8611007"
+    },
+    {
+      "file": "supervisor-approved-run.json",
+      "sha256": "b9200878457a509ce53f16b9c4dfd2dd3022dda578570670dbe567ec40064efa"
+    },
+    {
+      "file": "supervisor-denied-run.json",
+      "sha256": "2a225fb257fbc0248b1df41042c95a0d52c6e6dd1e5f7ebc3ec8f1d01fbedbb6"
+    }
+  ]
+}

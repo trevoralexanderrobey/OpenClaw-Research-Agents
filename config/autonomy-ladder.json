@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "phase15-autonomy-ladder-v1",
+  "roles": {
+    "scout": {
+      "allowedActions": ["collect_sources", "execute_task"],
+      "requireHumanApproval": ["execute_task"]
+    },
+    "analyst": {
+      "allowedActions": ["analyze_documents", "execute_task"],
+      "requireHumanApproval": ["execute_task"]
+    },
+    "synthesizer": {
+      "allowedActions": ["synthesize_output", "execute_task"],
+      "requireHumanApproval": ["execute_task"]
+    },
+    "operator": {
+      "allowedActions": ["approve_mutation", "execute_task"],
+      "requireHumanApproval": ["approve_mutation", "execute_task"]
+    },
+    "supervisor": {
+      "allowedActions": ["queue_task", "approve_task"],
+      "requireHumanApproval": ["approve_task"]
+    }
+  }
+}

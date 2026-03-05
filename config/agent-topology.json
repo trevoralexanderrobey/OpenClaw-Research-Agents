@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "phase15-agent-topology-v1",
+  "roles": [
+    "supervisor",
+    "scout",
+    "analyst",
+    "synthesizer",
+    "operator"
+  ],
+  "routing": {
+    "summarize": "analyst",
+    "extract": "analyst",
+    "analyze": "analyst",
+    "synthesize": "synthesizer",
+    "freeform": "scout"
+  }
+}
