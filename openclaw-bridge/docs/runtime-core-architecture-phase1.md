@@ -39,3 +39,7 @@
 ## Governance Automation
 - Executes deterministic read-only compliance sweeps preventing silent drift.
 - Formalizes tamper-evident ledger patterns for override resolution tracking.
+
+## Operational Resilience Pipeline
+- Exposes deterministic telemetry and advisory SLO alerting channels.
+- Orchestrates operator-gated runbook execution and blocks automated remediation.

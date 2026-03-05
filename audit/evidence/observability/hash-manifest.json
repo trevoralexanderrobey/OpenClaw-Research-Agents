@@ -1,0 +1,52 @@
+{
+  "files": [
+    {
+      "file": "alert-rules.json",
+      "sha256": "65a869b90c4ce32485295b3e24f66e0648f2f30e0895c562e453b6c23be38bcc"
+    },
+    {
+      "file": "attestation-anchor-sample.json",
+      "sha256": "dde0ed8015c67a7ed34f06adad6ace1444c27b73328cd343ea76c2ccc173555c"
+    },
+    {
+      "file": "decision-ledger-sample.json",
+      "sha256": "85bcf477e01d0b2e6e87a0eaa179f6657a5a729f57f1e24d3376cdf1835b62b1"
+    },
+    {
+      "file": "escalation-policy.json",
+      "sha256": "f94f9b232bc4b5f264f093823b51d3b2996588d7b6d5cd861b8519186d86dd03"
+    },
+    {
+      "file": "external-attestation-policy.json",
+      "sha256": "e95133cf635e6f34214dcaa21868c61f0fbdafed7d35fce60149da358b6e4e43"
+    },
+    {
+      "file": "incident-artifact-sample.json",
+      "sha256": "d5c24874dcc140ae06bf4e2b4644708dba7b99845e51ed30502b65d20883901e"
+    },
+    {
+      "file": "metrics-prometheus.txt",
+      "sha256": "18019e7236e3c1e3a3ed3b0d40c2ec584c33af596fafdbc73673503939d6a744"
+    },
+    {
+      "file": "metrics-sample.json",
+      "sha256": "216fc403a0dde3201dcbffb855264e63b93783b7e61c5bff2e234dfb37946571"
+    },
+    {
+      "file": "metrics-schema.json",
+      "sha256": "2ec0d93d860f4b7df4bc01df22d4f5b379e1a33b4a9d50eb4554d00fa8792862"
+    },
+    {
+      "file": "runbook-execution-sample.json",
+      "sha256": "11f65976c539a18cd392f6e4b90f5af4e13453da97131cffe6d97e6f65415e7d"
+    },
+    {
+      "file": "runbook-templates.json",
+      "sha256": "e7072126b5f83d0b8b5f7b8151a1ebda0895ad0cf238070ec336a87272a5318e"
+    },
+    {
+      "file": "slo-definitions.json",
+      "sha256": "ca8dfa754ae433449f676278c3909dae1517bb6aee2594b2f4aae32e705ef24f"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "rules": [
+    {
+      "advisory_only": true,
+      "auto_remediation_blocked": true,
+      "id": "phase10-compliance_scan_frequency-rule",
+      "metric": "compliance_scan_frequency",
+      "operator": "operator",
+      "slo": "compliance_scan_frequency",
+      "threshold": {
+        "breach_gap_hours": 48,
+        "severity": "high",
+        "target_hours": 24
+      }
+    },
+    {
+      "advisory_only": true,
+      "auto_remediation_blocked": true,
+      "id": "phase10-compliance_violation_threshold-rule",
+      "metric": "compliance_violation_threshold",
+      "operator": "operator",
+      "slo": "compliance_violation_threshold",
+      "threshold": {
+        "max_violations": 0,
+        "severity": "critical"
+      }
+    },
+    {
+      "advisory_only": true,
+      "auto_remediation_blocked": true,
+      "id": "phase10-incident_escalation_latency_p95-rule",
+      "metric": "incident_escalation_latency_p95_metric",
+      "operator": "operator",
+      "slo": "incident_escalation_latency_p95",
+      "threshold": {
+        "breach_ms": 120000,
+        "severity": "critical",
+        "target_ms": 60000
+      }
+    },
+    {
+      "advisory_only": true,
+      "auto_remediation_blocked": true,
+      "id": "phase10-override_decision_latency_p99-rule",
+      "metric": "override_decision_latency_p99_metric",
+      "operator": "operator",
+      "slo": "override_decision_latency_p99",
+      "threshold": {
+        "breach_ms": 600000,
+        "severity": "high",
+        "target_ms": 300000
+      }
+    },
+    {
+      "advisory_only": true,
+      "auto_remediation_blocked": true,
+      "id": "phase10-policy_drift_critical_threshold-rule",
+      "metric": "policy_drift_critical_threshold",
+      "operator": "operator",
+      "slo": "policy_drift_critical_threshold",
+      "threshold": {
+        "max_critical_drifts": 0,
+        "severity": "critical"
+      }
+    },
+    {
+      "advisory_only": true,
+      "auto_remediation_blocked": true,
+      "id": "phase10-remediation_request_success_rate-rule",
+      "metric": "remediation_request_success_rate",
+      "operator": "operator",
+      "slo": "remediation_request_success_rate",
+      "threshold": {
+        "breach_rate": 0.9,
+        "severity": "high",
+        "target_rate": 0.95
+      }
+    },
+    {
+      "advisory_only": true,
+      "auto_remediation_blocked": true,
+      "id": "phase10-runbook_action_success_rate-rule",
+      "metric": "runbook_action_success_rate",
+      "operator": "operator",
+      "slo": "runbook_action_success_rate",
+      "threshold": {
+        "breach_rate": 0.95,
+        "severity": "critical",
+        "target_rate": 0.99
+      }
+    }
+  ]
+}

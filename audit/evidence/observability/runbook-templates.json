@@ -1,0 +1,14 @@
+{
+  "templates": [
+    {
+      "acceptance_criteria": [
+        "Policy drift is resolved",
+        "Phase 10 policy gate passes",
+        "Decision ledger entry recorded"
+      ],
+      "id": "drift-critical-remediation",
+      "risk_assessment": "high",
+      "title": "Critical Drift Remediation"
+    }
+  ]
+}

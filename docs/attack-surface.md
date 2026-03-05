@@ -1,4 +1,4 @@
-# Attack Surface Enumeration (Phase 8)
+# Attack Surface Enumeration (Phase 10)
 
 ## Open Ports
 - `127.0.0.1:18789` (bridge control plane)
@@ -32,6 +32,8 @@ Mitigation:
 - No additional outbound hosts are introduced by Phase 6.
 - No additional outbound hosts are introduced by Phase 7.
 - No new egress domains or dynamic endpoint expansion is permitted by Cline supervisor hardening.
+- No new global outbound hosts are introduced by Phase 10 observability/incident workflows.
+- Phase 10 optional external attestation anchoring uses a dedicated static allowlist (`security/phase10-attestation-egress-allowlist.json`) and is operator-initiated only.
 
 ## RLHF Internal Workflow Surface
 - Internal modules only:
@@ -94,6 +96,24 @@ Mitigation:
 - No browser/login automation, credential automation, or autonomous external submission is introduced.
 - No new egress domains or dynamic endpoint expansion is introduced.
 - Startup performs mandatory fail-closed Phase 9 integrity checks before MCP method handling.
+
+## Phase 10 Operational Resilience & Response Surface
+- Internal-only modules:
+  - `workflows/observability/*`
+  - `workflows/runbook-automation/*`
+  - `workflows/incident-management/*`
+  - `security/phase10-startup-integrity.js`
+- Alerting is advisory-only; alerts never trigger automatic remediation.
+- Runbook orchestration is operator-approved only (`approval token + confirm`) and does not auto-execute on timers.
+- Incident artifacts are deterministic JSON records and do not mutate protected runtime mutation state.
+- Escalation is notification-only by severity tier; no mutation execution path exists.
+- Optional external attestation anchoring:
+  - requires explicit operator role
+  - requires scoped token `governance.attestation.anchor`
+  - requires explicit `--external-service` URL
+  - enforces static host allowlist and blocked-by-default egress
+  - is never auto-triggered by alerts/runbooks
+- Startup performs mandatory fail-closed Phase 10 integrity checks before MCP method handling.
 
 Mitigation:
 - Default egress deny-all.

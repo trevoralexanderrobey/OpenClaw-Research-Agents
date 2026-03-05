@@ -1,0 +1,484 @@
+{
+  "as_of": "2026-03-04T12:00:10.000Z",
+  "events_processed": 11,
+  "histogram_buckets": [
+    1,
+    5,
+    10,
+    25,
+    50,
+    100,
+    250,
+    500,
+    1000,
+    2500,
+    5000,
+    10000,
+    30000,
+    60000,
+    300000
+  ],
+  "metrics": [
+    {
+      "help": "Attestation anchor attempts",
+      "name": "attestation_anchor_attempt_count",
+      "type": "counter",
+      "values": [
+        {
+          "labels": {},
+          "value": 1
+        }
+      ]
+    },
+    {
+      "help": "Attestation anchor successes",
+      "name": "attestation_anchor_success_count",
+      "type": "counter",
+      "values": [
+        {
+          "labels": {},
+          "value": 1
+        }
+      ]
+    },
+    {
+      "help": "Total compliance scans executed",
+      "name": "compliance_scan_count",
+      "type": "counter",
+      "values": [
+        {
+          "labels": {},
+          "value": 1
+        }
+      ]
+    },
+    {
+      "help": "Compliance scan duration distribution",
+      "name": "compliance_scan_duration_ms",
+      "type": "histogram",
+      "values": [
+        {
+          "buckets": [
+            {
+              "count": 0,
+              "le": 1
+            },
+            {
+              "count": 0,
+              "le": 5
+            },
+            {
+              "count": 0,
+              "le": 10
+            },
+            {
+              "count": 0,
+              "le": 25
+            },
+            {
+              "count": 0,
+              "le": 50
+            },
+            {
+              "count": 0,
+              "le": 100
+            },
+            {
+              "count": 1,
+              "le": 250
+            },
+            {
+              "count": 1,
+              "le": 500
+            },
+            {
+              "count": 1,
+              "le": 1000
+            },
+            {
+              "count": 1,
+              "le": 2500
+            },
+            {
+              "count": 1,
+              "le": 5000
+            },
+            {
+              "count": 1,
+              "le": 10000
+            },
+            {
+              "count": 1,
+              "le": 30000
+            },
+            {
+              "count": 1,
+              "le": 60000
+            },
+            {
+              "count": 1,
+              "le": 300000
+            },
+            {
+              "count": 1,
+              "le": "+Inf"
+            }
+          ],
+          "count": 1,
+          "labels": {},
+          "sum": 120
+        }
+      ]
+    },
+    {
+      "help": "Current compliance violation count",
+      "name": "compliance_violations_total",
+      "type": "gauge",
+      "values": [
+        {
+          "labels": {},
+          "value": 0
+        }
+      ]
+    },
+    {
+      "help": "Incident escalation latency",
+      "name": "incident_escalation_latency_ms",
+      "type": "histogram",
+      "values": [
+        {
+          "buckets": [
+            {
+              "count": 0,
+              "le": 1
+            },
+            {
+              "count": 0,
+              "le": 5
+            },
+            {
+              "count": 0,
+              "le": 10
+            },
+            {
+              "count": 0,
+              "le": 25
+            },
+            {
+              "count": 0,
+              "le": 50
+            },
+            {
+              "count": 0,
+              "le": 100
+            },
+            {
+              "count": 0,
+              "le": 250
+            },
+            {
+              "count": 1,
+              "le": 500
+            },
+            {
+              "count": 1,
+              "le": 1000
+            },
+            {
+              "count": 1,
+              "le": 2500
+            },
+            {
+              "count": 1,
+              "le": 5000
+            },
+            {
+              "count": 1,
+              "le": 10000
+            },
+            {
+              "count": 1,
+              "le": 30000
+            },
+            {
+              "count": 1,
+              "le": 60000
+            },
+            {
+              "count": 1,
+              "le": 300000
+            },
+            {
+              "count": 1,
+              "le": "+Inf"
+            }
+          ],
+          "count": 1,
+          "labels": {},
+          "sum": 300
+        }
+      ]
+    },
+    {
+      "help": "Incident artifacts created",
+      "name": "incident_event_count",
+      "type": "counter",
+      "values": [
+        {
+          "labels": {},
+          "value": 1
+        }
+      ]
+    },
+    {
+      "help": "Operator override decision latency",
+      "name": "override_decision_latency_ms",
+      "type": "histogram",
+      "values": []
+    },
+    {
+      "help": "Total override ledger entries",
+      "name": "override_ledger_entry_count",
+      "type": "counter",
+      "values": []
+    },
+    {
+      "help": "Total policy drift incidents",
+      "name": "policy_drift_incidents_total",
+      "type": "counter",
+      "values": [
+        {
+          "labels": {},
+          "value": 1
+        }
+      ]
+    },
+    {
+      "help": "Active policy drift severity counts",
+      "name": "policy_drift_severity",
+      "type": "gauge",
+      "values": [
+        {
+          "labels": {
+            "severity": "critical"
+          },
+          "value": 1
+        }
+      ]
+    },
+    {
+      "help": "Phase 10 policy gate check duration",
+      "name": "policy_gate_check_duration_ms",
+      "type": "histogram",
+      "values": [
+        {
+          "buckets": [
+            {
+              "count": 0,
+              "le": 1
+            },
+            {
+              "count": 0,
+              "le": 5
+            },
+            {
+              "count": 0,
+              "le": 10
+            },
+            {
+              "count": 0,
+              "le": 25
+            },
+            {
+              "count": 1,
+              "le": 50
+            },
+            {
+              "count": 1,
+              "le": 100
+            },
+            {
+              "count": 1,
+              "le": 250
+            },
+            {
+              "count": 1,
+              "le": 500
+            },
+            {
+              "count": 1,
+              "le": 1000
+            },
+            {
+              "count": 1,
+              "le": 2500
+            },
+            {
+              "count": 1,
+              "le": 5000
+            },
+            {
+              "count": 1,
+              "le": 10000
+            },
+            {
+              "count": 1,
+              "le": 30000
+            },
+            {
+              "count": 1,
+              "le": 60000
+            },
+            {
+              "count": 1,
+              "le": 300000
+            },
+            {
+              "count": 1,
+              "le": "+Inf"
+            }
+          ],
+          "count": 1,
+          "labels": {},
+          "sum": 42
+        }
+      ]
+    },
+    {
+      "help": "Policy gate violations detected",
+      "name": "policy_gate_violations_detected",
+      "type": "counter",
+      "values": []
+    },
+    {
+      "help": "Applied remediation requests",
+      "name": "remediation_request_applied_count",
+      "type": "counter",
+      "values": []
+    },
+    {
+      "help": "Total remediation recommendations",
+      "name": "remediation_request_count",
+      "type": "counter",
+      "values": [
+        {
+          "labels": {},
+          "value": 1
+        }
+      ]
+    },
+    {
+      "help": "Rejected remediation requests",
+      "name": "remediation_request_rejected_count",
+      "type": "counter",
+      "values": []
+    },
+    {
+      "help": "Failed runbook actions",
+      "name": "runbook_action_failure_count",
+      "type": "counter",
+      "values": []
+    },
+    {
+      "help": "Successful runbook actions",
+      "name": "runbook_action_success_count",
+      "type": "counter",
+      "values": [
+        {
+          "labels": {},
+          "value": 1
+        }
+      ]
+    },
+    {
+      "help": "Runbook operator approval latency",
+      "name": "runbook_approval_latency_ms",
+      "type": "histogram",
+      "values": [
+        {
+          "buckets": [
+            {
+              "count": 0,
+              "le": 1
+            },
+            {
+              "count": 0,
+              "le": 5
+            },
+            {
+              "count": 0,
+              "le": 10
+            },
+            {
+              "count": 0,
+              "le": 25
+            },
+            {
+              "count": 0,
+              "le": 50
+            },
+            {
+              "count": 0,
+              "le": 100
+            },
+            {
+              "count": 0,
+              "le": 250
+            },
+            {
+              "count": 0,
+              "le": 500
+            },
+            {
+              "count": 0,
+              "le": 1000
+            },
+            {
+              "count": 1,
+              "le": 2500
+            },
+            {
+              "count": 1,
+              "le": 5000
+            },
+            {
+              "count": 1,
+              "le": 10000
+            },
+            {
+              "count": 1,
+              "le": 30000
+            },
+            {
+              "count": 1,
+              "le": 60000
+            },
+            {
+              "count": 1,
+              "le": 300000
+            },
+            {
+              "count": 1,
+              "le": "+Inf"
+            }
+          ],
+          "count": 1,
+          "labels": {},
+          "sum": 2000
+        }
+      ]
+    },
+    {
+      "help": "Total runbook executions",
+      "name": "runbook_execution_count",
+      "type": "counter",
+      "values": [
+        {
+          "labels": {},
+          "value": 1
+        }
+      ]
+    }
+  ],
+  "schema_version": "phase10-metrics-v1"
+}

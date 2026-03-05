@@ -50,6 +50,11 @@
     {
       "complete": true,
       "missing_artifacts": [],
+      "phase": "phase10"
+    },
+    {
+      "complete": true,
+      "missing_artifacts": [],
       "phase": "cline"
     }
   ]

@@ -54,3 +54,8 @@
 - Drift and Remediation output enforces operator-only approval mapping.
 - Automatic baseline modifications are denied; remediation requests must remain read-only outputs until manually applied.
 - All Phase checks verify and fail-closed prior to opening the execution interfaces.
+
+## Operational Resilience Boundary
+- Automated remediation and dynamic egress expansion are strictly prohibited.
+- Alerting mechanisms are advisory-only; runbook execution demands operator confirmation.
+- External attestation anchoring requires explicit operator opt-in and strict allowlist enforcement.

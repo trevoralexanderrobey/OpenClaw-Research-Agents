@@ -7,6 +7,10 @@ Phase 9 dependency note:
 - Phase 8 contracts and evidence outputs are frozen inputs to Phase 9 compliance monitoring and drift detection.
 - Phase 8 release-gate evaluation/decision artifacts feed the Phase 9 compliance scanner and phase completeness reconciliation checks.
 
+Phase 10 cross-reference:
+- Phase 8 evidence bundles may be used as optional input artifacts for Phase 10 external attestation anchoring.
+- External anchoring remains operator-initiated, token-scoped, and blocked-by-default.
+
 Boundaries:
 - No autonomous external execution.
 - No automated login/browser/submission behavior.

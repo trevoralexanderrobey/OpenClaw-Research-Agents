@@ -161,6 +161,11 @@ function buildDefaultComplianceGovernanceState() {
       nextSequence: 0,
       chainHead: ""
     },
+    operationalDecisionLedger: {
+      records: [],
+      nextSequence: 0,
+      chainHead: ""
+    },
     nextAttestationSequence: 0,
     nextEvidenceBundleSequence: 0,
     nextReleaseGateSequence: 0
@@ -574,6 +579,42 @@ function normalizeOperatorOverrideLedgerState(value) {
   });
 }
 
+function normalizeOperationalDecisionLedgerRecord(value) {
+  const source = isPlainObject(value) ? value : {};
+  return canonicalize({
+    sequence: Math.max(1, parsePositiveInt(source.sequence, 1)),
+    decision_id: typeof source.decision_id === "string" ? source.decision_id.trim() : "",
+    timestamp: typeof source.timestamp === "string" ? source.timestamp : "",
+    event_type: typeof source.event_type === "string" ? source.event_type.trim() : "",
+    actor: typeof source.actor === "string" ? source.actor.trim() : "",
+    action: typeof source.action === "string" ? source.action.trim() : "",
+    result: typeof source.result === "string" ? source.result.trim() : "",
+    scope: typeof source.scope === "string" ? source.scope.trim() : "",
+    details: isPlainObject(source.details) ? canonicalize(source.details) : {},
+    prev_chain_hash: normalizeHash(source.prev_chain_hash, ""),
+    entry_hash: normalizeHash(source.entry_hash, ""),
+    chain_hash: normalizeHash(source.chain_hash, "")
+  });
+}
+
+function normalizeOperationalDecisionLedgerState(value) {
+  const source = isPlainObject(value) ? value : {};
+  const records = Array.isArray(source.records)
+    ? source.records
+      .map((entry) => normalizeOperationalDecisionLedgerRecord(entry))
+      .sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0))
+    : [];
+  const observedMaxSequence = records.reduce((max, record) => Math.max(max, Number(record.sequence || 0)), 0);
+  return canonicalize({
+    records,
+    nextSequence: Math.max(
+      observedMaxSequence,
+      Math.max(0, Number.parseInt(String(source.nextSequence ?? "0"), 10) || 0)
+    ),
+    chainHead: normalizeHash(source.chainHead, "")
+  });
+}
+
 function normalizeComplianceActiveReleasePolicy(value) {
   const source = isPlainObject(value) ? value : {};
   const requiredChecks = Array.isArray(source.requiredChecks)
@@ -734,6 +775,7 @@ function normalizeComplianceGovernanceState(value) {
     activeReleasePolicy,
     decisionLedger: normalizeComplianceDecisionLedgerState(source.decisionLedger),
     operatorOverrideLedger: normalizeOperatorOverrideLedgerState(source.operatorOverrideLedger),
+    operationalDecisionLedger: normalizeOperationalDecisionLedgerState(source.operationalDecisionLedger),
     nextAttestationSequence: Math.max(
       observedMaxAttestationSequence,
       Math.max(0, Number.parseInt(String(source.nextAttestationSequence ?? "0"), 10) || 0)

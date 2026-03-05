@@ -1,0 +1,11 @@
+{
+  "autonomous_triggering_blocked": true,
+  "blocked_by_default": true,
+  "required_approval_token": true,
+  "required_confirm_flag": true,
+  "required_explicit_external_service_url": true,
+  "required_scope": "governance.attestation.anchor",
+  "static_allowlist": [
+    "attestation.service.io"
+  ]
+}

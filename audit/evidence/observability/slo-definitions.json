@@ -1,0 +1,35 @@
+{
+  "compliance_scan_frequency": {
+    "breach_gap_hours": 48,
+    "severity": "high",
+    "target_hours": 24
+  },
+  "compliance_violation_threshold": {
+    "max_violations": 0,
+    "severity": "critical"
+  },
+  "incident_escalation_latency_p95": {
+    "breach_ms": 120000,
+    "severity": "critical",
+    "target_ms": 60000
+  },
+  "override_decision_latency_p99": {
+    "breach_ms": 600000,
+    "severity": "high",
+    "target_ms": 300000
+  },
+  "policy_drift_critical_threshold": {
+    "max_critical_drifts": 0,
+    "severity": "critical"
+  },
+  "remediation_request_success_rate": {
+    "breach_rate": 0.9,
+    "severity": "high",
+    "target_rate": 0.95
+  },
+  "runbook_action_success_rate": {
+    "breach_rate": 0.95,
+    "severity": "critical",
+    "target_rate": 0.99
+  }
+}

@@ -1,0 +1,122 @@
+# HELP attestation_anchor_attempt_count Attestation anchor attempts
+# TYPE attestation_anchor_attempt_count counter
+attestation_anchor_attempt_count 1
+# HELP attestation_anchor_success_count Attestation anchor successes
+# TYPE attestation_anchor_success_count counter
+attestation_anchor_success_count 1
+# HELP compliance_scan_count Total compliance scans executed
+# TYPE compliance_scan_count counter
+compliance_scan_count 1
+# HELP compliance_scan_duration_ms Compliance scan duration distribution
+# TYPE compliance_scan_duration_ms histogram
+compliance_scan_duration_ms_bucket{le="1"} 0
+compliance_scan_duration_ms_bucket{le="5"} 0
+compliance_scan_duration_ms_bucket{le="10"} 0
+compliance_scan_duration_ms_bucket{le="25"} 0
+compliance_scan_duration_ms_bucket{le="50"} 0
+compliance_scan_duration_ms_bucket{le="100"} 0
+compliance_scan_duration_ms_bucket{le="250"} 1
+compliance_scan_duration_ms_bucket{le="500"} 1
+compliance_scan_duration_ms_bucket{le="1000"} 1
+compliance_scan_duration_ms_bucket{le="2500"} 1
+compliance_scan_duration_ms_bucket{le="5000"} 1
+compliance_scan_duration_ms_bucket{le="10000"} 1
+compliance_scan_duration_ms_bucket{le="30000"} 1
+compliance_scan_duration_ms_bucket{le="60000"} 1
+compliance_scan_duration_ms_bucket{le="300000"} 1
+compliance_scan_duration_ms_bucket{le="+Inf"} 1
+compliance_scan_duration_ms_sum 120
+compliance_scan_duration_ms_count 1
+# HELP compliance_violations_total Current compliance violation count
+# TYPE compliance_violations_total gauge
+compliance_violations_total 0
+# HELP incident_escalation_latency_ms Incident escalation latency
+# TYPE incident_escalation_latency_ms histogram
+incident_escalation_latency_ms_bucket{le="1"} 0
+incident_escalation_latency_ms_bucket{le="5"} 0
+incident_escalation_latency_ms_bucket{le="10"} 0
+incident_escalation_latency_ms_bucket{le="25"} 0
+incident_escalation_latency_ms_bucket{le="50"} 0
+incident_escalation_latency_ms_bucket{le="100"} 0
+incident_escalation_latency_ms_bucket{le="250"} 0
+incident_escalation_latency_ms_bucket{le="500"} 1
+incident_escalation_latency_ms_bucket{le="1000"} 1
+incident_escalation_latency_ms_bucket{le="2500"} 1
+incident_escalation_latency_ms_bucket{le="5000"} 1
+incident_escalation_latency_ms_bucket{le="10000"} 1
+incident_escalation_latency_ms_bucket{le="30000"} 1
+incident_escalation_latency_ms_bucket{le="60000"} 1
+incident_escalation_latency_ms_bucket{le="300000"} 1
+incident_escalation_latency_ms_bucket{le="+Inf"} 1
+incident_escalation_latency_ms_sum 300
+incident_escalation_latency_ms_count 1
+# HELP incident_event_count Incident artifacts created
+# TYPE incident_event_count counter
+incident_event_count 1
+# HELP override_decision_latency_ms Operator override decision latency
+# TYPE override_decision_latency_ms histogram
+# HELP override_ledger_entry_count Total override ledger entries
+# TYPE override_ledger_entry_count counter
+# HELP policy_drift_incidents_total Total policy drift incidents
+# TYPE policy_drift_incidents_total counter
+policy_drift_incidents_total 1
+# HELP policy_drift_severity Active policy drift severity counts
+# TYPE policy_drift_severity gauge
+policy_drift_severity{severity="critical"} 1
+# HELP policy_gate_check_duration_ms Phase 10 policy gate check duration
+# TYPE policy_gate_check_duration_ms histogram
+policy_gate_check_duration_ms_bucket{le="1"} 0
+policy_gate_check_duration_ms_bucket{le="5"} 0
+policy_gate_check_duration_ms_bucket{le="10"} 0
+policy_gate_check_duration_ms_bucket{le="25"} 0
+policy_gate_check_duration_ms_bucket{le="50"} 1
+policy_gate_check_duration_ms_bucket{le="100"} 1
+policy_gate_check_duration_ms_bucket{le="250"} 1
+policy_gate_check_duration_ms_bucket{le="500"} 1
+policy_gate_check_duration_ms_bucket{le="1000"} 1
+policy_gate_check_duration_ms_bucket{le="2500"} 1
+policy_gate_check_duration_ms_bucket{le="5000"} 1
+policy_gate_check_duration_ms_bucket{le="10000"} 1
+policy_gate_check_duration_ms_bucket{le="30000"} 1
+policy_gate_check_duration_ms_bucket{le="60000"} 1
+policy_gate_check_duration_ms_bucket{le="300000"} 1
+policy_gate_check_duration_ms_bucket{le="+Inf"} 1
+policy_gate_check_duration_ms_sum 42
+policy_gate_check_duration_ms_count 1
+# HELP policy_gate_violations_detected Policy gate violations detected
+# TYPE policy_gate_violations_detected counter
+# HELP remediation_request_applied_count Applied remediation requests
+# TYPE remediation_request_applied_count counter
+# HELP remediation_request_count Total remediation recommendations
+# TYPE remediation_request_count counter
+remediation_request_count 1
+# HELP remediation_request_rejected_count Rejected remediation requests
+# TYPE remediation_request_rejected_count counter
+# HELP runbook_action_failure_count Failed runbook actions
+# TYPE runbook_action_failure_count counter
+# HELP runbook_action_success_count Successful runbook actions
+# TYPE runbook_action_success_count counter
+runbook_action_success_count 1
+# HELP runbook_approval_latency_ms Runbook operator approval latency
+# TYPE runbook_approval_latency_ms histogram
+runbook_approval_latency_ms_bucket{le="1"} 0
+runbook_approval_latency_ms_bucket{le="5"} 0
+runbook_approval_latency_ms_bucket{le="10"} 0
+runbook_approval_latency_ms_bucket{le="25"} 0
+runbook_approval_latency_ms_bucket{le="50"} 0
+runbook_approval_latency_ms_bucket{le="100"} 0
+runbook_approval_latency_ms_bucket{le="250"} 0
+runbook_approval_latency_ms_bucket{le="500"} 0
+runbook_approval_latency_ms_bucket{le="1000"} 0
+runbook_approval_latency_ms_bucket{le="2500"} 1
+runbook_approval_latency_ms_bucket{le="5000"} 1
+runbook_approval_latency_ms_bucket{le="10000"} 1
+runbook_approval_latency_ms_bucket{le="30000"} 1
+runbook_approval_latency_ms_bucket{le="60000"} 1
+runbook_approval_latency_ms_bucket{le="300000"} 1
+runbook_approval_latency_ms_bucket{le="+Inf"} 1
+runbook_approval_latency_ms_sum 2000
+runbook_approval_latency_ms_count 1
+# HELP runbook_execution_count Total runbook executions
+# TYPE runbook_execution_count counter
+runbook_execution_count 1

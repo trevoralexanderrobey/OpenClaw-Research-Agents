@@ -44,6 +44,11 @@ jobs:
             scripts/generate-phase8-artifacts.js
             scripts/verify-phase8-policy.sh
             scripts/verify-phase9-policy.sh
+            scripts/verify-phase10-policy.sh
+            scripts/runbook-orchestrator.js
+            scripts/incident-trigger.sh
+            scripts/external-attestation-anchor.js
+            scripts/generate-phase10-artifacts.js
             scripts/verify-phase8-ci-health.js
             scripts/build-verify.sh
           )
@@ -112,6 +117,8 @@ jobs:
         run: bash scripts/verify-phase8-policy.sh
       - name: Phase 9 policy verification
         run: bash scripts/verify-phase9-policy.sh
+      - name: Phase 10 policy verification
+        run: bash scripts/verify-phase10-policy.sh
 
       - name: Test suite
         run: node --test tests/**/*.test.js

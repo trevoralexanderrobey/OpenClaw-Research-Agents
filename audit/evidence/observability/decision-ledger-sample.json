@@ -1,0 +1,7 @@
+{
+  "operational_decision_ledger": {
+    "chainHead": "",
+    "nextSequence": 0,
+    "records": []
+  }
+}

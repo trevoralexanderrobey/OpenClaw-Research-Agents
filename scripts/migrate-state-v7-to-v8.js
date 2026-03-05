@@ -53,6 +53,16 @@ function buildDefaultComplianceGovernanceState() {
       nextSequence: 0,
       chainHead: ""
     },
+    operatorOverrideLedger: {
+      records: [],
+      nextSequence: 0,
+      chainHead: ""
+    },
+    operationalDecisionLedger: {
+      records: [],
+      nextSequence: 0,
+      chainHead: ""
+    },
     nextAttestationSequence: 0,
     nextEvidenceBundleSequence: 0,
     nextReleaseGateSequence: 0

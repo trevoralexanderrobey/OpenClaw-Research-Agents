@@ -1,0 +1,20 @@
+{
+  "advisory_only": true,
+  "affected_components": [
+    "compliance-monitor",
+    "policy-drift-detector"
+  ],
+  "auto_remediation_blocked": true,
+  "escalation_path": [
+    "operator-email",
+    "cline-notification",
+    "pager"
+  ],
+  "incident_id": "INC-20260304-001",
+  "ledger_entry_id": "opd-1",
+  "recommended_action": "Review drift report and apply remediation",
+  "requires_operator_action": true,
+  "severity": "critical",
+  "timestamp": "2026-03-04T12:34:56.000Z",
+  "trigger_event": "critical_drift_detected"
+}

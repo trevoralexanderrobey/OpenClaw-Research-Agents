@@ -1,0 +1,7 @@
+{
+  "schema_version": "phase10-attestation-egress-v1",
+  "blocked_by_default": true,
+  "allowed_hosts": [
+    "attestation.service.io"
+  ]
+}

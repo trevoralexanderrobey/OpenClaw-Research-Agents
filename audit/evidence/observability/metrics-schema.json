@@ -1,0 +1,144 @@
+{
+  "histogram_buckets": [
+    1,
+    5,
+    10,
+    25,
+    50,
+    100,
+    250,
+    500,
+    1000,
+    2500,
+    5000,
+    10000,
+    30000,
+    60000,
+    300000
+  ],
+  "metrics": [
+    {
+      "help": "Total compliance scans executed",
+      "labels": [],
+      "name": "compliance_scan_count",
+      "type": "counter"
+    },
+    {
+      "help": "Compliance scan duration distribution",
+      "labels": [],
+      "name": "compliance_scan_duration_ms",
+      "type": "histogram"
+    },
+    {
+      "help": "Current compliance violation count",
+      "labels": [],
+      "name": "compliance_violations_total",
+      "type": "gauge"
+    },
+    {
+      "help": "Total policy drift incidents",
+      "labels": [],
+      "name": "policy_drift_incidents_total",
+      "type": "counter"
+    },
+    {
+      "help": "Active policy drift severity counts",
+      "labels": [
+        "severity"
+      ],
+      "name": "policy_drift_severity",
+      "type": "gauge"
+    },
+    {
+      "help": "Total override ledger entries",
+      "labels": [],
+      "name": "override_ledger_entry_count",
+      "type": "counter"
+    },
+    {
+      "help": "Operator override decision latency",
+      "labels": [],
+      "name": "override_decision_latency_ms",
+      "type": "histogram"
+    },
+    {
+      "help": "Total remediation recommendations",
+      "labels": [],
+      "name": "remediation_request_count",
+      "type": "counter"
+    },
+    {
+      "help": "Applied remediation requests",
+      "labels": [],
+      "name": "remediation_request_applied_count",
+      "type": "counter"
+    },
+    {
+      "help": "Rejected remediation requests",
+      "labels": [],
+      "name": "remediation_request_rejected_count",
+      "type": "counter"
+    },
+    {
+      "help": "Total runbook executions",
+      "labels": [],
+      "name": "runbook_execution_count",
+      "type": "counter"
+    },
+    {
+      "help": "Runbook operator approval latency",
+      "labels": [],
+      "name": "runbook_approval_latency_ms",
+      "type": "histogram"
+    },
+    {
+      "help": "Successful runbook actions",
+      "labels": [],
+      "name": "runbook_action_success_count",
+      "type": "counter"
+    },
+    {
+      "help": "Failed runbook actions",
+      "labels": [],
+      "name": "runbook_action_failure_count",
+      "type": "counter"
+    },
+    {
+      "help": "Incident artifacts created",
+      "labels": [],
+      "name": "incident_event_count",
+      "type": "counter"
+    },
+    {
+      "help": "Incident escalation latency",
+      "labels": [],
+      "name": "incident_escalation_latency_ms",
+      "type": "histogram"
+    },
+    {
+      "help": "Attestation anchor attempts",
+      "labels": [],
+      "name": "attestation_anchor_attempt_count",
+      "type": "counter"
+    },
+    {
+      "help": "Attestation anchor successes",
+      "labels": [],
+      "name": "attestation_anchor_success_count",
+      "type": "counter"
+    },
+    {
+      "help": "Phase 10 policy gate check duration",
+      "labels": [],
+      "name": "policy_gate_check_duration_ms",
+      "type": "histogram"
+    },
+    {
+      "help": "Policy gate violations detected",
+      "labels": [],
+      "name": "policy_gate_violations_detected",
+      "type": "counter"
+    }
+  ],
+  "schema_version": "phase10-metrics-v1"
+}

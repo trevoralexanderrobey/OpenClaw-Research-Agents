@@ -262,3 +262,18 @@ test("mutation governance accounting is deduped by deterministic attempt id", as
   assert.equal(state.apiGovernance.mutation.dayWindow.publishes, 1);
   assert.equal(state.apiGovernance.mutation.dayWindow.writeTokens, 10);
 });
+
+test("api governance initializes additive phase10 operational decision ledger state", async () => {
+  const dir = await makeTmpDir();
+  const governance = createApiGovernance({
+    statePath: path.join(dir, "state.json"),
+    researchNdjsonPath: path.join(dir, "research.ndjson")
+  });
+
+  const state = await governance.readState();
+  assert.deepEqual(state.complianceGovernance.operationalDecisionLedger, {
+    records: [],
+    nextSequence: 0,
+    chainHead: ""
+  });
+});

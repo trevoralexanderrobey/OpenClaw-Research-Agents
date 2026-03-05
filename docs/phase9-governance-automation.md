@@ -3,6 +3,9 @@
 ## Scope
 Phase 9 adds deterministic governance automation on top of the frozen Phase 2–8 baseline without weakening prior controls.
 
+Phase 10 cross-reference:
+- Phase 9 compliance/drift/remediation/override events are the canonical input stream for Phase 10 telemetry, metrics export, and SLO alert evaluation.
+
 Baseline lock:
 - Commit: `c006a0925840d24f7eac02d414a66ce254e98419`
 - CI anchor run: `phase2-security` run `22698188722` (green)

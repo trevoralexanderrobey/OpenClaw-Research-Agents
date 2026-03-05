@@ -1,0 +1,7 @@
+{
+  "advisory_only_until_confirm": true,
+  "approval_token_scope": "governance.remediation.apply",
+  "confirm": true,
+  "decision": "applied",
+  "operator": "operator-cli"
+}

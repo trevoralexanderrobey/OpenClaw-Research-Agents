@@ -31,6 +31,12 @@ Local-first, file-based, audit-oriented research orchestration scaffold built on
 - Phase 9 drift/remediation pathways are operator-governed and non-autonomous; no automatic mutation execution is introduced
 - Phase 9 startup integrity gate verifies compliance monitor, drift detector, override ledger integrity, and completeness reconciliation before MCP method handling
 - Deterministic governance automation evidence artifacts are generated under `audit/evidence/governance-automation/`
+- Phase 10 operational resilience enabled (canonical metrics/exporters, deterministic telemetry, advisory SLO alerting, human-gated runbook orchestration, incident artifact/escalation workflows, optional external attestation anchoring)
+- Phase 10 alerting and escalation are advisory-only and never auto-execute remediation
+- Phase 10 runbook execution is operator-driven only and requires scoped approval token + explicit confirmation
+- Phase 10 external attestation anchoring is blocked-by-default and only allowed with explicit operator opt-in and static allowlist host validation
+- Phase 10 startup integrity gate verifies observability/alerting/runbook/incident/attestation wiring before MCP method handling
+- Deterministic Phase 10 observability evidence artifacts are generated under `audit/evidence/observability/`
 
 ## Key directories
 - `openclaw-bridge/` runtime/control-plane scaffold
@@ -47,6 +53,7 @@ Outcome ingestion is operator-entered only.
 Phase 7 experimentation/rollout logic is internal-only and never submits externally.
 Phase 8 compliance attestation/release-gate logic is internal-only and never submits externally.
 Phase 9 governance monitoring/drift/remediation logic is internal-only and never submits externally.
+Phase 10 alerting/escalation workflows are advisory-only and internal; optional external attestation anchoring is strictly operator-initiated and blocked-by-default.
 
 ## Supervisor Model (Cline)
 - Cline (VSCode Insiders extension) is the supervisor interface for supervised orchestration and approval-facing workflows.

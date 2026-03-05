@@ -1,0 +1,22 @@
+{
+  "advisory_only": true,
+  "auto_remediation_blocked": true,
+  "critical": [
+    "email",
+    "slack",
+    "cline",
+    "pager"
+  ],
+  "high": [
+    "email",
+    "slack",
+    "cline"
+  ],
+  "low": [
+    "email"
+  ],
+  "medium": [
+    "email",
+    "slack"
+  ]
+}

@@ -310,3 +310,39 @@ Handling (runbook):
 - Verify allowlist consistency (`officialIds + approvedAliasIds == allowedIds`).
 - Run `bash scripts/verify-cline-supervisor-policy.sh`.
 - Run `npm run build:verify` before merge.
+
+## Phase 10 SLO Breach Alert
+Detection:
+- `workflows/observability/slo-alert-engine.js` reports one or more breaches.
+
+Handling:
+- Route advisory alert to configured operator channels.
+- Require explicit operator acknowledgment before any follow-on runbook/escalation decision.
+- Do not auto-trigger remediation.
+
+## Phase 10 Runbook Execution Rejected or Failed
+Detection:
+- Missing `--confirm`/approval token scope, or remediation apply returns non-zero.
+
+Handling:
+- Record deterministic reject/fail decision in override and operational ledgers.
+- Keep system in advisory/operator-review state.
+- Require explicit re-run with valid token and confirmation.
+
+## Phase 10 Incident Artifact Mismatch
+Detection:
+- Incident ID sequence discontinuity, malformed artifact structure, or missing ledger linkage.
+
+Handling:
+- Treat as integrity issue.
+- Regenerate artifact from deterministic inputs.
+- Reconcile via operator-reviewed ledger/event trail.
+
+## Phase 10 External Attestation Anchor Failure
+Detection:
+- Missing confirm/token, invalid scope, invalid URL host, or allowlist denial.
+
+Handling:
+- Fail closed and block egress.
+- Record attempt/failure context in decision trail.
+- Retry only through explicit operator-initiated command with valid scope and allowlisted host.
