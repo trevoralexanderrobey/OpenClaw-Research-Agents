@@ -1,0 +1,11 @@
+{
+  "phase": "phase16",
+  "scenario": "supervisor_denied_ingestion",
+  "result": "blocked",
+  "details": {
+    "job": "ingestion_dry_run",
+    "approval_chain": [
+      "supervisor_denied"
+    ]
+  }
+}

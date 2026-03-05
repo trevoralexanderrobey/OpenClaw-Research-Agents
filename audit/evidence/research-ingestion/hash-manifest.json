@@ -1,0 +1,16 @@
+{
+  "files": [
+    {
+      "file": "source-ledger-sample.json",
+      "sha256": "c6cebfb16918ede09ffbdc5c3f49bb8122278d38579d800dd4d32d7ef03e6f82"
+    },
+    {
+      "file": "supervisor-approved-run.json",
+      "sha256": "4c00236e44ce3dfdd39d60e9a43d3f37b13e9179f42895f62e50822c14d79c0c"
+    },
+    {
+      "file": "supervisor-denied-run.json",
+      "sha256": "ec985d2dcc3beb8c958a46f38dc046bc957bd460a27a9e4e2cfb5708ec12fcbe"
+    }
+  ]
+}

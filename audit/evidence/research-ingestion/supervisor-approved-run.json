@@ -1,0 +1,12 @@
+{
+  "phase": "phase16",
+  "scenario": "supervisor_approved_ingestion",
+  "result": "allowed",
+  "details": {
+    "job": "ingestion_dry_run",
+    "approval_chain": [
+      "supervisor_approved",
+      "governance_approved"
+    ]
+  }
+}
