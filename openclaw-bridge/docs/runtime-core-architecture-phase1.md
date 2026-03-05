@@ -51,3 +51,7 @@
 ## Supply Chain Security
 - Validates known-good dependencies and constructs SLSA-compatible build provenance logic.
 - Maintains purely advisory vulnerability reports and mandates operator action for any updates.
+
+## Access Control & Identity Governance
+- Implements deterministic, local-only access control across all operator-gated workflows using canonical RBAC.
+- Governs session state and fail-closed permission boundaries without autonomous external Identity Provider mechanisms.

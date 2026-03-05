@@ -1,0 +1,75 @@
+{
+  "entities": {
+    "access_decision": {
+      "additional_properties": true,
+      "required": [
+        "decision_id",
+        "actor",
+        "action",
+        "resource",
+        "result",
+        "reason"
+      ]
+    },
+    "escalation_event": {
+      "additional_properties": true,
+      "required": [
+        "event_id",
+        "actor",
+        "attempted_action",
+        "required_role",
+        "actual_role"
+      ]
+    },
+    "permission_entry": {
+      "additional_properties": true,
+      "required": [
+        "permission_id",
+        "action",
+        "resource",
+        "conditions"
+      ]
+    },
+    "role_definition": {
+      "additional_properties": true,
+      "required": [
+        "role_id",
+        "permissions",
+        "scopes",
+        "description"
+      ]
+    },
+    "scope_registry_entry": {
+      "additional_properties": true,
+      "required": [
+        "scope_id",
+        "phase",
+        "description",
+        "required_role"
+      ]
+    },
+    "session_record": {
+      "additional_properties": true,
+      "required": [
+        "session_id",
+        "token_id",
+        "created_at",
+        "expires_at",
+        "active"
+      ]
+    },
+    "token_record": {
+      "additional_properties": true,
+      "required": [
+        "token_id",
+        "role",
+        "scopes",
+        "issued_at",
+        "expires_at",
+        "revoked",
+        "issuer"
+      ]
+    }
+  },
+  "schema_version": "phase13-access-control-v1"
+}

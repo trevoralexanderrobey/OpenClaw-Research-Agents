@@ -1,0 +1,52 @@
+{
+  "files": [
+    {
+      "file": "access-control-schema.json",
+      "sha256": "20db5c9158ff00fd26dcf8721759f8ab9b45ea35079e1f08754646c8ad9010ee"
+    },
+    {
+      "file": "access-decision-ledger-sample.json",
+      "sha256": "8f35bf1f5622f61e05d43fdccbda207887ce0a61f5f32bd39ae4729a11fe8f39"
+    },
+    {
+      "file": "access-decision-sample.json",
+      "sha256": "c2c82bc4c58418a135f0ff2d8b9edf41bdd1b734cf7f9b7d4f1d50fdcf674e86"
+    },
+    {
+      "file": "escalation-detection-sample.json",
+      "sha256": "c8b1d0a8aa1e186dab1eaece404612a53f72148fa7634aeaa03b95ffc66c48d3"
+    },
+    {
+      "file": "permission-boundary-results.json",
+      "sha256": "c2c82bc4c58418a135f0ff2d8b9edf41bdd1b734cf7f9b7d4f1d50fdcf674e86"
+    },
+    {
+      "file": "phase13-policy-gate-results.json",
+      "sha256": "7142161001db89387d5241ed8abfa540f57bdeb19a0992934bc31fd46311198e"
+    },
+    {
+      "file": "rbac-policy-snapshot.json",
+      "sha256": "70ef37eb9d4dca9686f39c48baa96f0ff6e8852fb09f6600d6ee800e83eb9eeb"
+    },
+    {
+      "file": "scope-registry-snapshot.json",
+      "sha256": "a238e8f0d7e181b0276d0a9e5aef30ae53dc8cd70f08ecd90e38934f85c53ea1"
+    },
+    {
+      "file": "session-governance-sample.json",
+      "sha256": "2aa9caa496c249193c7cdf66333503e4ff14ba18b342d0115d07d6a95784ccd0"
+    },
+    {
+      "file": "token-issuance-sample.json",
+      "sha256": "edf23ff27230cfc15a178f9885613f88890d3f38e02fff4aade04de2efce8f78"
+    },
+    {
+      "file": "token-revocation-sample.json",
+      "sha256": "d0cb10e71880990369db32db843e319c4a38d76c59d2772e73d212caf07563e8"
+    },
+    {
+      "file": "token-rotation-sample.json",
+      "sha256": "a085d866d0b27dd572c46410ea9cffa2c15fc5da24847a92ce63730718602f6e"
+    }
+  ]
+}

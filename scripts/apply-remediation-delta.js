@@ -7,6 +7,7 @@ const { spawnSync } = require("node:child_process");
 
 const { createApiGovernance } = require("../security/api-governance.js");
 const { createOperatorAuthorization } = require("../security/operator-authorization.js");
+const { getLegacyAccessBridge } = require("../workflows/access-control/legacy-access-bridge.js");
 
 function parseArgs(argv) {
   const out = {
@@ -149,9 +150,22 @@ async function main() {
 
   const apiGovernance = createApiGovernance();
   const operatorAuthorization = createOperatorAuthorization();
+  const legacyAccessBridge = getLegacyAccessBridge();
 
   const changedFiles = new Set();
   await apiGovernance.withGovernanceTransaction(async () => {
+    const legacyAccess = legacyAccessBridge.evaluateLegacyAccess({
+      approvalToken: args.approvalToken,
+      scope: "governance.remediation.apply",
+      role: "",
+      action: "legacy.execute",
+      resource: "governance.remediation",
+      caller: "legacy.script.apply_remediation",
+      correlationId: "phase9-remediation-apply"
+    });
+    if (!legacyAccess.allowed) {
+      throw new Error(`Phase 13 boundary denied remediation apply access: ${legacyAccess.reason}`);
+    }
     operatorAuthorization.consumeApprovalToken(args.approvalToken, "governance.remediation.apply", {
       correlationId: "phase9-remediation-apply"
     });

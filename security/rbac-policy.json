@@ -1,0 +1,115 @@
+{
+  "schema_version": "phase13-access-control-v1",
+  "roles": [
+    {
+      "role_id": "operator_admin",
+      "description": "Full governance access across phases 2-13",
+      "permissions": [
+        {
+          "permission_id": "admin_all",
+          "action": "*",
+          "resource": "*",
+          "conditions": {}
+        }
+      ],
+      "scopes": [
+        "*"
+      ]
+    },
+    {
+      "role_id": "operator_standard",
+      "description": "Standard operator scope for non-destructive governance operations",
+      "permissions": [
+        {
+          "permission_id": "runbook_execute",
+          "action": "execute",
+          "resource": "governance.runbook",
+          "conditions": {}
+        },
+        {
+          "permission_id": "checkpoint_create",
+          "action": "create",
+          "resource": "governance.checkpoint",
+          "conditions": {}
+        },
+        {
+          "permission_id": "drill_execute",
+          "action": "execute",
+          "resource": "governance.drill",
+          "conditions": {}
+        },
+        {
+          "permission_id": "sbom_generate",
+          "action": "generate",
+          "resource": "governance.sbom",
+          "conditions": {}
+        },
+        {
+          "permission_id": "vulnerability_scan",
+          "action": "scan",
+          "resource": "governance.vulnerability",
+          "conditions": {}
+        },
+        {
+          "permission_id": "compliance_scan",
+          "action": "scan",
+          "resource": "governance.compliance",
+          "conditions": {}
+        },
+        {
+          "permission_id": "drift_detect",
+          "action": "detect",
+          "resource": "governance.drift",
+          "conditions": {}
+        },
+        {
+          "permission_id": "readonly_all",
+          "action": "read",
+          "resource": "*",
+          "conditions": {}
+        }
+      ],
+      "scopes": [
+        "governance.runbook.execute",
+        "governance.checkpoint.create",
+        "governance.drill.execute",
+        "governance.sbom.generate",
+        "governance.vulnerability.scan",
+        "governance.compliance.scan",
+        "governance.drift.detect"
+      ]
+    },
+    {
+      "role_id": "operator_readonly",
+      "description": "Read-only operator role for reports, metrics, and evidence",
+      "permissions": [
+        {
+          "permission_id": "readonly_all",
+          "action": "read",
+          "resource": "*",
+          "conditions": {}
+        }
+      ],
+      "scopes": []
+    },
+    {
+      "role_id": "system_automated",
+      "description": "System read-only role for telemetry/compliance monitoring",
+      "permissions": [
+        {
+          "permission_id": "read_telemetry",
+          "action": "read",
+          "resource": "system.telemetry",
+          "conditions": {}
+        },
+        {
+          "permission_id": "read_monitoring",
+          "action": "read",
+          "resource": "system.compliance",
+          "conditions": {}
+        }
+      ],
+      "scopes": []
+    }
+  ]
+}

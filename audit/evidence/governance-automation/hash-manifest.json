@@ -1,10 +1,10 @@
 {
-  "baseline_ci_run": "22698188722",
-  "baseline_commit": "c006a0925840d24f7eac02d414a66ce254e98419",
+  "baseline_ci_run": "22710324173",
+  "baseline_commit": "712982bd91345d686f4ccb6b4d87b982adeb8938",
   "files": [
     {
       "file": "compliance-scan-results.json",
-      "sha256": "6d794a792c3ef5c99647e01d9a5d1f56c967e0595c293d1f640571e30c8130ce"
+      "sha256": "3a294f9bd13130271b810ae61552eccf7320140bfbd180dd00205638ee12135b"
     },
     {
       "file": "drift-detection-results.json",
@@ -16,19 +16,19 @@
     },
     {
       "file": "phase-completeness-status.json",
-      "sha256": "df3c619c26548c37db9887681a1bd205f5c8772df6ed597bdd02d788b9c9fcc7"
+      "sha256": "643e7ec08e1c08b19951033b64d9d19b98d9a24f48d78f0109547b59e5bcf7b9"
     },
     {
       "file": "phase9-baseline-contracts.json",
-      "sha256": "d5a829e1100df9f8e20e68f7fb1d93c18865e8735c4e516aae2a85d81851b52c"
+      "sha256": "6508e8356c4087b9cebc34d762e32006644dbbc932fe04e259f124592fa0ecad"
     },
     {
       "file": "phase9-policy-gate-results.json",
-      "sha256": "8fd6415e443f7f864769367ffee864ac3904beff14959e113b0fa61f5f10290a"
+      "sha256": "a5987dbb095347bb64a9f0670b69a2e28860e157a2786051ef3d2f5a73ac0613"
     },
     {
       "file": "remediation-recommendations.json",
-      "sha256": "51265eb1e70bd26c47063b90fafc60bcb6c0d4f46da437b6a96a38b0806b6212"
+      "sha256": "098d9b8ff14458acdcc1fb8cfb41020f48123fc622fb42b3b0ebd09bfc6f74d9"
     }
   ]
 }

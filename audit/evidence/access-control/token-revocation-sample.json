@@ -1,0 +1,41 @@
+{
+  "ledger_entry": {
+    "chain_hash": "sha256:2cf37cdc982a6a8e719574120d48ef576e585c7b9d0881ce38024da75971e06c",
+    "entry": {
+      "action": "revoke_token",
+      "actor": "phase13-artifacts",
+      "chain_hash": "sha256:2cf37cdc982a6a8e719574120d48ef576e585c7b9d0881ce38024da75971e06c",
+      "decision_id": "acd-3",
+      "entry_hash": "sha256:166f14976db3e2180d17c3be6cdd92d8e29d7d5b1bc338b628765a14ab12392a",
+      "metadata": {
+        "revocation_reason": "phase13_artifact_sample_revoke",
+        "token_id": "tok-96b196f72b11060431a50763"
+      },
+      "prev_chain_hash": "sha256:6ab3452244de0992ad90586d1ad076b62581ea85772f4433b89c5749c893de2a",
+      "reason": "revoked",
+      "resource": "phase13.token",
+      "result": "allow",
+      "role": "operator_admin",
+      "scope": "governance.token.revoke",
+      "scopes_evaluated": [],
+      "sequence": 3,
+      "timestamp": "2026-03-05T00:00:00.000Z"
+    }
+  },
+  "revoked_record": {
+    "expires_at": "2026-03-06T00:00:00.000Z",
+    "issued_at": "2026-03-05T00:00:00.000Z",
+    "issuer": "phase13-artifacts",
+    "previous_token_id": "tok-a6f752920fc8918ad2b811d0",
+    "revocation_reason": "phase13_artifact_sample_revoke",
+    "revoked": true,
+    "revoked_at": "2026-03-05T00:00:00.000Z",
+    "role": "operator_standard",
+    "rotated_to": "",
+    "scopes": [
+      "governance.sbom.generate",
+      "governance.vulnerability.scan"
+    ],
+    "token_id": "tok-96b196f72b11060431a50763"
+  }
+}

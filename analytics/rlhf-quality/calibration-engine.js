@@ -1,6 +1,7 @@
 "use strict";
 
 const { nowIso } = require("../../openclaw-bridge/core/time-provider.js");
+const { getLegacyAccessBridge } = require("../../workflows/access-control/legacy-access-bridge.js");
 
 const CALIBRATION_VERSION = "v1";
 const MIN_FINALIZED_OUTCOMES = 3;
@@ -170,6 +171,24 @@ function createCalibrationEngine(options = {}) {
   async function applyCalibration(input = {}, context = {}) {
     assertOperatorRole(context);
     const correlationId = safeString(context.correlationId);
+    if (safeString(input.approvalToken)) {
+      const legacyBridge = getLegacyAccessBridge();
+      const legacyAccess = legacyBridge.evaluateLegacyAccess({
+        approvalToken: input.approvalToken,
+        scope: "rlhf.calibration.apply",
+        role: safeString(context.role),
+        action: "legacy.execute",
+        resource: "rlhf.calibration",
+        caller: "legacy.rlhf.calibration.apply",
+        correlationId
+      });
+      if (!legacyAccess.allowed) {
+        const error = new Error("Phase 13 boundary denied legacy calibration apply access");
+        error.code = "RLHF_CALIBRATION_ACCESS_DENIED";
+        error.details = { reason: legacyAccess.reason };
+        throw error;
+      }
+    }
     operatorAuthorization.consumeApprovalToken(input.approvalToken, "rlhf.calibration.apply", { correlationId });
 
     const baselineState = await apiGovernance.readState();

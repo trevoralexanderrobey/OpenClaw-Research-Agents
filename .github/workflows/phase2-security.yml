@@ -63,6 +63,17 @@ jobs:
             scripts/verify-artifact-signature.js
             scripts/generate-phase12-artifacts.js
             scripts/verify-phase12-policy.sh
+            scripts/issue-token.js
+            scripts/rotate-token.js
+            scripts/revoke-token.js
+            scripts/validate-token.js
+            scripts/list-active-tokens.js
+            scripts/create-session.js
+            scripts/validate-session.js
+            scripts/check-access.js
+            scripts/detect-escalation.js
+            scripts/generate-phase13-artifacts.js
+            scripts/verify-phase13-policy.sh
             scripts/verify-phase8-ci-health.js
             scripts/build-verify.sh
           )
@@ -137,6 +148,8 @@ jobs:
         run: bash scripts/verify-phase11-policy.sh
       - name: Phase 12 policy verification
         run: bash scripts/verify-phase12-policy.sh
+      - name: Phase 13 policy verification
+        run: bash scripts/verify-phase13-policy.sh
 
       - name: Test suite
         run: node --test tests/**/*.test.js

@@ -1,0 +1,29 @@
+{
+  "advisory_count": 2,
+  "advisory_only": true,
+  "auto_revoke_blocked": true,
+  "critical_count": 2,
+  "events": [
+    {
+      "actor": "tok-a6f752920fc8918ad2b811d0",
+      "actual_role": "operator_standard",
+      "attempted_action": "generate",
+      "event_id": "esc-1",
+      "reason": "deny_revoked_token",
+      "required_role": "active_token",
+      "severity": "high",
+      "timestamp": "2026-03-05T00:00:00.000Z"
+    },
+    {
+      "actor": "phase13-artifacts",
+      "actual_role": "operator_admin",
+      "attempted_action": "create_session",
+      "event_id": "esc-2",
+      "reason": "token_revoked",
+      "required_role": "active_token",
+      "severity": "high",
+      "timestamp": "2026-03-05T00:00:00.000Z"
+    }
+  ],
+  "report_hash": "sha256:fd584c0cd01939c5a71a1f35cdaaf0f1bd4e3366622e020a0e0499b0b8c128db"
+}

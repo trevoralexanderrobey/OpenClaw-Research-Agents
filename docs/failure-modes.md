@@ -1,4 +1,4 @@
-# Failure Modes (Phase 12)
+# Failure Modes (Phase 13)
 
 ## Runtime Schema Mismatch
 Detection:
@@ -477,3 +477,40 @@ Handling:
 - Fail closed before MCP service starts handling requests.
 - Do not bypass startup gate.
 - Restore missing wiring/artifacts and re-run startup + policy validations.
+
+## Phase 13 Token Expiration / Revocation Invalidates Access
+Detection:
+- Token is expired (`expires_at` in the past) or explicitly revoked (`revoked=true`).
+
+Handling:
+- Permission boundary denies access fail-closed (`deny_expired_token` / `deny_revoked_token`).
+- Access decision is immutably logged in Phase 13 access decision ledger.
+- Session validation returns invalid when underlying token is invalid.
+
+## Phase 13 RBAC Policy or Scope Registry Corruption
+Detection:
+- `security/rbac-policy.json` or `security/scope-registry.json` missing/malformed/incompatible.
+- Required role/scope lookup fails during startup integrity or runtime validation.
+
+Handling:
+- Phase 13 startup integrity fails closed before MCP serving.
+- Runtime checks reject unknown role/scope deterministically.
+- Restore canonical policy/registry files and rerun startup + policy gates.
+
+## Phase 13 Access Decision Ledger Chain Break
+Detection:
+- Sequence discontinuity, `prev_chain_hash` mismatch, entry hash mismatch, or chain-head mismatch.
+
+Handling:
+- Ledger integrity check reports `valid: false` with deterministic `broken_at` index.
+- Further append attempts fail closed on broken chain state.
+- Require operator-reviewed remediation; no automatic chain repair/mutation.
+
+## Phase 13 Session Revocation Propagation
+Detection:
+- Session token is revoked or expired after session creation.
+
+Handling:
+- Session validation returns `valid: false` and `token_valid: false`.
+- Access checks fail closed even if session record remains present.
+- Operator may explicitly invalidate session for immutable audit trail continuity.

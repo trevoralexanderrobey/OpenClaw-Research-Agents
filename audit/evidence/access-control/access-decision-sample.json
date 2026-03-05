@@ -1,0 +1,7 @@
+{
+  "allowed": false,
+  "decision_id": "acd-4",
+  "reason": "deny_revoked_token",
+  "role": "operator_standard",
+  "scopes_evaluated": []
+}

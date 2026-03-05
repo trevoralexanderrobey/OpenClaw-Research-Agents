@@ -4,6 +4,7 @@ const {
   canonicalStringify,
   makeError
 } = require("./experiment-schema.js");
+const { getLegacyAccessBridge } = require("../access-control/legacy-access-bridge.js");
 const {
   verifyPreRegistrationLock,
   shouldEnforcePreRegistrationLock
@@ -41,6 +42,23 @@ function assertKillSwitchOpen(state) {
 function consumeScopedApprovalToken(operatorAuthorization, approvalToken, scope, context = {}) {
   if (!operatorAuthorization || typeof operatorAuthorization.consumeApprovalToken !== "function") {
     throw makeError("EXPERIMENT_CONFIG_INVALID", "operatorAuthorization.consumeApprovalToken is required");
+  }
+  if (safeString(approvalToken)) {
+    const bridge = getLegacyAccessBridge();
+    const legacyAccess = bridge.evaluateLegacyAccess({
+      approvalToken,
+      scope,
+      role: safeString(context.role),
+      action: safeString(context.action) || "legacy.execute",
+      resource: safeString(context.resource) || safeString(scope),
+      caller: safeString(context.caller) || "legacy.experiment.consume_scoped",
+      correlationId: safeString(context.correlationId)
+    });
+    if (!legacyAccess.allowed) {
+      throw makeError("EXPERIMENT_ACCESS_DENIED", "Phase 13 boundary denied legacy scoped access", {
+        reason: legacyAccess.reason
+      });
+    }
   }
   return operatorAuthorization.consumeApprovalToken(approvalToken, scope, {
     correlationId: safeString(context.correlationId)

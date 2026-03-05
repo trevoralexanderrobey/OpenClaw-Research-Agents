@@ -1,0 +1,423 @@
+{
+  "scopes": [
+    {
+      "action": "execute",
+      "allowed_roles": [],
+      "description": "Capture runtime attestation",
+      "phase": "phase8",
+      "required_role": "operator_admin",
+      "resource": "compliance.attestation",
+      "scope_id": "compliance.attest.capture"
+    },
+    {
+      "action": "execute",
+      "allowed_roles": [],
+      "description": "Build compliance evidence bundle",
+      "phase": "phase8",
+      "required_role": "operator_admin",
+      "resource": "compliance.evidence",
+      "scope_id": "compliance.bundle.build"
+    },
+    {
+      "action": "execute",
+      "allowed_roles": [],
+      "description": "Apply release gate decision",
+      "phase": "phase8",
+      "required_role": "operator_admin",
+      "resource": "compliance.release",
+      "scope_id": "compliance.release.apply"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Repair release decision ledger tail",
+      "phase": "phase8",
+      "required_role": "operator_admin",
+      "resource": "compliance.release",
+      "scope_id": "compliance.release.repair"
+    },
+    {
+      "action": "execute",
+      "allowed_roles": [],
+      "description": "Capture experiment analysis snapshot",
+      "phase": "phase7",
+      "required_role": "operator_admin",
+      "resource": "experiment.analysis",
+      "scope_id": "experiment.analyze"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Approve experiment",
+      "phase": "phase7",
+      "required_role": "operator_admin",
+      "resource": "experiment.lifecycle",
+      "scope_id": "experiment.approve"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Archive experiment",
+      "phase": "phase7",
+      "required_role": "operator_admin",
+      "resource": "experiment.lifecycle",
+      "scope_id": "experiment.archive"
+    },
+    {
+      "action": "execute",
+      "allowed_roles": [],
+      "description": "Assign draft to experiment",
+      "phase": "phase7",
+      "required_role": "operator_admin",
+      "resource": "experiment.assignment",
+      "scope_id": "experiment.assign"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Complete experiment",
+      "phase": "phase7",
+      "required_role": "operator_admin",
+      "resource": "experiment.lifecycle",
+      "scope_id": "experiment.complete"
+    },
+    {
+      "action": "create",
+      "allowed_roles": [],
+      "description": "Create experiment",
+      "phase": "phase7",
+      "required_role": "operator_admin",
+      "resource": "experiment.lifecycle",
+      "scope_id": "experiment.create"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Pause experiment",
+      "phase": "phase7",
+      "required_role": "operator_admin",
+      "resource": "experiment.lifecycle",
+      "scope_id": "experiment.pause"
+    },
+    {
+      "action": "execute",
+      "allowed_roles": [],
+      "description": "Apply rollout decision",
+      "phase": "phase7",
+      "required_role": "operator_admin",
+      "resource": "experiment.rollout",
+      "scope_id": "experiment.rollout.apply"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Repair rollout ledger tail",
+      "phase": "phase7",
+      "required_role": "operator_admin",
+      "resource": "experiment.rollout",
+      "scope_id": "experiment.rollout.repair"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Start experiment",
+      "phase": "phase7",
+      "required_role": "operator_admin",
+      "resource": "experiment.lifecycle",
+      "scope_id": "experiment.start"
+    },
+    {
+      "action": "execute",
+      "allowed_roles": [],
+      "description": "External attestation anchor execution",
+      "phase": "phase10",
+      "required_role": "operator_admin",
+      "resource": "governance.attestation",
+      "scope_id": "governance.attestation.anchor"
+    },
+    {
+      "action": "create",
+      "allowed_roles": [
+        "operator_admin"
+      ],
+      "description": "Create deterministic recovery checkpoint",
+      "phase": "phase11",
+      "required_role": "operator_standard",
+      "resource": "governance.checkpoint",
+      "scope_id": "governance.checkpoint.create"
+    },
+    {
+      "action": "execute",
+      "allowed_roles": [],
+      "description": "Capture compliance attestation",
+      "phase": "phase8",
+      "required_role": "operator_admin",
+      "resource": "governance.compliance",
+      "scope_id": "governance.compliance.attest"
+    },
+    {
+      "action": "scan",
+      "allowed_roles": [
+        "operator_admin"
+      ],
+      "description": "Run compliance scans and baseline checks",
+      "phase": "phase9",
+      "required_role": "operator_standard",
+      "resource": "governance.compliance",
+      "scope_id": "governance.compliance.scan"
+    },
+    {
+      "action": "detect",
+      "allowed_roles": [
+        "operator_admin"
+      ],
+      "description": "Run policy drift detection",
+      "phase": "phase9",
+      "required_role": "operator_standard",
+      "resource": "governance.drift",
+      "scope_id": "governance.drift.detect"
+    },
+    {
+      "action": "execute",
+      "allowed_roles": [
+        "operator_admin"
+      ],
+      "description": "Run deterministic recovery drill",
+      "phase": "phase11",
+      "required_role": "operator_standard",
+      "resource": "governance.drill",
+      "scope_id": "governance.drill.execute"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Record immutable operator override",
+      "phase": "phase9",
+      "required_role": "operator_admin",
+      "resource": "governance.override",
+      "scope_id": "governance.override.apply"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Alias for override recording",
+      "phase": "phase13",
+      "required_role": "operator_admin",
+      "resource": "governance.override",
+      "scope_id": "governance.override.record"
+    },
+    {
+      "action": "execute",
+      "allowed_roles": [],
+      "description": "Execute recovery restore orchestration",
+      "phase": "phase11",
+      "required_role": "operator_admin",
+      "resource": "governance.recovery",
+      "scope_id": "governance.recovery.restore"
+    },
+    {
+      "action": "execute",
+      "allowed_roles": [],
+      "description": "Approve release gate",
+      "phase": "phase8",
+      "required_role": "operator_admin",
+      "resource": "governance.release",
+      "scope_id": "governance.release.approve"
+    },
+    {
+      "action": "execute",
+      "allowed_roles": [],
+      "description": "Apply remediation/runbook action",
+      "phase": "phase9",
+      "required_role": "operator_admin",
+      "resource": "governance.remediation",
+      "scope_id": "governance.remediation.apply"
+    },
+    {
+      "action": "execute",
+      "allowed_roles": [
+        "operator_admin"
+      ],
+      "description": "Runbook execution path",
+      "phase": "phase10",
+      "required_role": "operator_standard",
+      "resource": "governance.runbook",
+      "scope_id": "governance.runbook.execute"
+    },
+    {
+      "action": "generate",
+      "allowed_roles": [
+        "operator_admin"
+      ],
+      "description": "Generate deterministic SBOM",
+      "phase": "phase12",
+      "required_role": "operator_standard",
+      "resource": "governance.sbom",
+      "scope_id": "governance.sbom.generate"
+    },
+    {
+      "action": "create",
+      "allowed_roles": [],
+      "description": "Create governed session",
+      "phase": "phase13",
+      "required_role": "operator_admin",
+      "resource": "phase13.session",
+      "scope_id": "governance.session.create"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Update known-good dependency baseline",
+      "phase": "phase12",
+      "required_role": "operator_admin",
+      "resource": "governance.supply_chain",
+      "scope_id": "governance.supply_chain.update"
+    },
+    {
+      "action": "create",
+      "allowed_roles": [],
+      "description": "Issue access token",
+      "phase": "phase13",
+      "required_role": "operator_admin",
+      "resource": "phase13.token",
+      "scope_id": "governance.token.issue"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Revoke access token",
+      "phase": "phase13",
+      "required_role": "operator_admin",
+      "resource": "phase13.token",
+      "scope_id": "governance.token.revoke"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Rotate access token",
+      "phase": "phase13",
+      "required_role": "operator_admin",
+      "resource": "phase13.token",
+      "scope_id": "governance.token.rotate"
+    },
+    {
+      "action": "scan",
+      "allowed_roles": [
+        "operator_admin"
+      ],
+      "description": "Run advisory vulnerability scan",
+      "phase": "phase12",
+      "required_role": "operator_standard",
+      "resource": "governance.vulnerability",
+      "scope_id": "governance.vulnerability.scan"
+    },
+    {
+      "action": "execute",
+      "allowed_roles": [],
+      "description": "Commit mutation publish",
+      "phase": "phase4",
+      "required_role": "operator_admin",
+      "resource": "mutation.publish",
+      "scope_id": "mutation.commit"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Toggle mutation kill switch",
+      "phase": "phase4",
+      "required_role": "operator_admin",
+      "resource": "mutation.control",
+      "scope_id": "mutation.control.killSwitch"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Toggle mutation enabled flag",
+      "phase": "phase4",
+      "required_role": "operator_admin",
+      "resource": "mutation.control",
+      "scope_id": "mutation.control.toggle"
+    },
+    {
+      "action": "execute",
+      "allowed_roles": [],
+      "description": "Prepare newsletter mutation",
+      "phase": "phase4",
+      "required_role": "operator_admin",
+      "resource": "mutation.newsletter",
+      "scope_id": "mutation.newsletter.prepare"
+    },
+    {
+      "action": "execute",
+      "allowed_roles": [],
+      "description": "Prepare notion mutation",
+      "phase": "phase4",
+      "required_role": "operator_admin",
+      "resource": "mutation.notion",
+      "scope_id": "mutation.notion.prepare"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Reconcile mutation outcome",
+      "phase": "phase4",
+      "required_role": "operator_admin",
+      "resource": "mutation.publish",
+      "scope_id": "mutation.reconcile"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Apply RLHF calibration updates",
+      "phase": "phase6",
+      "required_role": "operator_admin",
+      "resource": "rlhf.calibration",
+      "scope_id": "rlhf.calibration.apply"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Record RLHF outcome",
+      "phase": "phase6",
+      "required_role": "operator_admin",
+      "resource": "rlhf.outcomes",
+      "scope_id": "rlhf.outcomes.record"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Repair RLHF outcome chain",
+      "phase": "phase6",
+      "required_role": "operator_admin",
+      "resource": "rlhf.outcomes",
+      "scope_id": "rlhf.outcomes.repair"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Approve RLHF draft for manual submission",
+      "phase": "phase5",
+      "required_role": "operator_admin",
+      "resource": "rlhf.review",
+      "scope_id": "rlhf.review.approve_manual_submission"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Archive RLHF draft",
+      "phase": "phase5",
+      "required_role": "operator_admin",
+      "resource": "rlhf.review",
+      "scope_id": "rlhf.review.archive"
+    },
+    {
+      "action": "write",
+      "allowed_roles": [],
+      "description": "Review RLHF draft",
+      "phase": "phase5",
+      "required_role": "operator_admin",
+      "resource": "rlhf.review",
+      "scope_id": "rlhf.review.review"
+    }
+  ]
+}

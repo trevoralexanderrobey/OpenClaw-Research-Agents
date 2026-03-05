@@ -7,6 +7,7 @@ const {
   computeDraftContentHash,
   verifyDraftContentHash
 } = require("./rlhf-generator/rlhf-schema.js");
+const { getLegacyAccessBridge } = require("./access-control/legacy-access-bridge.js");
 
 const ALLOWED_TRANSITIONS = Object.freeze({
   draft: "reviewed",
@@ -87,6 +88,24 @@ function createRlhfReviewWorkflow(options = {}) {
       const error = new Error(`No scope is defined for status '${toStatus}'`); // should never happen due status validation
       error.code = "RLHF_REVIEW_SCOPE_UNDEFINED";
       throw error;
+    }
+    if (typeof input.approvalToken === "string" && input.approvalToken.trim()) {
+      const legacyBridge = getLegacyAccessBridge();
+      const legacyAccess = legacyBridge.evaluateLegacyAccess({
+        approvalToken: input.approvalToken,
+        scope,
+        role: normalizeRole(context),
+        action: "legacy.execute",
+        resource: "rlhf.review",
+        caller: "legacy.rlhf.review.transition",
+        correlationId: typeof context.correlationId === "string" ? context.correlationId : ""
+      });
+      if (!legacyAccess.allowed) {
+        const error = new Error("Phase 13 boundary denied legacy RLHF review transition");
+        error.code = "RLHF_REVIEW_ACCESS_DENIED";
+        error.details = { reason: legacyAccess.reason };
+        throw error;
+      }
     }
     const tokenResult = operatorAuthorization.consumeApprovalToken(input.approvalToken, scope, {
       correlationId: typeof context.correlationId === "string" ? context.correlationId : ""

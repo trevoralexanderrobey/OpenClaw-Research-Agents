@@ -1,0 +1,109 @@
+{
+  "decisions": [
+    {
+      "action": "issue_token",
+      "actor": "phase13-artifacts",
+      "chain_hash": "sha256:0482e0ef006ea9b8a23802359ea1c60fdede8216199f227e860fa0134a1ae59b",
+      "decision_id": "acd-1",
+      "entry_hash": "sha256:3e076c3a85bbcda8de27db29a01f565ac9dffd181ea3018cdbbae80a249768c2",
+      "metadata": {
+        "token_id": "tok-a6f752920fc8918ad2b811d0"
+      },
+      "prev_chain_hash": "",
+      "reason": "issued",
+      "resource": "phase13.token",
+      "result": "allow",
+      "role": "operator_standard",
+      "scope": "governance.token.issue",
+      "scopes_evaluated": [
+        "governance.sbom.generate",
+        "governance.vulnerability.scan"
+      ],
+      "sequence": 1,
+      "timestamp": "2026-03-05T00:00:00.000Z"
+    },
+    {
+      "action": "rotate_token",
+      "actor": "phase13-artifacts",
+      "chain_hash": "sha256:6ab3452244de0992ad90586d1ad076b62581ea85772f4433b89c5749c893de2a",
+      "decision_id": "acd-2",
+      "entry_hash": "sha256:dbf11d975e384a1ae73e2c2d50db77b108af29b45885167334df7c52a31b7091",
+      "metadata": {
+        "new_token_id": "tok-96b196f72b11060431a50763",
+        "old_token_id": "tok-a6f752920fc8918ad2b811d0"
+      },
+      "prev_chain_hash": "sha256:0482e0ef006ea9b8a23802359ea1c60fdede8216199f227e860fa0134a1ae59b",
+      "reason": "rotated",
+      "resource": "phase13.token",
+      "result": "allow",
+      "role": "operator_admin",
+      "scope": "governance.token.rotate",
+      "scopes_evaluated": [],
+      "sequence": 2,
+      "timestamp": "2026-03-05T00:00:00.000Z"
+    },
+    {
+      "action": "revoke_token",
+      "actor": "phase13-artifacts",
+      "chain_hash": "sha256:2cf37cdc982a6a8e719574120d48ef576e585c7b9d0881ce38024da75971e06c",
+      "decision_id": "acd-3",
+      "entry_hash": "sha256:166f14976db3e2180d17c3be6cdd92d8e29d7d5b1bc338b628765a14ab12392a",
+      "metadata": {
+        "revocation_reason": "phase13_artifact_sample_revoke",
+        "token_id": "tok-96b196f72b11060431a50763"
+      },
+      "prev_chain_hash": "sha256:6ab3452244de0992ad90586d1ad076b62581ea85772f4433b89c5749c893de2a",
+      "reason": "revoked",
+      "resource": "phase13.token",
+      "result": "allow",
+      "role": "operator_admin",
+      "scope": "governance.token.revoke",
+      "scopes_evaluated": [],
+      "sequence": 3,
+      "timestamp": "2026-03-05T00:00:00.000Z"
+    },
+    {
+      "action": "generate",
+      "actor": "tok-a6f752920fc8918ad2b811d0",
+      "chain_hash": "sha256:b8167ab15104b39fd380cd98686c85acf085f6add8ce4edd9602b224c295f6db",
+      "decision_id": "acd-4",
+      "entry_hash": "sha256:29249b3e7e4e23e03c2b31f5df72767429c50e1afa0e1da83e81b639a821d229",
+      "metadata": {
+        "evaluated_at": "2026-03-05T00:00:00.000Z"
+      },
+      "prev_chain_hash": "sha256:2cf37cdc982a6a8e719574120d48ef576e585c7b9d0881ce38024da75971e06c",
+      "reason": "deny_revoked_token",
+      "resource": "governance.sbom",
+      "result": "deny",
+      "role": "operator_standard",
+      "scope": "governance.sbom.generate",
+      "scopes_evaluated": [],
+      "sequence": 4,
+      "timestamp": "2026-03-05T00:00:00.000Z"
+    },
+    {
+      "action": "create_session",
+      "actor": "phase13-artifacts",
+      "chain_hash": "sha256:acc235b0fe0b1bb06ccb3b9f0adb02153e9763b271f6729c2d82fc76c6f63c8e",
+      "decision_id": "acd-5",
+      "entry_hash": "sha256:ae367872f5c62ca5381c67c99a8f3da1dfaa50c320ddc532accac244dd4d4de5",
+      "metadata": {
+        "token_id": "tok-a6f752920fc8918ad2b811d0"
+      },
+      "prev_chain_hash": "sha256:b8167ab15104b39fd380cd98686c85acf085f6add8ce4edd9602b224c295f6db",
+      "reason": "token_revoked",
+      "resource": "phase13.session",
+      "result": "deny",
+      "role": "operator_admin",
+      "scope": "governance.session.create",
+      "scopes_evaluated": [],
+      "sequence": 5,
+      "timestamp": "2026-03-05T00:00:00.000Z"
+    }
+  ],
+  "integrity": {
+    "broken_at": null,
+    "total_entries": 5,
+    "valid": true
+  }
+}

@@ -46,6 +46,10 @@ Local-first, file-based, audit-oriented research orchestration scaffold built on
 - Phase 12 dependency update governance is operator-gated only (`approval token + explicit confirm + immutable ledger logging`) and only updates known-good manifests
 - Phase 12 startup integrity gate verifies supply-chain module/policy/key-template wiring before MCP method handling
 - Deterministic Phase 12 supply-chain evidence artifacts are generated under `audit/evidence/supply-chain/`
+- Phase 13 deterministic access control and identity governance enabled (canonical RBAC policy, centralized scope registry, operator-gated token lifecycle, fail-closed permission boundary, advisory-only escalation detection, deterministic session governance)
+- Phase 13 token/session lifecycle mutations are operator-initiated only (`confirm + governance transaction + immutable access decision logging`)
+- Phase 13 startup integrity gate verifies access-control schema/policy/module wiring before MCP method handling
+- Deterministic Phase 13 access-control evidence artifacts are generated under `audit/evidence/access-control/`
 
 ## Key directories
 - `openclaw-bridge/` runtime/control-plane scaffold
@@ -65,6 +69,7 @@ Phase 9 governance monitoring/drift/remediation logic is internal-only and never
 Phase 10 alerting/escalation workflows are advisory-only and internal; optional external attestation anchoring is strictly operator-initiated and blocked-by-default.
 Phase 11 restore/failover pathways remain non-autonomous; restore requires explicit operator token+confirm and failover readiness checks are advisory-only.
 Phase 12 supply-chain workflows are local-only and deterministic; vulnerability scanning is advisory-only and dependency updates remain human-gated.
+Phase 13 access/identity governance is local-only and deterministic; unknown role/scope/token paths fail closed and escalation detection remains advisory-only.
 
 ## Supervisor Model (Cline)
 - Cline (VSCode Insiders extension) is the supervisor interface for supervised orchestration and approval-facing workflows.

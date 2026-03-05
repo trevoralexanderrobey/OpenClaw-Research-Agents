@@ -68,3 +68,7 @@
 ## Supply Chain Security Boundary
 - Autonomous dependency patches, resolution, and external registry downloads remain prohibited.
 - Integrations require operator override roles and tokenized workflows strictly through the decision ledger.
+
+## Access Control & Identity Governance Boundary
+- Entirely local system prohibiting network IdP dependencies.
+- Prevents any automated lifecycle rotation actions outside strict authorized governance token loops.

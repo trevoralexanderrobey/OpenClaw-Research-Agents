@@ -1,4 +1,4 @@
-# Attack Surface Enumeration (Phase 12)
+# Attack Surface Enumeration (Phase 13)
 
 ## Open Ports
 - `127.0.0.1:18789` (bridge control plane)
@@ -150,6 +150,22 @@ Mitigation:
 - Artifact signing uses local HMAC key material (`security/artifact-signing-key.json`) with committed template (`security/artifact-signing-key.sample.json`).
 - No browser/login/credential automation, autonomous update/patch/install, external KMS/CA, or dynamic endpoint expansion is introduced.
 - Startup performs mandatory fail-closed Phase 12 integrity checks before MCP method handling.
+
+## Phase 13 Access Control & Identity Governance Surface
+- Internal-only modules:
+  - `workflows/access-control/*`
+  - `security/phase13-startup-integrity.js`
+- Identity and access state is local filesystem only:
+  - `security/rbac-policy.json`
+  - `security/scope-registry.json`
+  - runtime stores (`security/token-store.json`, `security/access-decision-ledger.json`, `security/session-store.json`) are gitignored.
+- No external identity providers, OAuth/LDAP/SAML flows, remote auth services, or browser login automation are introduced.
+- Token lifecycle operations (`issue`, `rotate`, `revoke`) are operator-initiated only and require explicit confirmation.
+- Permission boundary enforcement is fail-closed for unknown role/scope/token and expired/revoked token paths.
+- Legacy admin fallback is constrained to approved legacy token-consumption call paths with approval token presence; no-token/no-role paths are denied.
+- Access decisions are immutably chain-hashed in a dedicated Phase 13 access decision ledger.
+- Privilege escalation detection is advisory-only (`advisory_only: true`, `auto_revoke_blocked: true`) and cannot auto-revoke tokens/sessions.
+- Session governance binds sessions to tokens deterministically; revoked/expired tokens invalidate session validity.
 
 Mitigation:
 - Default egress deny-all.

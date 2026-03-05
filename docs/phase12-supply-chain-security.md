@@ -65,6 +65,10 @@ Execution model:
 3. Only `security/known-good-dependencies.json` is updated; package installation remains manual.
 4. Approval/rejection decisions are immutably logged.
 
+Phase 13 cross-reference:
+- Scope governance for dependency updates is centralized in `security/scope-registry.json` via `governance.supply_chain.update`.
+- Role authorization for this scope is governed by `security/rbac-policy.json` and evaluated by the Phase 13 permission boundary model.
+
 ## Vulnerability Scanning & Advisory Interpretation
 Module: `workflows/supply-chain/vulnerability-reporter.js`  
 CLI: `scripts/scan-vulnerabilities.js`

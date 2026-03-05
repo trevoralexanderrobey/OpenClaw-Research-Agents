@@ -1,8 +1,8 @@
 {
-  "baseline_ci_run": "22698188722",
-  "baseline_commit": "c006a0925840d24f7eac02d414a66ce254e98419",
+  "baseline_ci_run": "22710324173",
+  "baseline_commit": "712982bd91345d686f4ccb6b4d87b982adeb8938",
   "command": "bash scripts/verify-phase9-policy.sh --root /Users/trevorrobey/OpenClaw-Research-Agents",
-  "historical_run": "22658655231",
+  "historical_run": "22708212854",
   "passed": true,
   "status": 0,
   "stderr": "",

@@ -1,0 +1,31 @@
+{
+  "created": {
+    "ledger_entry": {
+      "chain_hash": "sha256:acc235b0fe0b1bb06ccb3b9f0adb02153e9763b271f6729c2d82fc76c6f63c8e",
+      "entry": {
+        "action": "create_session",
+        "actor": "phase13-artifacts",
+        "chain_hash": "sha256:acc235b0fe0b1bb06ccb3b9f0adb02153e9763b271f6729c2d82fc76c6f63c8e",
+        "decision_id": "acd-5",
+        "entry_hash": "sha256:ae367872f5c62ca5381c67c99a8f3da1dfaa50c320ddc532accac244dd4d4de5",
+        "metadata": {
+          "token_id": "tok-a6f752920fc8918ad2b811d0"
+        },
+        "prev_chain_hash": "sha256:b8167ab15104b39fd380cd98686c85acf085f6add8ce4edd9602b224c295f6db",
+        "reason": "token_revoked",
+        "resource": "phase13.session",
+        "result": "deny",
+        "role": "operator_admin",
+        "scope": "governance.session.create",
+        "scopes_evaluated": [],
+        "sequence": 5,
+        "timestamp": "2026-03-05T00:00:00.000Z"
+      }
+    },
+    "rejected": true,
+    "session_record": null
+  },
+  "invalidated": {
+    "rejected": true
+  }
+}

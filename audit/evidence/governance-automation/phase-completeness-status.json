@@ -1,7 +1,7 @@
 {
   "baseline_reference": {
-    "ci_run": "22698188722",
-    "commit": "c006a0925840d24f7eac02d414a66ce254e98419"
+    "ci_run": "22710324173",
+    "commit": "712982bd91345d686f4ccb6b4d87b982adeb8938"
   },
   "compliant": true,
   "contradictions": [],
@@ -61,6 +61,11 @@
       "complete": true,
       "missing_artifacts": [],
       "phase": "phase12"
+    },
+    {
+      "complete": true,
+      "missing_artifacts": [],
+      "phase": "phase13"
     },
     {
       "complete": true,

@@ -21,9 +21,9 @@ const {
   writeCanonicalJson
 } = require("./common.js");
 
-const FROZEN_BASELINE_COMMIT = "c006a0925840d24f7eac02d414a66ce254e98419";
-const FROZEN_BASELINE_CI_RUN = "22698188722";
-const FROZEN_HISTORICAL_RUN = "22658655231";
+const FROZEN_BASELINE_COMMIT = "712982bd91345d686f4ccb6b4d87b982adeb8938";
+const FROZEN_BASELINE_CI_RUN = "22710324173";
+const FROZEN_HISTORICAL_RUN = "22708212854";
 
 function collectPhase8ModuleHashes(rootDir) {
   const out = {};

@@ -10,3 +10,6 @@ openclaw-bridge/logs/
 *.log
 .DS_Store
 security/artifact-signing-key.json
+security/token-store.json
+security/access-decision-ledger.json
+security/session-store.json

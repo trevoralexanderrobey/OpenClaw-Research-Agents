@@ -212,6 +212,60 @@ const PHASE12_REQUIRED = Object.freeze([
   "audit/evidence/supply-chain/hash-manifest.json"
 ]);
 
+const PHASE13_REQUIRED = Object.freeze([
+  "workflows/access-control/access-control-schema.js",
+  "workflows/access-control/access-control-common.js",
+  "workflows/access-control/role-permission-registry.js",
+  "workflows/access-control/scope-registry.js",
+  "workflows/access-control/token-lifecycle-manager.js",
+  "workflows/access-control/access-decision-ledger.js",
+  "workflows/access-control/permission-boundary-enforcer.js",
+  "workflows/access-control/privilege-escalation-detector.js",
+  "workflows/access-control/session-governance-manager.js",
+  "workflows/access-control/legacy-access-bridge.js",
+  "security/phase13-startup-integrity.js",
+  "security/rbac-policy.json",
+  "security/scope-registry.json",
+  "security/token-store.sample.json",
+  "scripts/_phase13-access-utils.js",
+  "scripts/issue-token.js",
+  "scripts/rotate-token.js",
+  "scripts/revoke-token.js",
+  "scripts/validate-token.js",
+  "scripts/list-active-tokens.js",
+  "scripts/create-session.js",
+  "scripts/validate-session.js",
+  "scripts/check-access.js",
+  "scripts/detect-escalation.js",
+  "scripts/generate-phase13-artifacts.js",
+  "scripts/verify-phase13-policy.sh",
+  "tests/security/_phase13-helpers.js",
+  "tests/security/phase13-access-control-schema.test.js",
+  "tests/security/phase13-role-permission-registry.test.js",
+  "tests/security/phase13-scope-registry.test.js",
+  "tests/security/phase13-token-lifecycle-manager.test.js",
+  "tests/security/phase13-permission-boundary-enforcer.test.js",
+  "tests/security/phase13-privilege-escalation-detector.test.js",
+  "tests/security/phase13-access-decision-ledger.test.js",
+  "tests/security/phase13-session-governance-manager.test.js",
+  "tests/security/phase13-policy-gate.test.js",
+  "tests/security/phase13-startup-integrity.test.js",
+  "docs/phase13-access-control-governance.md",
+  "audit/evidence/access-control/access-control-schema.json",
+  "audit/evidence/access-control/rbac-policy-snapshot.json",
+  "audit/evidence/access-control/scope-registry-snapshot.json",
+  "audit/evidence/access-control/token-issuance-sample.json",
+  "audit/evidence/access-control/token-rotation-sample.json",
+  "audit/evidence/access-control/token-revocation-sample.json",
+  "audit/evidence/access-control/access-decision-sample.json",
+  "audit/evidence/access-control/access-decision-ledger-sample.json",
+  "audit/evidence/access-control/permission-boundary-results.json",
+  "audit/evidence/access-control/escalation-detection-sample.json",
+  "audit/evidence/access-control/session-governance-sample.json",
+  "audit/evidence/access-control/phase13-policy-gate-results.json",
+  "audit/evidence/access-control/hash-manifest.json"
+]);
+
 const CLINE_REQUIRED = Object.freeze([
   "docs/supervisor-architecture.md",
   ".clinerules",
@@ -278,6 +332,7 @@ function createPhaseCompletenessValidator(options = {}) {
     const phase10Missing = missingFromSet(rootDir, PHASE10_REQUIRED);
     const phase11Missing = missingFromSet(rootDir, PHASE11_REQUIRED);
     const phase12Missing = missingFromSet(rootDir, PHASE12_REQUIRED);
+    const phase13Missing = missingFromSet(rootDir, PHASE13_REQUIRED);
     const clineMissing = missingFromSet(rootDir, CLINE_REQUIRED);
 
     const workflowText = readTextIfExists(path.join(rootDir, ".github/workflows/phase2-security.yml"));
@@ -315,7 +370,8 @@ function createPhaseCompletenessValidator(options = {}) {
       "bash scripts/verify-phase9-policy.sh",
       "bash scripts/verify-phase10-policy.sh",
       "bash scripts/verify-phase11-policy.sh",
-      "bash scripts/verify-phase12-policy.sh"
+      "bash scripts/verify-phase12-policy.sh",
+      "bash scripts/verify-phase13-policy.sh"
     ]) {
       if (!workflowText.includes(marker)) {
         contradictions.push(canonicalize({
@@ -355,6 +411,7 @@ function createPhaseCompletenessValidator(options = {}) {
       phaseStatus("phase10", phase10Missing),
       phaseStatus("phase11", phase11Missing),
       phaseStatus("phase12", phase12Missing),
+      phaseStatus("phase13", phase13Missing),
       phaseStatus("cline", clineMissing)
     ];
 
@@ -370,6 +427,7 @@ function createPhaseCompletenessValidator(options = {}) {
       ...phase10Missing,
       ...phase11Missing,
       ...phase12Missing,
+      ...phase13Missing,
       ...clineMissing
     ]);
 
@@ -421,6 +479,7 @@ module.exports = {
   PHASE10_REQUIRED,
   PHASE11_REQUIRED,
   PHASE12_REQUIRED,
+  PHASE13_REQUIRED,
   CLINE_REQUIRED,
   CONTRADICTION_RULES
 };

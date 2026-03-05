@@ -1,7 +1,7 @@
 {
   "compliant": true,
   "evidence": {
-    "baseline_commit": "c006a0925840d24f7eac02d414a66ce254e98419",
+    "baseline_commit": "712982bd91345d686f4ccb6b4d87b982adeb8938",
     "checked_files": [
       ".clinerules",
       ".vscode/extensions.json",

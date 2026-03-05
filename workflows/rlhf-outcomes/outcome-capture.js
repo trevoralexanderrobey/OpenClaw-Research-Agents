@@ -19,6 +19,7 @@ const {
   verifyOutcomeChain,
   verifyStateChainAnchor
 } = require("./outcome-validator.js");
+const { getLegacyAccessBridge } = require("../access-control/legacy-access-bridge.js");
 
 function createNoopLogger() {
   return { info() {}, warn() {}, error() {} };
@@ -215,6 +216,23 @@ function createOutcomeCaptureWorkflow(options = {}) {
   async function repairOutcomeArtifactTail(input = {}, context = {}) {
     assertOperatorRole(context);
     const correlationId = safeString(context.correlationId);
+    if (safeString(input.approvalToken)) {
+      const legacyBridge = getLegacyAccessBridge();
+      const legacyAccess = legacyBridge.evaluateLegacyAccess({
+        approvalToken: input.approvalToken,
+        scope: "rlhf.outcomes.repair",
+        role: normalizeRole(context),
+        action: "legacy.execute",
+        resource: "rlhf.outcomes",
+        caller: "legacy.rlhf.outcomes.repair",
+        correlationId
+      });
+      if (!legacyAccess.allowed) {
+        throw makeError("RLHF_OUTCOME_ACCESS_DENIED", "Phase 13 boundary denied legacy outcome repair access", {
+          reason: legacyAccess.reason
+        });
+      }
+    }
     const tokenResult = operatorAuthorization.consumeApprovalToken(input.approvalToken, "rlhf.outcomes.repair", {
       correlationId
     });
@@ -271,6 +289,23 @@ function createOutcomeCaptureWorkflow(options = {}) {
     const normalizedInput = normalizeOutcomeInput(input);
     if (!normalizedInput.idempotencyKey) {
       throw makeError("RLHF_OUTCOME_IDEMPOTENCY_KEY_REQUIRED", "idempotencyKey is required");
+    }
+    if (safeString(input.approvalToken)) {
+      const legacyBridge = getLegacyAccessBridge();
+      const legacyAccess = legacyBridge.evaluateLegacyAccess({
+        approvalToken: input.approvalToken,
+        scope: "rlhf.outcomes.record",
+        role: normalizeRole(context),
+        action: "legacy.execute",
+        resource: "rlhf.outcomes",
+        caller: "legacy.rlhf.outcomes.record",
+        correlationId
+      });
+      if (!legacyAccess.allowed) {
+        throw makeError("RLHF_OUTCOME_ACCESS_DENIED", "Phase 13 boundary denied legacy outcome record access", {
+          reason: legacyAccess.reason
+        });
+      }
     }
     const tokenResult = operatorAuthorization.consumeApprovalToken(input.approvalToken, "rlhf.outcomes.record", { correlationId });
 

@@ -1,12 +1,12 @@
 {
-  "baselineCiRunId": "22698188722",
-  "baselineCommit": "c006a0925840d24f7eac02d414a66ce254e98419",
+  "baselineCiRunId": "22710324173",
+  "baselineCommit": "712982bd91345d686f4ccb6b4d87b982adeb8938",
   "clineMarkers": [
     "Cline (VSCode Insiders extension) is the supervisor interface",
     "Protected mutations require operator role, scoped approval token, governance transaction wrapper, and kill-switch-open state",
     "No autonomous external submission"
   ],
-  "historicalRunId": "22658655231",
+  "historicalRunId": "22708212854",
   "phase8ModuleHashes": {
     "workflows/compliance-governance/compliance-decision-ledger.js": "be0dff6e9a1176e242fb0ba714874a687e407fe6b30213b0309720753b4992aa",
     "workflows/compliance-governance/compliance-schema.js": "13141170df6e192d7132536cc355db86a8d8d8655ed0de0276fcf5b393214383",

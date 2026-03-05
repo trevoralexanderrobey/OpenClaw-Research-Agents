@@ -12,6 +12,7 @@ const {
   assertOutboundMethodAllowed,
   logOutboundAttempt
 } = require("../openclaw-bridge/execution/egress-policy.js");
+const { getLegacyAccessBridge } = require("../workflows/access-control/legacy-access-bridge.js");
 const { createApiGovernance } = require("./api-governance.js");
 const { createOperatorAuthorization } = require("./operator-authorization.js");
 
@@ -217,6 +218,28 @@ function providerToScope(provider, action) {
   return `mutation.${normalized}.${action}`;
 }
 
+function assertLegacyScopedAccess(input = {}) {
+  if (!normalizeString(input.approvalToken)) {
+    return;
+  }
+  const bridge = getLegacyAccessBridge();
+  const evaluation = bridge.evaluateLegacyAccess({
+    approvalToken: input.approvalToken,
+    scope: input.scope,
+    role: normalizeString(input.role),
+    action: "legacy.execute",
+    resource: normalizeString(input.resource) || normalizeString(input.scope),
+    caller: normalizeString(input.caller),
+    correlationId: normalizeString(input.correlationId)
+  });
+  if (!evaluation.allowed) {
+    throw makeError("MUTATION_ACCESS_DENIED", "Phase 13 boundary denied legacy mutation access", {
+      reason: evaluation.reason,
+      scope: normalizeString(input.scope)
+    });
+  }
+}
+
 function createMutationControl(options = {}) {
   const apiGovernance = options.apiGovernance || createApiGovernance({ logger: options.logger });
   const operatorAuthorization = options.operatorAuthorization || createOperatorAuthorization({ logger: options.logger });
@@ -289,6 +312,14 @@ function createMutationControl(options = {}) {
 
   async function setMutationEnabled(input = {}, context = {}) {
     const correlationId = normalizeString(context.correlationId);
+    assertLegacyScopedAccess({
+      approvalToken: input.approvalToken,
+      scope: "mutation.control.toggle",
+      role: context.role,
+      resource: "mutation.control",
+      caller: "legacy.mutation.control.toggle",
+      correlationId
+    });
     operatorAuthorization.consumeApprovalToken(input.approvalToken, "mutation.control.toggle", { correlationId });
 
     const result = await apiGovernance.withGovernanceTransaction(async (tx) => {
@@ -333,6 +364,14 @@ function createMutationControl(options = {}) {
 
   async function setKillSwitch(input = {}, context = {}) {
     const correlationId = normalizeString(context.correlationId);
+    assertLegacyScopedAccess({
+      approvalToken: input.approvalToken,
+      scope: "mutation.control.killSwitch",
+      role: context.role,
+      resource: "mutation.control",
+      caller: "legacy.mutation.control.kill_switch",
+      correlationId
+    });
     operatorAuthorization.consumeApprovalToken(input.approvalToken, "mutation.control.killSwitch", { correlationId });
 
     const result = await apiGovernance.withGovernanceTransaction(async (tx) => {
@@ -372,8 +411,16 @@ function createMutationControl(options = {}) {
     const provider = normalizeString(input.provider).toLowerCase();
     const method = normalizeString(input.method || "POST").toUpperCase();
     const url = normalizeString(input.url);
-
-    operatorAuthorization.consumeApprovalToken(input.approvalToken, providerToScope(provider, "prepare"), { correlationId });
+    const prepareScope = providerToScope(provider, "prepare");
+    assertLegacyScopedAccess({
+      approvalToken: input.approvalToken,
+      scope: prepareScope,
+      role: context.role,
+      resource: `mutation.${provider}`,
+      caller: "legacy.mutation.prepare",
+      correlationId
+    });
+    operatorAuthorization.consumeApprovalToken(input.approvalToken, prepareScope, { correlationId });
 
     const guardrails = ensurePayloadGuardrails(input.payload);
     const payloadHash = sha256(`payload-v1|${provider}|${guardrails.bodyCanonical}`);
@@ -553,6 +600,14 @@ function createMutationControl(options = {}) {
 
     await ensureLogIntegrity();
 
+    assertLegacyScopedAccess({
+      approvalToken: input.approvalToken,
+      scope: "mutation.commit",
+      role: context.role,
+      resource: "mutation.publish",
+      caller: "legacy.mutation.commit",
+      correlationId
+    });
     operatorAuthorization.consumeApprovalToken(input.approvalToken, "mutation.commit", { correlationId });
 
     const attempt = await apiGovernance.withGovernanceTransaction(async (tx) => {
@@ -725,6 +780,14 @@ function createMutationControl(options = {}) {
     const correlationId = normalizeString(context.correlationId);
     const sequence = Number(input.sequence);
     const action = normalizeString(input.action).toLowerCase();
+    assertLegacyScopedAccess({
+      approvalToken: input.approvalToken,
+      scope: "mutation.reconcile",
+      role: context.role,
+      resource: "mutation.publish",
+      caller: "legacy.mutation.reconcile",
+      correlationId
+    });
     operatorAuthorization.consumeApprovalToken(input.approvalToken, "mutation.reconcile", { correlationId });
 
     if (!["confirm_committed", "confirm_not_committed", "abandon"].includes(action)) {
