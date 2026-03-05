@@ -21,6 +21,7 @@ test("phase9 completeness validator passes when repository is complete", () => {
   });
   const result = validator.validatePhaseCompleteness({ rootDir: root });
   assert.equal(result.compliant, true, JSON.stringify(result, null, 2));
+  assert.ok(result.phase_status.some((entry) => entry.phase === "phase11" && entry.complete === true));
 });
 
 test("phase9 completeness validator detects missing artifacts", async () => {
@@ -29,6 +30,7 @@ test("phase9 completeness validator detects missing artifacts", async () => {
   const result = validator.validatePhaseCompleteness({ rootDir: dir });
   assert.equal(result.compliant, false);
   assert.ok(result.missing_artifacts.length > 0);
+  assert.ok(result.phase_status.some((entry) => entry.phase === "phase11" && entry.complete === false));
 });
 
 test("phase9 completeness validator detects cross-phase contradiction language", async () => {

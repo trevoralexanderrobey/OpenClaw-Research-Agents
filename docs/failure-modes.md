@@ -1,4 +1,4 @@
-# Failure Modes (Phase 8)
+# Failure Modes (Phase 11)
 
 ## Runtime Schema Mismatch
 Detection:
@@ -346,3 +346,69 @@ Handling:
 - Fail closed and block egress.
 - Record attempt/failure context in decision trail.
 - Retry only through explicit operator-initiated command with valid scope and allowlisted host.
+
+## Phase 11 Checkpoint/Manifest Determinism Mismatch
+Detection:
+- Checkpoint hash or manifest hash differs from deterministic canonical recomputation.
+- Checkpoint/manifest chain continuity hash mismatch.
+
+Handling:
+- Fail closed and mark recovery artifacts invalid.
+- Regenerate checkpoint/manifest from canonical inputs.
+- Re-run backup integrity verification and Phase 11 policy gate.
+
+## Phase 11 Backup Artifact Tamper or Missing Artifact
+Detection:
+- `verifyBackupIntegrity` reports missing artifacts or artifact hash mismatch.
+
+Handling:
+- Set `tamper_detected=true` and block restore readiness.
+- Require operator review and replacement of missing/corrupt artifacts.
+- Re-run integrity verification before any restore decision.
+
+## Phase 11 Restore Execution Rejected
+Detection:
+- Missing `--confirm`, missing approval token, or invalid token scope (`governance.recovery.restore`).
+
+Handling:
+- Reject execution and write immutable rejection entries to override + operational decision ledgers.
+- Keep restore state advisory-only.
+- Require explicit operator re-run with valid token/scope/confirm.
+
+## Phase 11 Restore Executor Failure
+Detection:
+- Injected restore executor throws or returns failed status.
+
+Handling:
+- Fail closed and persist deterministic failure decision in ledgers.
+- Do not auto-retry or auto-failover.
+- Require explicit operator review and next-step decision.
+
+## Phase 11 Continuity SLO Breach
+Detection:
+- RTO/RPO/backup-integrity/restore-drill metrics breach thresholds or required metrics are missing.
+
+Handling:
+- Emit advisory alerts only (`advisory_only=true`, `auto_remediation_blocked=true`).
+- Do not trigger autonomous remediation, restore, or failover.
+- Require operator triage and runbook decision.
+
+## Phase 11 Drill/Readiness Safety Boundary Breach
+Detection:
+- Tabletop drill or readiness validation path attempts mutation/restore/failover execution.
+
+Handling:
+- Treat as policy violation and fail closed.
+- Block release/merge until Phase 11 policy gate returns pass.
+- Restore advisory-only behavior and re-run deterministic evidence generation.
+
+## Phase 11 Startup Integrity Failure
+Detection:
+- Missing Phase 11 required modules/scripts.
+- Recovery schema/module wiring bootstrap failure.
+- Recovery artifact directory is not writable.
+
+Handling:
+- Fail closed before MCP service starts handling requests.
+- Do not bypass startup gate.
+- Restore missing wiring/artifacts and re-run startup + policy validations.

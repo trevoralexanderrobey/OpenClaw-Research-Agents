@@ -1,0 +1,31 @@
+{
+  "acceptance_criteria": [
+    "Operator role is asserted",
+    "Scoped approval token governance.recovery.restore is consumed",
+    "Explicit confirm flag is true",
+    "Override and operational decision ledgers receive immutable entries",
+    "Execution defaults to simulation when no explicit restore executor is injected"
+  ],
+  "plan": {
+    "checkpoint_id": "CHK-20260305-9ad9e4f55ee6",
+    "explicit_confirm_required": true,
+    "governance_transaction_wrapper_required": true,
+    "manifest_id": "MAN-20260305-41dd723e6de8",
+    "no_autonomous_restore": true,
+    "operator_approval_token_required": true,
+    "restore_request_id": "RST-20260305-001",
+    "restore_targets": [
+      "workspace/runtime/state.json"
+    ],
+    "title": "Phase 11 Restore Plan"
+  },
+  "risk": {
+    "advisory_only_until_confirm": true,
+    "auto_restore_blocked": true,
+    "level": "low",
+    "restore_targets": 1,
+    "risk_tags": [
+      "operational"
+    ]
+  }
+}

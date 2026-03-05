@@ -1,0 +1,52 @@
+{
+  "artifact_summary": {
+    "count": 2,
+    "files": [
+      "audit/evidence/governance-automation/hash-manifest.json",
+      "audit/evidence/observability/hash-manifest.json"
+    ],
+    "total_bytes": 2800
+  },
+  "artifacts": [
+    {
+      "file": "audit/evidence/governance-automation/hash-manifest.json",
+      "sha256": "b1e0aabb97e9a278ab8680a16b4bcf7f2a4235dd6667c9af7084523e7ac5c064",
+      "size_bytes": 1125
+    },
+    {
+      "file": "audit/evidence/observability/hash-manifest.json",
+      "sha256": "91cb642831de43331591669cfb07cb9bd081aace9fdda41ffbe4a56b06db8a3a",
+      "size_bytes": 1675
+    }
+  ],
+  "chain_hash": "sha256:2f3864d085d58fb626f108e44dfb927116919b3b4c9ce14565da8c7b57773ebf",
+  "checkpoint_hash": "sha256:9ad9e4f55ee690ba359bae55f83994d7d3ceba75be2f28b5dc869bbe3b855873",
+  "checkpoint_id": "CHK-20260305-9ad9e4f55ee6",
+  "evidence_scope": {
+    "phases": [
+      "phase8",
+      "phase9",
+      "phase10"
+    ],
+    "root_dir": "/Users/trevorrobey/OpenClaw-Research-Agents"
+  },
+  "manifest_ref": "audit/evidence/recovery-assurance/CHK-20260305-9ad9e4f55ee6-manifest.json",
+  "prev_checkpoint_hash": "",
+  "runtime_summary": {
+    "compliance_ledger": {
+      "decision_chain_head": "",
+      "decision_records": 0,
+      "operational_chain_head": "",
+      "operational_records": 0,
+      "override_chain_head": "",
+      "override_records": 0
+    },
+    "outbound_mutation": {
+      "enabled": false,
+      "kill_switch": false
+    },
+    "runtime_state_schema_version": 8
+  },
+  "schema_version": "phase11-recovery-v1",
+  "timestamp": "2026-03-05T00:00:00.000Z"
+}

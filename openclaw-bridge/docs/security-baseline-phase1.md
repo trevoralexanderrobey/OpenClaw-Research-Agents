@@ -59,3 +59,8 @@
 - Automated remediation and dynamic egress expansion are strictly prohibited.
 - Alerting mechanisms are advisory-only; runbook execution demands operator confirmation.
 - External attestation anchoring requires explicit operator opt-in and strict allowlist enforcement.
+
+## Recovery Assurance Boundary
+- Autonomous restore procedures or dynamic backup failovers are completely prohibited.
+- Restore endpoints require operator scope, explicit confirmation, and immutable ledger recording.
+- All tabletop drill modules operate in a strictly advisory/read-only mode.

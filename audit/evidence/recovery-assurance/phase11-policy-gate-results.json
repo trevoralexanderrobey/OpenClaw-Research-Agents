@@ -1,0 +1,7 @@
+{
+  "command": "bash scripts/verify-phase11-policy.sh --root /Users/trevorrobey/OpenClaw-Research-Agents",
+  "passed": true,
+  "status": 0,
+  "stderr": "",
+  "stdout": "Phase 11 policy verification passed"
+}

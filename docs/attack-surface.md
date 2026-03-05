@@ -1,4 +1,4 @@
-# Attack Surface Enumeration (Phase 10)
+# Attack Surface Enumeration (Phase 11)
 
 ## Open Ports
 - `127.0.0.1:18789` (bridge control plane)
@@ -114,6 +114,22 @@ Mitigation:
   - enforces static host allowlist and blocked-by-default egress
   - is never auto-triggered by alerts/runbooks
 - Startup performs mandatory fail-closed Phase 10 integrity checks before MCP method handling.
+
+## Phase 11 Recovery Assurance & Continuity Surface
+- Internal-only modules:
+  - `workflows/recovery-assurance/*`
+  - `security/phase11-startup-integrity.js`
+- Deterministic checkpoint and backup manifest pipeline is local-only and does not egress/upload.
+- Backup integrity verification is read-only and fails closed on hash-chain/artifact mismatches.
+- Restore orchestration is operator-only and requires:
+  - scope `governance.recovery.restore`
+  - approval token consumption
+  - explicit confirmation
+  - immutable override + operational decision ledger entries
+- Default restore execution mode is simulation (fail-closed) unless an explicit restore executor is injected.
+- Continuity SLO evaluation, tabletop drills, and failover readiness outputs are advisory-only and cannot trigger restore/failover automatically.
+- No browser/login/credential automation, autonomous restore/failover, or dynamic endpoint expansion is introduced.
+- Startup performs mandatory fail-closed Phase 11 integrity checks before MCP method handling.
 
 Mitigation:
 - Default egress deny-all.

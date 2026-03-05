@@ -1,0 +1,11 @@
+{
+  "advisory_only": true,
+  "auto_remediation_blocked": true,
+  "blockers": [],
+  "failover_triggered": false,
+  "ready": true,
+  "recommendations": [],
+  "schema_version": "phase11-recovery-v1",
+  "score": 100,
+  "timestamp": "2026-03-05T00:00:00.000Z"
+}

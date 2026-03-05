@@ -1,0 +1,44 @@
+{
+  "files": [
+    {
+      "file": "backup-integrity-results.json",
+      "sha256": "defa73d898d6866b02b7b6d8ec20c7b8d0ab7c267e0abe60e0999b3f14621567"
+    },
+    {
+      "file": "backup-manifest-sample.json",
+      "sha256": "9d4a11ecbe1410793a18d671b488a293c55d5e50bf10c2c975561c95c5637a94"
+    },
+    {
+      "file": "chaos-drill-results.json",
+      "sha256": "0891f21da7e4dae861c55ac8e8b8963280c1557f987ca164e279c296290a5be4"
+    },
+    {
+      "file": "checkpoint-sample.json",
+      "sha256": "1c00a459679356573546f83766037f22d4f5f37526fc3e03c75353e96e85206c"
+    },
+    {
+      "file": "continuity-slo-results.json",
+      "sha256": "220d55da8f521fdebcf9a28f66bc8745231058a8cfb31a424c780a159369fcfd"
+    },
+    {
+      "file": "failover-readiness-report.json",
+      "sha256": "8b399cb56693074cc5e37a6874b08c73613327c8fd5e5099540bb8076f4d14af"
+    },
+    {
+      "file": "phase11-policy-gate-results.json",
+      "sha256": "d31a0c3a85911299350b105c6ba19b781da070b9c56e4cee9035591029b6f544"
+    },
+    {
+      "file": "recovery-schema.json",
+      "sha256": "8e4821dc6c7073b06f24d35b39e8378aba69249818fb1d768910f9e0369f9587"
+    },
+    {
+      "file": "restore-execution-sample.json",
+      "sha256": "8dfc5099f237c5db2a094772717f5553b0dda24fb6075386bf1620c74a5f77de"
+    },
+    {
+      "file": "restore-plan-sample.json",
+      "sha256": "5e6676645d65f8eb8f0c227a97090d2ce486fa320337dffbbb69ea6ce9db30a6"
+    }
+  ]
+}

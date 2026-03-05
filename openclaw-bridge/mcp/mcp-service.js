@@ -10,6 +10,7 @@ const { verifyPhase7StartupIntegrity } = require("../../security/phase7-startup-
 const { verifyPhase8StartupIntegrity } = require("../../security/phase8-startup-integrity.js");
 const { verifyPhase9StartupIntegrity } = require("../../security/phase9-startup-integrity.js");
 const { verifyPhase10StartupIntegrity } = require("../../security/phase10-startup-integrity.js");
+const { verifyPhase11StartupIntegrity } = require("../../security/phase11-startup-integrity.js");
 const { createMonetizationEngine } = require("../../analytics/monetization-engine.js");
 const { createSemanticScholarMcp } = require("./semantic-scholar-mcp.js");
 const { createArxivMcp } = require("./arxiv-mcp.js");
@@ -216,6 +217,16 @@ function createMcpService(options = {}) {
         if (!phase10 || phase10.healthy !== true) {
           throw createMcpError("PHASE10_STARTUP_INTEGRITY_FAILED", "Phase 10 startup integrity checks failed", {
             failures: phase10 && Array.isArray(phase10.failures) ? phase10.failures : []
+          });
+        }
+        const phase11 = await verifyPhase11StartupIntegrity({
+          apiGovernance,
+          operatorAuthorization,
+          logger
+        });
+        if (!phase11 || phase11.healthy !== true) {
+          throw createMcpError("PHASE11_STARTUP_INTEGRITY_FAILED", "Phase 11 startup integrity checks failed", {
+            failures: phase11 && Array.isArray(phase11.failures) ? phase11.failures : []
           });
         }
         return { ok: true };

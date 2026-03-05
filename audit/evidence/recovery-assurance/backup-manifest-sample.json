@@ -1,0 +1,40 @@
+{
+  "artifact_summary": {
+    "count": 2,
+    "files": [
+      "audit/evidence/governance-automation/hash-manifest.json",
+      "audit/evidence/observability/hash-manifest.json"
+    ],
+    "total_bytes": 2800
+  },
+  "artifacts": [
+    {
+      "file": "audit/evidence/governance-automation/hash-manifest.json",
+      "sha256": "b1e0aabb97e9a278ab8680a16b4bcf7f2a4235dd6667c9af7084523e7ac5c064",
+      "size_bytes": 1125
+    },
+    {
+      "file": "audit/evidence/observability/hash-manifest.json",
+      "sha256": "91cb642831de43331591669cfb07cb9bd081aace9fdda41ffbe4a56b06db8a3a",
+      "size_bytes": 1675
+    }
+  ],
+  "chain_hash": "sha256:24feb8e18a1961a2325c38fff5fcbc21dd6aff2161a3ed9de792f1f7ae7ef94b",
+  "chain_references": {
+    "checkpoint_chain_hash": "sha256:2f3864d085d58fb626f108e44dfb927116919b3b4c9ce14565da8c7b57773ebf",
+    "prev_checkpoint_hash": ""
+  },
+  "checkpoint_hash": "sha256:9ad9e4f55ee690ba359bae55f83994d7d3ceba75be2f28b5dc869bbe3b855873",
+  "checkpoint_id": "CHK-20260305-9ad9e4f55ee6",
+  "manifest_hash": "sha256:41dd723e6de88525ac149a8aa031979e0d377a410aaecc27bc16b2ed875162ab",
+  "manifest_id": "MAN-20260305-41dd723e6de8",
+  "policy_version": "phase11-policy-v1",
+  "prev_manifest_hash": "",
+  "provenance": {
+    "generated_without_autonomous_execution": true,
+    "generated_without_external_egress": true,
+    "source": "phase11.recovery-assurance"
+  },
+  "schema_version": "phase11-recovery-v1",
+  "timestamp": "2026-03-05T00:00:00.000Z"
+}

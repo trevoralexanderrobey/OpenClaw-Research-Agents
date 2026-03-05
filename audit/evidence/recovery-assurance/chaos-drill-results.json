@@ -1,0 +1,70 @@
+{
+  "drill": {
+    "advisory_only": true,
+    "auto_remediation_blocked": true,
+    "checkpoint_id": "CHK-20260305-9ad9e4f55ee6",
+    "drill_id": "DRL-20260305-475495ad7bd6",
+    "findings": [
+      {
+        "advisory_only": true,
+        "auto_remediation_blocked": true,
+        "category": "safety-boundary",
+        "message": "No protected mutation executed"
+      },
+      {
+        "advisory_only": true,
+        "auto_remediation_blocked": true,
+        "category": "operator-gating",
+        "message": "Restore/failover remains operator-gated"
+      }
+    ],
+    "outcome": "simulated_success",
+    "scenario": "integrity_drift",
+    "schema_version": "phase11-recovery-v1",
+    "steps": [
+      {
+        "action": "Run backup integrity verification against latest manifest",
+        "advisory_only": true,
+        "expected_operator_decision": true,
+        "sequence": 1
+      },
+      {
+        "action": "Classify tamper or corruption findings",
+        "advisory_only": true,
+        "expected_operator_decision": true,
+        "sequence": 2
+      },
+      {
+        "action": "Require operator approval for recovery workflow",
+        "advisory_only": true,
+        "expected_operator_decision": true,
+        "sequence": 3
+      },
+      {
+        "action": "Capture evidence artifact with immutable hashes",
+        "advisory_only": true,
+        "expected_operator_decision": true,
+        "sequence": 4
+      }
+    ],
+    "tabletop_mode": true,
+    "timestamp": "2026-03-05T00:00:00.000Z"
+  },
+  "drill_id": "DRL-20260305-475495ad7bd6",
+  "findings": [
+    {
+      "advisory_only": true,
+      "auto_remediation_blocked": true,
+      "category": "safety-boundary",
+      "message": "No protected mutation executed"
+    },
+    {
+      "advisory_only": true,
+      "auto_remediation_blocked": true,
+      "category": "operator-gating",
+      "message": "Restore/failover remains operator-gated"
+    }
+  ],
+  "outcome": "simulated_success",
+  "scenario": "integrity_drift"
+}

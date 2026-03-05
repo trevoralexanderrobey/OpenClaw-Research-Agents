@@ -132,6 +132,36 @@ const PHASE10_REQUIRED = Object.freeze([
   "docs/phase10-operational-runbook.md"
 ]);
 
+const PHASE11_REQUIRED = Object.freeze([
+  "workflows/recovery-assurance/recovery-schema.js",
+  "workflows/recovery-assurance/recovery-common.js",
+  "workflows/recovery-assurance/checkpoint-coordinator.js",
+  "workflows/recovery-assurance/backup-manifest-manager.js",
+  "workflows/recovery-assurance/backup-integrity-verifier.js",
+  "workflows/recovery-assurance/restore-orchestrator.js",
+  "workflows/recovery-assurance/continuity-slo-engine.js",
+  "workflows/recovery-assurance/chaos-drill-simulator.js",
+  "workflows/recovery-assurance/failover-readiness-validator.js",
+  "security/phase11-startup-integrity.js",
+  "scripts/create-recovery-checkpoint.js",
+  "scripts/verify-backup-integrity.js",
+  "scripts/execute-restore.js",
+  "scripts/run-recovery-drill.js",
+  "scripts/generate-phase11-artifacts.js",
+  "scripts/verify-phase11-policy.sh",
+  "tests/security/phase11-recovery-schema.test.js",
+  "tests/security/phase11-checkpoint-coordinator.test.js",
+  "tests/security/phase11-backup-manifest-manager.test.js",
+  "tests/security/phase11-backup-integrity-verifier.test.js",
+  "tests/security/phase11-restore-orchestrator.test.js",
+  "tests/security/phase11-continuity-slo-engine.test.js",
+  "tests/security/phase11-chaos-drill-simulator.test.js",
+  "tests/security/phase11-failover-readiness-validator.test.js",
+  "tests/security/phase11-policy-gate.test.js",
+  "tests/security/phase11-startup-integrity.test.js",
+  "docs/phase11-recovery-assurance.md"
+]);
+
 const CLINE_REQUIRED = Object.freeze([
   "docs/supervisor-architecture.md",
   ".clinerules",
@@ -196,6 +226,7 @@ function createPhaseCompletenessValidator(options = {}) {
     const phase8Missing = missingFromSet(rootDir, PHASE8_REQUIRED);
     const phase9Missing = missingFromSet(rootDir, PHASE9_REQUIRED);
     const phase10Missing = missingFromSet(rootDir, PHASE10_REQUIRED);
+    const phase11Missing = missingFromSet(rootDir, PHASE11_REQUIRED);
     const clineMissing = missingFromSet(rootDir, CLINE_REQUIRED);
 
     const workflowText = readTextIfExists(path.join(rootDir, ".github/workflows/phase2-security.yml"));
@@ -231,7 +262,8 @@ function createPhaseCompletenessValidator(options = {}) {
       "bash scripts/verify-cline-supervisor-policy.sh",
       "bash scripts/verify-phase8-policy.sh",
       "bash scripts/verify-phase9-policy.sh",
-      "bash scripts/verify-phase10-policy.sh"
+      "bash scripts/verify-phase10-policy.sh",
+      "bash scripts/verify-phase11-policy.sh"
     ]) {
       if (!workflowText.includes(marker)) {
         contradictions.push(canonicalize({
@@ -269,6 +301,7 @@ function createPhaseCompletenessValidator(options = {}) {
       phaseStatus("phase8", phase8Missing),
       phaseStatus("phase9", phase9Missing),
       phaseStatus("phase10", phase10Missing),
+      phaseStatus("phase11", phase11Missing),
       phaseStatus("cline", clineMissing)
     ];
 
@@ -282,6 +315,7 @@ function createPhaseCompletenessValidator(options = {}) {
       ...phase8Missing,
       ...phase9Missing,
       ...phase10Missing,
+      ...phase11Missing,
       ...clineMissing
     ]);
 
@@ -331,6 +365,7 @@ module.exports = {
   PHASE8_REQUIRED,
   PHASE9_REQUIRED,
   PHASE10_REQUIRED,
+  PHASE11_REQUIRED,
   CLINE_REQUIRED,
   CONTRADICTION_RULES
 };

@@ -43,3 +43,7 @@
 ## Operational Resilience Pipeline
 - Exposes deterministic telemetry and advisory SLO alerting channels.
 - Orchestrates operator-gated runbook execution and blocks automated remediation.
+
+## Recovery Assurance Pipeline
+- Automatically generates deterministic backup manifests and verifies artifact chain integrity.
+- Provides read-only continuity drill validation while enforcing strict operator-only lockouts on actual restore procedures.

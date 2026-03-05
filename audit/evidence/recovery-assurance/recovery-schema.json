@@ -1,0 +1,75 @@
+{
+  "entities": {
+    "backup_manifest": {
+      "additional_properties": true,
+      "required": [
+        "schema_version",
+        "manifest_id",
+        "manifest_hash",
+        "checkpoint_id",
+        "checkpoint_hash",
+        "artifacts",
+        "policy_version",
+        "provenance"
+      ]
+    },
+    "checkpoint": {
+      "additional_properties": true,
+      "required": [
+        "schema_version",
+        "checkpoint_id",
+        "timestamp",
+        "checkpoint_hash",
+        "prev_checkpoint_hash",
+        "artifacts",
+        "runtime_summary"
+      ]
+    },
+    "drill_result": {
+      "additional_properties": true,
+      "required": [
+        "schema_version",
+        "drill_id",
+        "timestamp",
+        "scenario",
+        "outcome",
+        "findings"
+      ]
+    },
+    "readiness_report": {
+      "additional_properties": true,
+      "required": [
+        "schema_version",
+        "timestamp",
+        "ready",
+        "score",
+        "blockers",
+        "recommendations"
+      ]
+    },
+    "restore_request": {
+      "additional_properties": true,
+      "required": [
+        "schema_version",
+        "request_id",
+        "checkpoint_id",
+        "manifest_id",
+        "requested_by",
+        "requested_scope",
+        "confirm_required"
+      ]
+    },
+    "restore_result": {
+      "additional_properties": true,
+      "required": [
+        "schema_version",
+        "request_id",
+        "result",
+        "execution_mode",
+        "operator_confirmed",
+        "token_scope"
+      ]
+    }
+  },
+  "schema_version": "phase11-recovery-v1"
+}

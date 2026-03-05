@@ -37,6 +37,11 @@ Local-first, file-based, audit-oriented research orchestration scaffold built on
 - Phase 10 external attestation anchoring is blocked-by-default and only allowed with explicit operator opt-in and static allowlist host validation
 - Phase 10 startup integrity gate verifies observability/alerting/runbook/incident/attestation wiring before MCP method handling
 - Deterministic Phase 10 observability evidence artifacts are generated under `audit/evidence/observability/`
+- Phase 11 deterministic recovery assurance enabled (checkpoint coordination, backup manifest integrity verification, human-gated restore orchestration, continuity SLO advisories, deterministic tabletop drills, failover readiness validation)
+- Phase 11 restore execution is fail-closed and operator-gated only (`approval token + explicit confirm + governance transaction-backed immutable logging`)
+- Phase 11 continuity/drill/readiness pathways are advisory/read-only and never auto-trigger restore/failover
+- Phase 11 startup integrity gate verifies recovery module/policy wiring before MCP method handling
+- Deterministic Phase 11 recovery evidence artifacts are generated under `audit/evidence/recovery-assurance/`
 
 ## Key directories
 - `openclaw-bridge/` runtime/control-plane scaffold
@@ -54,6 +59,7 @@ Phase 7 experimentation/rollout logic is internal-only and never submits externa
 Phase 8 compliance attestation/release-gate logic is internal-only and never submits externally.
 Phase 9 governance monitoring/drift/remediation logic is internal-only and never submits externally.
 Phase 10 alerting/escalation workflows are advisory-only and internal; optional external attestation anchoring is strictly operator-initiated and blocked-by-default.
+Phase 11 restore/failover pathways remain non-autonomous; restore requires explicit operator token+confirm and failover readiness checks are advisory-only.
 
 ## Supervisor Model (Cline)
 - Cline (VSCode Insiders extension) is the supervisor interface for supervised orchestration and approval-facing workflows.
