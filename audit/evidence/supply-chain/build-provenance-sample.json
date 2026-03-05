@@ -1,0 +1,30 @@
+{
+  "provenance": {
+    "artifacts": [
+      {
+        "path": "/Users/trevorrobey/OpenClaw-Research-Agents/package-lock.json",
+        "sha256": "8721390bfe952428fab06da2faaa1ea9ef310b3eae88d7c48d927054bbcfdf1c"
+      }
+    ],
+    "builder_identity": "phase12-artifact-generator",
+    "commit_sha": "03295ceea3e4620507fa6d88df4f6a2324c899f8",
+    "generated_at": "2026-03-05T00:00:00.000Z",
+    "policy_gates": [
+      {
+        "gate": "phase11",
+        "status": "pass"
+      },
+      {
+        "gate": "phase12",
+        "status": "pending"
+      }
+    ],
+    "predicate_type": "slsa_provenance_v1",
+    "sbom_hash": "sha256:bdfde772f37cc39355435a9b027c2df0d73fbc14db5c0c30ca3a0d52f4fec0b5",
+    "schema_version": "phase12-supply-chain-v1",
+    "slsa_level": "SLSA_BUILD_L2_LOCAL",
+    "slsa_version": "v1"
+  },
+  "provenance_hash": "sha256:d7e6b58d70cbea9396a3ac1efac48a823a3bd39554deb337972298458908367c",
+  "slsa_level": "SLSA_BUILD_L2_LOCAL"
+}

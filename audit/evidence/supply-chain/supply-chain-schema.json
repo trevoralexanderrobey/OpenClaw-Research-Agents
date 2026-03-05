@@ -1,0 +1,85 @@
+{
+  "entities": {
+    "dependency_manifest": {
+      "additional_properties": true,
+      "required": [
+        "schema_version",
+        "generated_at",
+        "components"
+      ]
+    },
+    "dependency_update_request": {
+      "additional_properties": true,
+      "required": [
+        "schema_version",
+        "request_id",
+        "requested_by",
+        "reason",
+        "updates"
+      ]
+    },
+    "dependency_update_result": {
+      "additional_properties": true,
+      "required": [
+        "schema_version",
+        "request_id",
+        "result",
+        "approved",
+        "approval_scope"
+      ]
+    },
+    "policy_evaluation": {
+      "additional_properties": true,
+      "required": [
+        "schema_version",
+        "compliant",
+        "violations",
+        "score"
+      ]
+    },
+    "provenance_record": {
+      "additional_properties": true,
+      "required": [
+        "schema_version",
+        "commit_sha",
+        "builder_identity",
+        "sbom_hash",
+        "artifacts",
+        "generated_at"
+      ]
+    },
+    "sbom": {
+      "additional_properties": true,
+      "required": [
+        "schema_version",
+        "bomFormat",
+        "specVersion",
+        "metadata",
+        "components"
+      ]
+    },
+    "signature_record": {
+      "additional_properties": true,
+      "required": [
+        "schema_version",
+        "artifact_path",
+        "artifact_hash",
+        "sbom_hash",
+        "provenance_hash",
+        "signer_key_id",
+        "timestamp",
+        "signature"
+      ]
+    },
+    "vulnerability_report": {
+      "additional_properties": true,
+      "required": [
+        "schema_version",
+        "advisory_only",
+        "auto_patch_blocked",
+        "vulnerabilities"
+      ]
+    }
+  },
+  "schema_version": "phase12-supply-chain-v1"
+}

@@ -1,0 +1,43 @@
+{
+  "acceptance_criteria": [
+    "Operator role is asserted",
+    "Scoped approval token governance.supply_chain.update is consumed",
+    "Explicit confirm flag is true",
+    "Known-good manifest is updated inside governance transaction wrapper",
+    "Override and operational decision ledgers receive immutable entries"
+  ],
+  "plan": {
+    "explicit_confirm_required": true,
+    "governance_transaction_wrapper_required": true,
+    "known_good_manifest_path": "/Users/trevorrobey/OpenClaw-Research-Agents/audit/evidence/supply-chain/.phase12-known-good-working.json",
+    "no_autonomous_update": true,
+    "operator_approval_token_required": true,
+    "reason": "sample_known_good_refresh",
+    "request_id": "phase12-update-001",
+    "requested_by": "phase12-artifact-generator",
+    "title": "Phase 12 Dependency Update Plan",
+    "updates": [
+      {
+        "breaking_change": false,
+        "current_version": "3.24.1",
+        "dependency_depth": 1,
+        "direct_dependency": true,
+        "license_after": "MIT",
+        "license_before": "MIT",
+        "package_hash_sha256": "32797d37060d5d5441ba6e54dd458af75cb99013009923d54aff3d1b5e07f49c",
+        "package_name": "zod",
+        "purl": "pkg:npm/zod@3.24.1",
+        "risk_level": "",
+        "target_version": "3.24.1"
+      }
+    ]
+  },
+  "risk": {
+    "advisory_only_until_confirm": true,
+    "auto_update_blocked": true,
+    "breaking_change_count": 0,
+    "level": "low",
+    "license_change_count": 0,
+    "update_count": 1
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "signature_hash": "sha256:a036e161d18ead3abf4bb56926b2fe9f127e8232008385f97bb4177ac3c04230",
+  "signature_record": {
+    "artifact_hash": "8721390bfe952428fab06da2faaa1ea9ef310b3eae88d7c48d927054bbcfdf1c",
+    "artifact_path": "/Users/trevorrobey/OpenClaw-Research-Agents/package-lock.json",
+    "provenance_hash": "sha256:d7e6b58d70cbea9396a3ac1efac48a823a3bd39554deb337972298458908367c",
+    "sbom_hash": "sha256:bdfde772f37cc39355435a9b027c2df0d73fbc14db5c0c30ca3a0d52f4fec0b5",
+    "schema_version": "phase12-supply-chain-v1",
+    "signature": "27d780ed6d06ebff91a40802ce95ccbd9f0674387420f34f9614dd633b04be60",
+    "signer_key_id": "phase12-sample-key",
+    "timestamp": "2026-03-05T00:00:00.000Z"
+  }
+}

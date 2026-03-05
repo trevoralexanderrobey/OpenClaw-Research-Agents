@@ -9,3 +9,4 @@ openclaw-bridge/data/
 openclaw-bridge/logs/
 *.log
 .DS_Store
+security/artifact-signing-key.json

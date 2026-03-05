@@ -1,4 +1,4 @@
-# Failure Modes (Phase 11)
+# Failure Modes (Phase 12)
 
 ## Runtime Schema Mismatch
 Detection:
@@ -407,6 +407,71 @@ Detection:
 - Missing Phase 11 required modules/scripts.
 - Recovery schema/module wiring bootstrap failure.
 - Recovery artifact directory is not writable.
+
+Handling:
+- Fail closed before MCP service starts handling requests.
+- Do not bypass startup gate.
+- Restore missing wiring/artifacts and re-run startup + policy validations.
+
+## Phase 12 SBOM Determinism Mismatch
+Detection:
+- Repeated SBOM generation for same lockfile produces different `sbom_hash` or component ordering.
+
+Handling:
+- Fail closed and treat SBOM as invalid provenance input.
+- Rebuild using deterministic generator path only.
+- Re-run Phase 12 policy gate and SBOM determinism check.
+
+## Phase 12 Known-Good Dependency Integrity Failure
+Detection:
+- Dependency integrity verification reports `added`, `removed`, `modified`, or `hash_mismatches`.
+
+Handling:
+- Fail closed and block dependency trust assertions.
+- Investigate lockfile/SBOM/known-good manifest divergence.
+- Require explicit operator-approved known-good manifest update workflow.
+
+## Phase 12 Dependency Update Governance Rejection
+Detection:
+- Missing approval token, invalid scope (`governance.supply_chain.update`), or missing `--confirm`.
+
+Handling:
+- Reject update and persist immutable rejection entries in override + operational decision ledgers.
+- Do not apply known-good manifest changes.
+- Require explicit operator re-run with valid token/scope/confirm.
+
+## Phase 12 Vulnerability Advisory DB Stale or Missing
+Detection:
+- Advisory DB file missing, malformed, or policy engine reports manifest/advisory freshness concerns.
+
+Handling:
+- Fail closed for missing/malformed advisory data where required.
+- Maintain advisory-only behavior (no auto-patching).
+- Require manual operator refresh and re-scan.
+
+## Phase 12 Supply Chain Policy Violation
+Detection:
+- Disallowed license, missing dependency integrity hash, threshold exceedance, or critical vulnerability policy breach.
+
+Handling:
+- Mark policy evaluation non-compliant and block policy gate pass.
+- Preserve non-autonomous behavior; do not auto-remediate.
+- Require operator-driven remediation/update request flow.
+
+## Phase 12 Artifact Signature Verification Failure
+Detection:
+- Signature mismatch, signer key mismatch, missing artifact, or artifact hash mismatch on verification.
+
+Handling:
+- Fail closed and treat artifact as untrusted.
+- Rotate/repair key material via operator-controlled process.
+- Re-sign and re-verify artifacts before release.
+
+## Phase 12 Startup Integrity Failure
+Detection:
+- Missing Phase 12 required modules/scripts/security baseline files.
+- Supply-chain module bootstrap contract failure.
+- Supply-chain evidence artifact directory is not writable.
 
 Handling:
 - Fail closed before MCP service starts handling requests.

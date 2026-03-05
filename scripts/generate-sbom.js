@@ -4,97 +4,58 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-const root = process.cwd();
-const pkgPath = path.join(root, "package.json");
-const lockPath = path.join(root, "package-lock.json");
-const outPath = path.join(root, "audit", "evidence", "phase2", "sbom.cyclonedx.json");
+const { canonicalJson, safeString } = require("../workflows/governance-automation/common.js");
+const { createSbomGenerator } = require("../workflows/supply-chain/sbom-generator.js");
 
-function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, "utf8"));
-}
-
-function componentFromLockEntry(name, entry) {
-  if (!entry || typeof entry !== "object") {
-    return null;
-  }
-  if (!entry.version || typeof entry.version !== "string") {
-    return null;
-  }
-
-  const purlName = encodeURIComponent(String(name).replace(/^node_modules\//, ""));
-  const version = entry.version.trim();
-  const component = {
-    type: "library",
-    name: String(name).replace(/^node_modules\//, ""),
-    version,
-    purl: `pkg:npm/${purlName}@${encodeURIComponent(version)}`,
+function parseArgs(argv) {
+  const out = {
+    rootDir: process.cwd(),
+    outPath: path.resolve(process.cwd(), "audit", "evidence", "phase2", "sbom.cyclonedx.json"),
+    generatedAt: ""
   };
 
-  if (entry.integrity && typeof entry.integrity === "string") {
-    component.hashes = [{ alg: "SHA-512", content: entry.integrity.replace(/^sha512-/, "") }];
-  }
-
-  return component;
-}
-
-function buildSbom(pkg, lock) {
-  const packages = lock && lock.packages && typeof lock.packages === "object" ? lock.packages : {};
-  const components = [];
-
-  for (const [name, entry] of Object.entries(packages)) {
-    if (!name || name === "") {
+  for (let index = 0; index < argv.length; index += 1) {
+    const token = String(argv[index] || "");
+    if (token === "--root") {
+      out.rootDir = path.resolve(String(argv[index + 1] || out.rootDir));
+      index += 1;
       continue;
     }
-    const component = componentFromLockEntry(name, entry);
-    if (component) {
-      components.push(component);
+    if (token === "--out") {
+      out.outPath = path.resolve(String(argv[index + 1] || out.outPath));
+      index += 1;
+      continue;
+    }
+    if (token === "--generated-at") {
+      out.generatedAt = safeString(argv[index + 1]);
+      index += 1;
+      continue;
     }
   }
 
-  components.sort((a, b) => {
-    if (a.name !== b.name) {
-      return a.name.localeCompare(b.name);
-    }
-    return a.version.localeCompare(b.version);
-  });
-
-  return {
-    bomFormat: "CycloneDX",
-    specVersion: "1.5",
-    serialNumber: "urn:uuid:00000000-0000-0000-0000-000000000002",
-    version: 1,
-    metadata: {
-      timestamp: new Date().toISOString(),
-      component: {
-        type: "application",
-        name: pkg.name,
-        version: pkg.version,
-      },
-      tools: [{
-        vendor: "OpenClaw",
-        name: "generate-sbom.js",
-        version: "2.0.0",
-      }],
-    },
-    components,
-  };
+  return out;
 }
 
 function main() {
-  if (!fs.existsSync(pkgPath)) {
-    throw new Error("package.json not found");
-  }
-  if (!fs.existsSync(lockPath)) {
-    throw new Error("package-lock.json not found");
-  }
+  const args = parseArgs(process.argv.slice(2));
+  const generator = createSbomGenerator({
+    rootDir: args.rootDir,
+    generatedAt: args.generatedAt,
+    timeProvider: {
+      nowIso: () => "1970-01-01T00:00:00.000Z"
+    }
+  });
 
-  const pkg = readJson(pkgPath);
-  const lock = readJson(lockPath);
-  const sbom = buildSbom(pkg, lock);
+  const result = generator.generateSbom();
+  fs.mkdirSync(path.dirname(args.outPath), { recursive: true });
+  fs.writeFileSync(args.outPath, canonicalJson(result.sbom), "utf8");
 
-  fs.mkdirSync(path.dirname(outPath), { recursive: true });
-  fs.writeFileSync(outPath, `${JSON.stringify(sbom, null, 2)}\n`, "utf8");
-  process.stdout.write(`SBOM written to ${outPath}\n`);
+  process.stdout.write(`${JSON.stringify({
+    out_path: args.outPath,
+    sbom_hash: result.sbom_hash,
+    component_count: result.component_count,
+    generated_at: result.generated_at
+  }, null, 2)}\n`);
 }
 
 main();

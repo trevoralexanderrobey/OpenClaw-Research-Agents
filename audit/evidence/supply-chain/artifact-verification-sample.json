@@ -1,0 +1,9 @@
+{
+  "valid": true,
+  "verification_details": {
+    "actual_signature": "27d780ed6d06ebff91a40802ce95ccbd9f0674387420f34f9614dd633b04be60",
+    "artifact_path": "/Users/trevorrobey/OpenClaw-Research-Agents/package-lock.json",
+    "details": [],
+    "expected_signature": "27d780ed6d06ebff91a40802ce95ccbd9f0674387420f34f9614dd633b04be60"
+  }
+}

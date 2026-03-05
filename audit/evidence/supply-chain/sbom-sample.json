@@ -1,0 +1,42 @@
+{
+  "component_count": 1,
+  "generated_at": "2026-03-05T00:00:00.000Z",
+  "sbom": {
+    "bomFormat": "CycloneDX",
+    "components": [
+      {
+        "dependency_depth": 1,
+        "direct_dependency": true,
+        "integrity": "sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==",
+        "license": "MIT",
+        "name": "zod",
+        "package_hash_sha256": "32797d37060d5d5441ba6e54dd458af75cb99013009923d54aff3d1b5e07f49c",
+        "purl": "pkg:npm/zod@3.24.1",
+        "resolved": "https://registry.npmjs.org/zod/-/zod-3.24.1.tgz",
+        "type": "library",
+        "version": "3.24.1"
+      }
+    ],
+    "metadata": {
+      "component": {
+        "license": "UNLICENSED",
+        "name": "openclaw-research-agents",
+        "type": "application",
+        "version": "2.0.0"
+      },
+      "timestamp": "2026-03-05T00:00:00.000Z",
+      "tools": [
+        {
+          "name": "phase12-sbom-generator",
+          "vendor": "OpenClaw",
+          "version": "1.0.0"
+        }
+      ]
+    },
+    "schema_version": "phase12-supply-chain-v1",
+    "serialNumber": "urn:uuid:00000000-0000-0000-0000-000000000012",
+    "specVersion": "1.5",
+    "version": 1
+  },
+  "sbom_hash": "sha256:bdfde772f37cc39355435a9b027c2df0d73fbc14db5c0c30ca3a0d52f4fec0b5"
+}

@@ -55,6 +55,14 @@ jobs:
             scripts/execute-restore.js
             scripts/run-recovery-drill.js
             scripts/generate-phase11-artifacts.js
+            scripts/verify-dependency-integrity.js
+            scripts/generate-build-provenance.js
+            scripts/approve-dependency-update.js
+            scripts/scan-vulnerabilities.js
+            scripts/sign-artifact.js
+            scripts/verify-artifact-signature.js
+            scripts/generate-phase12-artifacts.js
+            scripts/verify-phase12-policy.sh
             scripts/verify-phase8-ci-health.js
             scripts/build-verify.sh
           )
@@ -127,6 +135,8 @@ jobs:
         run: bash scripts/verify-phase10-policy.sh
       - name: Phase 11 policy verification
         run: bash scripts/verify-phase11-policy.sh
+      - name: Phase 12 policy verification
+        run: bash scripts/verify-phase12-policy.sh
 
       - name: Test suite
         run: node --test tests/**/*.test.js

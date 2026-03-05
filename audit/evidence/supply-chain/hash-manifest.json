@@ -1,0 +1,48 @@
+{
+  "files": [
+    {
+      "file": "artifact-signature-sample.json",
+      "sha256": "18b34889529855c9489fc5427cd2a96f742d7a23a42cad3d612b239781719795"
+    },
+    {
+      "file": "artifact-verification-sample.json",
+      "sha256": "d4adc788bf0d04825104b2468f4d951b0ef62b78f5b3e30118e07b2d2af1218f"
+    },
+    {
+      "file": "build-provenance-sample.json",
+      "sha256": "10188264d3963cce2af2f189aba1559207092bb282273284b97369517bfa004a"
+    },
+    {
+      "file": "dependency-integrity-results.json",
+      "sha256": "7e8ffd7a262e369478e26fd0ce81891b542f7bc4899453c588002c4b701894ea"
+    },
+    {
+      "file": "dependency-update-approval-sample.json",
+      "sha256": "d2c18e84bdfab957710ad7021e5375ebe1e530173292321050de864af25bcaa2"
+    },
+    {
+      "file": "dependency-update-plan-sample.json",
+      "sha256": "8c24c4e06c0c85b87c75043affac1f78a6486dcd329d3c7a2fac13b03d712499"
+    },
+    {
+      "file": "phase12-policy-gate-results.json",
+      "sha256": "1f3223206c87794f7b0717f0b27513edb7159511e72aadf5506a6f9dd662d2da"
+    },
+    {
+      "file": "sbom-sample.json",
+      "sha256": "f63e5c6e1ac337814b725c2a474d2ee8ca90f66f21ef7aaa38ff477843767504"
+    },
+    {
+      "file": "supply-chain-policy-results.json",
+      "sha256": "1683754dcca0ac3ca1ea7480f66f4239231e7f269bdf78f157fc3f3cbcb6c09b"
+    },
+    {
+      "file": "supply-chain-schema.json",
+      "sha256": "0c6b039c3a83f425917b361c7647bfafa84cf7e76726c5c4abfbacb5e4bd9ff4"
+    },
+    {
+      "file": "vulnerability-report-sample.json",
+      "sha256": "529394e128d26bf8974494660dfdcefc6b40aa355fead81cce8e4ed8b31df5a7"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "schema_version": "phase12-artifact-signing-key-v1",
+  "key_id": "phase12-sample-key",
+  "hmac_secret": "replace-with-operator-managed-secret"
+}

@@ -18,6 +18,7 @@ Core outcomes:
 - Governance automation adds continuous read-only monitor workflows, policy drift detection, and guaranteed Immutable operator override ledgers.
 - Operational Resilience integrates deterministic observability, advisory alerting, operator-gated runbook orchestration, and incident escalation controls.
 - Recovery Assurance capabilities added including fail-closed checkpoints, strict human-gated restore pipelines, and read-only continuity drill automation.
+- Deterministic Supply Chain Security enables internal SBOM generation, dependency integrity verification, and operator-gated dependency patching bounds.
 - Audit, threat-model, and governance documentation scaffolded for formal review.
 
 See:

@@ -1,4 +1,4 @@
-# Attack Surface Enumeration (Phase 11)
+# Attack Surface Enumeration (Phase 12)
 
 ## Open Ports
 - `127.0.0.1:18789` (bridge control plane)
@@ -130,6 +130,26 @@ Mitigation:
 - Continuity SLO evaluation, tabletop drills, and failover readiness outputs are advisory-only and cannot trigger restore/failover automatically.
 - No browser/login/credential automation, autonomous restore/failover, or dynamic endpoint expansion is introduced.
 - Startup performs mandatory fail-closed Phase 11 integrity checks before MCP method handling.
+
+## Phase 12 Supply Chain Security & Provenance Surface
+- Internal-only modules:
+  - `workflows/supply-chain/*`
+  - `security/phase12-startup-integrity.js`
+- SBOM generation is local-only from `package.json` and `package-lock.json`; no registry lookups or feed downloads.
+- Dependency integrity verification is local-only against committed known-good manifest:
+  - `security/known-good-dependencies.json`
+- Vulnerability scanning is advisory-only from committed local advisory DB:
+  - `security/vulnerability-advisories.json`
+- Dependency update governance is operator-only and requires:
+  - scope `governance.supply_chain.update`
+  - approval token consumption
+  - explicit confirmation
+  - immutable override + operational decision ledger entries
+- Update apply path modifies known-good manifest only; package installation remains manual operator action.
+- Build provenance and artifact signing are local-only deterministic workflows.
+- Artifact signing uses local HMAC key material (`security/artifact-signing-key.json`) with committed template (`security/artifact-signing-key.sample.json`).
+- No browser/login/credential automation, autonomous update/patch/install, external KMS/CA, or dynamic endpoint expansion is introduced.
+- Startup performs mandatory fail-closed Phase 12 integrity checks before MCP method handling.
 
 Mitigation:
 - Default egress deny-all.

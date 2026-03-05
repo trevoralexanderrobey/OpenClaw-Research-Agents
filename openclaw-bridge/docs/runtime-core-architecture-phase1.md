@@ -47,3 +47,7 @@
 ## Recovery Assurance Pipeline
 - Automatically generates deterministic backup manifests and verifies artifact chain integrity.
 - Provides read-only continuity drill validation while enforcing strict operator-only lockouts on actual restore procedures.
+
+## Supply Chain Security
+- Validates known-good dependencies and constructs SLSA-compatible build provenance logic.
+- Maintains purely advisory vulnerability reports and mandates operator action for any updates.

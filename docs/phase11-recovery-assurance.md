@@ -115,3 +115,10 @@ Generated under `audit/evidence/recovery-assurance/`:
 - `failover-readiness-report.json`
 - `phase11-policy-gate-results.json`
 - `hash-manifest.json`
+
+## Phase 12 Cross-Reference
+- Recovery artifact trust can be strengthened by Phase 12 provenance + signature workflows:
+  - generate deterministic SBOM and provenance for recovery-related artifacts
+  - sign recovery evidence artifacts with local operator-managed key material
+  - verify signatures before restore-plan approval and before post-incident evidence publication
+- See `docs/phase12-supply-chain-security.md` for operator procedures.

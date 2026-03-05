@@ -1,0 +1,21 @@
+{
+  "baseline": {
+    "main_sha": "03295ceea3e4620507fa6d88df4f6a2324c899f8",
+    "phase2_security_run_id": "22708212854"
+  },
+  "components": [
+    {
+      "dependency_depth": 1,
+      "direct_dependency": true,
+      "license": "MIT",
+      "name": "zod",
+      "package_hash_sha256": "32797d37060d5d5441ba6e54dd458af75cb99013009923d54aff3d1b5e07f49c",
+      "purl": "pkg:npm/zod@3.24.1",
+      "version": "3.24.1"
+    }
+  ],
+  "generated_at": "2026-03-05T00:00:00.000Z",
+  "schema_version": "phase12-supply-chain-v1",
+  "source_lockfile_sha256": "8721390bfe952428fab06da2faaa1ea9ef310b3eae88d7c48d927054bbcfdf1c",
+  "source_update_request_id": "phase12-update-001"
+}

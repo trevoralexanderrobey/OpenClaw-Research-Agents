@@ -162,6 +162,56 @@ const PHASE11_REQUIRED = Object.freeze([
   "docs/phase11-recovery-assurance.md"
 ]);
 
+const PHASE12_REQUIRED = Object.freeze([
+  "workflows/supply-chain/supply-chain-schema.js",
+  "workflows/supply-chain/supply-chain-common.js",
+  "workflows/supply-chain/sbom-generator.js",
+  "workflows/supply-chain/dependency-integrity-verifier.js",
+  "workflows/supply-chain/build-provenance-attestor.js",
+  "workflows/supply-chain/dependency-update-governor.js",
+  "workflows/supply-chain/vulnerability-reporter.js",
+  "workflows/supply-chain/supply-chain-policy-engine.js",
+  "workflows/supply-chain/artifact-signing-manager.js",
+  "security/phase12-startup-integrity.js",
+  "security/known-good-dependencies.json",
+  "security/vulnerability-advisories.json",
+  "security/artifact-signing-key.sample.json",
+  "security/supply-chain-policy.json",
+  "scripts/generate-sbom.js",
+  "scripts/verify-dependency-integrity.js",
+  "scripts/generate-build-provenance.js",
+  "scripts/approve-dependency-update.js",
+  "scripts/scan-vulnerabilities.js",
+  "scripts/sign-artifact.js",
+  "scripts/verify-artifact-signature.js",
+  "scripts/generate-phase12-artifacts.js",
+  "scripts/verify-phase12-policy.sh",
+  "tests/security/_phase12-helpers.js",
+  "tests/security/phase12-supply-chain-schema.test.js",
+  "tests/security/phase12-sbom-generator.test.js",
+  "tests/security/phase12-dependency-integrity-verifier.test.js",
+  "tests/security/phase12-build-provenance-attestor.test.js",
+  "tests/security/phase12-dependency-update-governor.test.js",
+  "tests/security/phase12-vulnerability-reporter.test.js",
+  "tests/security/phase12-supply-chain-policy-engine.test.js",
+  "tests/security/phase12-artifact-signing-manager.test.js",
+  "tests/security/phase12-policy-gate.test.js",
+  "tests/security/phase12-startup-integrity.test.js",
+  "docs/phase12-supply-chain-security.md",
+  "audit/evidence/supply-chain/supply-chain-schema.json",
+  "audit/evidence/supply-chain/sbom-sample.json",
+  "audit/evidence/supply-chain/dependency-integrity-results.json",
+  "audit/evidence/supply-chain/build-provenance-sample.json",
+  "audit/evidence/supply-chain/dependency-update-plan-sample.json",
+  "audit/evidence/supply-chain/dependency-update-approval-sample.json",
+  "audit/evidence/supply-chain/vulnerability-report-sample.json",
+  "audit/evidence/supply-chain/supply-chain-policy-results.json",
+  "audit/evidence/supply-chain/artifact-signature-sample.json",
+  "audit/evidence/supply-chain/artifact-verification-sample.json",
+  "audit/evidence/supply-chain/phase12-policy-gate-results.json",
+  "audit/evidence/supply-chain/hash-manifest.json"
+]);
+
 const CLINE_REQUIRED = Object.freeze([
   "docs/supervisor-architecture.md",
   ".clinerules",
@@ -227,6 +277,7 @@ function createPhaseCompletenessValidator(options = {}) {
     const phase9Missing = missingFromSet(rootDir, PHASE9_REQUIRED);
     const phase10Missing = missingFromSet(rootDir, PHASE10_REQUIRED);
     const phase11Missing = missingFromSet(rootDir, PHASE11_REQUIRED);
+    const phase12Missing = missingFromSet(rootDir, PHASE12_REQUIRED);
     const clineMissing = missingFromSet(rootDir, CLINE_REQUIRED);
 
     const workflowText = readTextIfExists(path.join(rootDir, ".github/workflows/phase2-security.yml"));
@@ -263,7 +314,8 @@ function createPhaseCompletenessValidator(options = {}) {
       "bash scripts/verify-phase8-policy.sh",
       "bash scripts/verify-phase9-policy.sh",
       "bash scripts/verify-phase10-policy.sh",
-      "bash scripts/verify-phase11-policy.sh"
+      "bash scripts/verify-phase11-policy.sh",
+      "bash scripts/verify-phase12-policy.sh"
     ]) {
       if (!workflowText.includes(marker)) {
         contradictions.push(canonicalize({
@@ -302,6 +354,7 @@ function createPhaseCompletenessValidator(options = {}) {
       phaseStatus("phase9", phase9Missing),
       phaseStatus("phase10", phase10Missing),
       phaseStatus("phase11", phase11Missing),
+      phaseStatus("phase12", phase12Missing),
       phaseStatus("cline", clineMissing)
     ];
 
@@ -316,6 +369,7 @@ function createPhaseCompletenessValidator(options = {}) {
       ...phase9Missing,
       ...phase10Missing,
       ...phase11Missing,
+      ...phase12Missing,
       ...clineMissing
     ]);
 
@@ -366,6 +420,7 @@ module.exports = {
   PHASE9_REQUIRED,
   PHASE10_REQUIRED,
   PHASE11_REQUIRED,
+  PHASE12_REQUIRED,
   CLINE_REQUIRED,
   CONTRADICTION_RULES
 };

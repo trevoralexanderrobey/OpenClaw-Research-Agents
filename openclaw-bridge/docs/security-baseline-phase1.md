@@ -64,3 +64,7 @@
 - Autonomous restore procedures or dynamic backup failovers are completely prohibited.
 - Restore endpoints require operator scope, explicit confirmation, and immutable ledger recording.
 - All tabletop drill modules operate in a strictly advisory/read-only mode.
+
+## Supply Chain Security Boundary
+- Autonomous dependency patches, resolution, and external registry downloads remain prohibited.
+- Integrations require operator override roles and tokenized workflows strictly through the decision ledger.
