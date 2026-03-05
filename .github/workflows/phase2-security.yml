@@ -24,6 +24,35 @@ jobs:
       - name: Install ripgrep
         run: sudo apt-get update && sudo apt-get install -y ripgrep
 
+      - name: Verify required policy scripts exist
+        run: |
+          required_scripts=(
+            scripts/cleanroom-purge-validate.sh
+            scripts/verify-secrets.sh
+            scripts/verify-no-lifecycle-hooks.sh
+            scripts/verify-npm-cache-checksum.sh
+            scripts/verify-tool-registry-checksum.sh
+            scripts/verify-container-digest.sh
+            scripts/lint-restricted-globals.sh
+            scripts/verify-mcp-policy.sh
+            scripts/verify-mutation-policy.sh
+            scripts/verify-phase5-policy.sh
+            scripts/verify-phase6-policy.sh
+            scripts/verify-phase7-policy.sh
+            scripts/verify-cline-supervisor-policy.sh
+            scripts/migrate-state-v7-to-v8.js
+            scripts/generate-phase8-artifacts.js
+            scripts/verify-phase8-policy.sh
+            scripts/verify-phase8-ci-health.js
+            scripts/build-verify.sh
+          )
+          for script in "${required_scripts[@]}"; do
+            if [[ ! -f "$script" ]]; then
+              echo "ERROR: required script missing: $script" >&2
+              exit 1
+            fi
+          done
+
       - name: Purge validation
         run: bash scripts/cleanroom-purge-validate.sh
 
@@ -73,12 +102,13 @@ jobs:
         run: bash scripts/verify-phase6-policy.sh
 
       - name: Phase 7 policy verification
-        run: |
-          if [[ -f scripts/verify-phase7-policy.sh ]]; then
-            bash scripts/verify-phase7-policy.sh
-          else
-            echo "Phase 7 policy script not present in this SHA; skipping"
-          fi
+        run: bash scripts/verify-phase7-policy.sh
+
+      - name: Cline supervisor policy verification
+        run: bash scripts/verify-cline-supervisor-policy.sh
+
+      - name: Phase 8 policy verification
+        run: bash scripts/verify-phase8-policy.sh
 
       - name: Test suite
         run: node --test tests/**/*.test.js

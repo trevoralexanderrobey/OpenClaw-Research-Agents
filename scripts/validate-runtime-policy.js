@@ -53,8 +53,27 @@ if (!fs.existsSync(runtimeStatePath)) {
   fail("workspace/runtime/state.json not found");
 }
 const runtimeState = JSON.parse(fs.readFileSync(runtimeStatePath, "utf8"));
-if (Number(runtimeState.schemaVersion) !== 7) {
-  fail("workspace/runtime/state.json schemaVersion must be 7");
+if (Number(runtimeState.schemaVersion) !== 8) {
+  fail("workspace/runtime/state.json schemaVersion must be 8");
+}
+
+if (!runtimeState.complianceGovernance || typeof runtimeState.complianceGovernance !== "object") {
+  fail("workspace/runtime/state.json complianceGovernance block is required in schemaVersion 8");
+}
+
+const policy = runtimeState.complianceGovernance.activeReleasePolicy;
+if (!policy || typeof policy !== "object") {
+  fail("workspace/runtime/state.json complianceGovernance.activeReleasePolicy is required");
+}
+
+const checks = Array.isArray(policy.requiredChecks) ? policy.requiredChecks.slice().sort() : [];
+const expectedChecks = ["mcp-policy", "phase2-gates", "phase6-policy", "phase7-policy"].sort();
+if (JSON.stringify(checks) !== JSON.stringify(expectedChecks)) {
+  fail("workspace/runtime/state.json complianceGovernance.activeReleasePolicy.requiredChecks mismatch");
+}
+
+if (Number(policy.minEvidenceFreshnessHours) !== 24) {
+  fail("workspace/runtime/state.json complianceGovernance.activeReleasePolicy.minEvidenceFreshnessHours must be 24");
 }
 
 process.stdout.write(`Runtime policy validation passed (sha256=${calculatePolicyChecksum()})\n`);

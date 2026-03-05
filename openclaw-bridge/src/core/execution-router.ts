@@ -122,6 +122,18 @@ const ROLE_POLICY: Record<ExecutionRole, { canExecuteTools: boolean; canSeeTools
   anonymous: { canExecuteTools: false, canSeeTools: false, canUseLegacy: false },
 };
 
+const TOOL_NAME_ALIASES: Record<string, string> = Object.freeze({
+  "supervisor.read_file": "supervisor_read_file",
+  "supervisor.write_file": "supervisor_write_file",
+  "supervisor.apply_patch": "supervisor_apply_patch",
+  "supervisor.git_status": "supervisor_git_status",
+  "supervisor.git_commit": "supervisor_git_commit",
+  "supervisor.search": "supervisor_search",
+  "supervisor.run_tests": "supervisor_run_tests",
+  "supervisor.run_lint": "supervisor_run_lint",
+  "supervisor.security_audit": "supervisor_security_audit",
+});
+
 function normalizeRecord(input: unknown): JsonObject {
   return input && typeof input === "object" && !Array.isArray(input) ? (input as JsonObject) : {};
 }
@@ -144,10 +156,11 @@ function normalizeToolName(raw: string): string {
   if (!tool) {
     return "";
   }
-  if (!/^[a-z0-9_.-]{1,128}$/i.test(tool)) {
+  const canonical = Object.prototype.hasOwnProperty.call(TOOL_NAME_ALIASES, tool) ? TOOL_NAME_ALIASES[tool] : tool;
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(canonical)) {
     return "";
   }
-  return tool;
+  return canonical;
 }
 
 function validateSchema(schemaRaw: unknown, args: JsonObject): { ok: boolean; message?: string } {

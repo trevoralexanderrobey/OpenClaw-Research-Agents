@@ -1,0 +1,45 @@
+{
+  "checks": [
+    {
+      "id": "cline_supervisor_doc",
+      "status": "pass",
+      "target": "docs/supervisor-architecture.md contains required supervisor contract clauses"
+    },
+    {
+      "id": "cline_workspace_config",
+      "status": "pass",
+      "target": ".vscode/extensions.json and .vscode/settings.json present with supervised defaults"
+    },
+    {
+      "id": "cline_rules",
+      "status": "pass",
+      "target": ".clinerules present with no-autonomy/no-login/no-bypass policies"
+    },
+    {
+      "id": "allowlist_model",
+      "status": "pass",
+      "target": "security/cline-extension-allowlist.json enforces official+alias allowlist union"
+    },
+    {
+      "id": "policy_script",
+      "status": "pass",
+      "target": "scripts/verify-cline-supervisor-policy.sh fails closed and supports deterministic rg fallback"
+    },
+    {
+      "id": "ci_gate_blocking",
+      "status": "pass",
+      "target": "CI runs Cline supervisor policy verification as blocking step with required-script hard-fail precheck"
+    },
+    {
+      "id": "phase8_doc",
+      "status": "non_blocking_missing",
+      "target": "docs/phase8-compliance-attestation.md not present/not modified"
+    },
+    {
+      "id": "cross_repo_parity_availability",
+      "status": "pass",
+      "target": "AI-Agent-BountyHunt path available for read-only parity comparison"
+    }
+  ],
+  "schemaVersion": 1
+}

@@ -69,6 +69,14 @@ const ROLLOUT_REASON_CODES = Object.freeze([
   "guardrail_breach",
   "operator_override"
 ]);
+const COMPLIANCE_RELEASE_DECISIONS = Object.freeze(["allow", "block", "hold"]);
+const COMPLIANCE_RELEASE_REASON_CODES = Object.freeze([
+  "all_checks_passed",
+  "missing_evidence",
+  "integrity_mismatch",
+  "policy_violation",
+  "operator_override"
+]);
 const EMPTY_HASH = "0000000000000000000000000000000000000000000000000000000000000000";
 const DEFAULT_CALIBRATION_WEIGHTS = Object.freeze({
   complexity: 0.35,
@@ -127,6 +135,30 @@ function buildDefaultExperimentGovernanceState() {
     nextAssignmentSequence: 0,
     nextAnalysisSequence: 0,
     nextRolloutDecisionSequence: 0
+  };
+}
+
+function buildDefaultComplianceGovernanceState() {
+  return {
+    policyVersion: "v1",
+    attestationSnapshots: [],
+    evidenceBundles: [],
+    releaseGates: [],
+    activeReleasePolicy: {
+      version: "v1",
+      updatedAt: "",
+      updatedBy: "",
+      requiredChecks: ["phase2-gates", "mcp-policy", "phase6-policy", "phase7-policy"],
+      minEvidenceFreshnessHours: 24
+    },
+    decisionLedger: {
+      records: [],
+      nextSequence: 0,
+      chainHead: ""
+    },
+    nextAttestationSequence: 0,
+    nextEvidenceBundleSequence: 0,
+    nextReleaseGateSequence: 0
   };
 }
 
@@ -311,6 +343,16 @@ function normalizeRolloutReasonCode(value) {
   return ROLLOUT_REASON_CODES.includes(text) ? text : "insufficient_power";
 }
 
+function normalizeComplianceReleaseDecision(value) {
+  const text = typeof value === "string" ? value.trim() : "";
+  return COMPLIANCE_RELEASE_DECISIONS.includes(text) ? text : "hold";
+}
+
+function normalizeComplianceReasonCode(value) {
+  const text = typeof value === "string" ? value.trim() : "";
+  return COMPLIANCE_RELEASE_REASON_CODES.includes(text) ? text : "policy_violation";
+}
+
 function normalizeSplitBasisPoints(value) {
   const source = isPlainObject(value) ? value : {};
   const control = Math.max(0, Math.min(10000, Number.parseInt(String(source.control ?? "5000"), 10) || 5000));
@@ -453,6 +495,210 @@ function normalizeDecisionLedgerState(value) {
   });
 }
 
+function normalizeComplianceDecisionLedgerRecord(value) {
+  const source = isPlainObject(value) ? value : {};
+  return canonicalize({
+    sequence: Math.max(1, parsePositiveInt(source.sequence, 1)),
+    decisionSequence: Math.max(0, Number.parseInt(String(source.decisionSequence ?? "0"), 10) || 0),
+    recordedAt: typeof source.recordedAt === "string" ? source.recordedAt : "",
+    decisionHash: normalizeHash(source.decisionHash, ""),
+    prevDecisionHash: normalizeHash(source.prevDecisionHash, ""),
+    chainHash: normalizeHash(source.chainHash, "")
+  });
+}
+
+function normalizeComplianceDecisionLedgerState(value) {
+  const source = isPlainObject(value) ? value : {};
+  const records = Array.isArray(source.records)
+    ? source.records
+      .map((entry) => normalizeComplianceDecisionLedgerRecord(entry))
+      .sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0))
+    : [];
+  const observedMaxSequence = records.reduce((max, record) => Math.max(max, Number(record.sequence || 0)), 0);
+  return canonicalize({
+    records,
+    nextSequence: Math.max(
+      observedMaxSequence,
+      Math.max(0, Number.parseInt(String(source.nextSequence ?? "0"), 10) || 0)
+    ),
+    chainHead: normalizeHash(source.chainHead, "")
+  });
+}
+
+function normalizeComplianceActiveReleasePolicy(value) {
+  const source = isPlainObject(value) ? value : {};
+  const requiredChecks = Array.isArray(source.requiredChecks)
+    ? source.requiredChecks
+      .map((entry) => (typeof entry === "string" ? entry.trim() : ""))
+      .filter(Boolean)
+      .sort((left, right) => left.localeCompare(right))
+    : ["phase2-gates", "mcp-policy", "phase6-policy", "phase7-policy"];
+  return canonicalize({
+    version: typeof source.version === "string" && source.version.trim() ? source.version.trim() : "v1",
+    updatedAt: typeof source.updatedAt === "string" ? source.updatedAt : "",
+    updatedBy: typeof source.updatedBy === "string" ? source.updatedBy.trim() : "",
+    requiredChecks: requiredChecks.length > 0 ? requiredChecks : ["phase2-gates", "mcp-policy", "phase6-policy", "phase7-policy"],
+    minEvidenceFreshnessHours: Math.max(1, Number.parseInt(String(source.minEvidenceFreshnessHours ?? "24"), 10) || 24)
+  });
+}
+
+function normalizeGateScriptDigest(value) {
+  const source = isPlainObject(value) ? value : {};
+  return canonicalize({
+    name: typeof source.name === "string" ? source.name.trim() : "",
+    sha256: normalizeHash(source.sha256, EMPTY_HASH)
+  });
+}
+
+function normalizeCriticalModuleManifest(value) {
+  if (!isPlainObject(value)) {
+    return {};
+  }
+  const entries = Object.entries(value)
+    .map(([name, digest]) => [String(name || "").trim(), normalizeHash(digest, "")])
+    .filter(([name, digest]) => name.length > 0 && digest.length > 0)
+    .sort((left, right) => left[0].localeCompare(right[0]));
+  return canonicalize(Object.fromEntries(entries));
+}
+
+function normalizeAttestationSnapshotRecord(value) {
+  const source = isPlainObject(value) ? value : {};
+  const enabledGateScripts = Array.isArray(source.enabledGateScripts)
+    ? source.enabledGateScripts
+      .map((entry) => normalizeGateScriptDigest(entry))
+      .filter((entry) => entry.name && entry.sha256 !== EMPTY_HASH)
+      .sort((left, right) => left.name.localeCompare(right.name))
+    : [];
+  return canonicalize({
+    sequence: Math.max(1, parsePositiveInt(source.sequence, 1)),
+    capturedAt: typeof source.capturedAt === "string" ? source.capturedAt : "",
+    capturedBy: typeof source.capturedBy === "string" ? source.capturedBy.trim() : "",
+    idempotencyKey: typeof source.idempotencyKey === "string" ? source.idempotencyKey.trim() : "",
+    runtimePolicyVersion: typeof source.runtimePolicyVersion === "string" && source.runtimePolicyVersion.trim()
+      ? source.runtimePolicyVersion.trim()
+      : "v1",
+    runtimeStateSchemaVersion: Math.max(1, Number.parseInt(String(source.runtimeStateSchemaVersion ?? "8"), 10) || 8),
+    enabledGateScripts,
+    egressAllowlistHash: normalizeHash(source.egressAllowlistHash, EMPTY_HASH),
+    killSwitchState: Boolean(source.killSwitchState),
+    criticalModuleHashManifest: normalizeCriticalModuleManifest(source.criticalModuleHashManifest),
+    policySnapshotHash: normalizeHash(source.policySnapshotHash, EMPTY_HASH),
+    attestationHash: normalizeHash(source.attestationHash, EMPTY_HASH)
+  });
+}
+
+function normalizeEvidenceArtifactRecord(value) {
+  const source = isPlainObject(value) ? value : {};
+  return canonicalize({
+    file: typeof source.file === "string" ? source.file.trim() : "",
+    sha256: normalizeHash(source.sha256, EMPTY_HASH)
+  });
+}
+
+function normalizeCheckResults(value, requiredChecks) {
+  const source = isPlainObject(value) ? value : {};
+  const out = {};
+  for (const key of requiredChecks) {
+    const raw = typeof source[key] === "string" ? source[key].trim().toLowerCase() : "";
+    out[key] = ["pass", "fail", "unknown"].includes(raw) ? raw : "unknown";
+  }
+  return canonicalize(out);
+}
+
+function normalizeEvidenceBundleRecord(value, requiredChecks) {
+  const source = isPlainObject(value) ? value : {};
+  const required = Array.isArray(requiredChecks) ? requiredChecks : ["phase2-gates", "mcp-policy", "phase6-policy", "phase7-policy"];
+  const artifactManifest = Array.isArray(source.artifactManifest)
+    ? source.artifactManifest
+      .map((entry) => normalizeEvidenceArtifactRecord(entry))
+      .filter((entry) => entry.file && entry.sha256 !== EMPTY_HASH)
+      .sort((left, right) => left.file.localeCompare(right.file))
+    : [];
+  return canonicalize({
+    sequence: Math.max(1, parsePositiveInt(source.sequence, 1)),
+    builtAt: typeof source.builtAt === "string" ? source.builtAt : "",
+    builtBy: typeof source.builtBy === "string" ? source.builtBy.trim() : "",
+    idempotencyKey: typeof source.idempotencyKey === "string" ? source.idempotencyKey.trim() : "",
+    asOfIso: typeof source.asOfIso === "string" ? source.asOfIso : "",
+    attestationSequence: Math.max(1, parsePositiveInt(source.attestationSequence, 1)),
+    attestationHash: normalizeHash(source.attestationHash, EMPTY_HASH),
+    policySnapshotHash: normalizeHash(source.policySnapshotHash, EMPTY_HASH),
+    requiredChecks: required,
+    checkResults: normalizeCheckResults(source.checkResults, required),
+    artifactManifest,
+    freshnessHours: Math.max(0, Number(source.freshnessHours) || 0),
+    bundleVersion: typeof source.bundleVersion === "string" && source.bundleVersion.trim() ? source.bundleVersion.trim() : "v1",
+    bundleHash: normalizeHash(source.bundleHash, EMPTY_HASH)
+  });
+}
+
+function normalizeReleaseGateDecisionRecord(value) {
+  const source = isPlainObject(value) ? value : {};
+  const targetSha = normalizeHash(source.targetSha, "");
+  return canonicalize({
+    sequence: Math.max(1, parsePositiveInt(source.sequence, 1)),
+    decidedAt: typeof source.decidedAt === "string" ? source.decidedAt : "",
+    decidedBy: typeof source.decidedBy === "string" ? source.decidedBy.trim() : "",
+    targetRef: typeof source.targetRef === "string" ? source.targetRef.trim() : "",
+    targetSha,
+    decision: normalizeComplianceReleaseDecision(source.decision),
+    reasonCode: normalizeComplianceReasonCode(source.reasonCode),
+    approvalToken: typeof source.approvalToken === "string" ? source.approvalToken.trim() : "",
+    idempotencyKey: typeof source.idempotencyKey === "string" ? source.idempotencyKey.trim() : "",
+    decisionHash: normalizeHash(source.decisionHash, EMPTY_HASH),
+    prevDecisionHash: normalizeHash(source.prevDecisionHash, ""),
+    asOfIso: typeof source.asOfIso === "string" ? source.asOfIso.trim() : "",
+    policySnapshotHash: normalizeHash(source.policySnapshotHash, EMPTY_HASH)
+  });
+}
+
+function normalizeComplianceGovernanceState(value) {
+  const source = isPlainObject(value) ? value : {};
+  const activeReleasePolicy = normalizeComplianceActiveReleasePolicy(source.activeReleasePolicy);
+  const requiredChecks = Array.isArray(activeReleasePolicy.requiredChecks) ? activeReleasePolicy.requiredChecks : [];
+
+  const attestationSnapshots = Array.isArray(source.attestationSnapshots)
+    ? source.attestationSnapshots
+      .map((entry) => normalizeAttestationSnapshotRecord(entry))
+      .sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0))
+    : [];
+  const evidenceBundles = Array.isArray(source.evidenceBundles)
+    ? source.evidenceBundles
+      .map((entry) => normalizeEvidenceBundleRecord(entry, requiredChecks))
+      .sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0))
+    : [];
+  const releaseGates = Array.isArray(source.releaseGates)
+    ? source.releaseGates
+      .map((entry) => normalizeReleaseGateDecisionRecord(entry))
+      .sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0))
+    : [];
+
+  const observedMaxAttestationSequence = attestationSnapshots.reduce((max, entry) => Math.max(max, Number(entry.sequence || 0)), 0);
+  const observedMaxEvidenceBundleSequence = evidenceBundles.reduce((max, entry) => Math.max(max, Number(entry.sequence || 0)), 0);
+  const observedMaxReleaseGateSequence = releaseGates.reduce((max, entry) => Math.max(max, Number(entry.sequence || 0)), 0);
+
+  return canonicalize({
+    policyVersion: typeof source.policyVersion === "string" && source.policyVersion.trim() ? source.policyVersion.trim() : "v1",
+    attestationSnapshots,
+    evidenceBundles,
+    releaseGates,
+    activeReleasePolicy,
+    decisionLedger: normalizeComplianceDecisionLedgerState(source.decisionLedger),
+    nextAttestationSequence: Math.max(
+      observedMaxAttestationSequence,
+      Math.max(0, Number.parseInt(String(source.nextAttestationSequence ?? "0"), 10) || 0)
+    ),
+    nextEvidenceBundleSequence: Math.max(
+      observedMaxEvidenceBundleSequence,
+      Math.max(0, Number.parseInt(String(source.nextEvidenceBundleSequence ?? "0"), 10) || 0)
+    ),
+    nextReleaseGateSequence: Math.max(
+      observedMaxReleaseGateSequence,
+      Math.max(0, Number.parseInt(String(source.nextReleaseGateSequence ?? "0"), 10) || 0)
+    )
+  });
+}
+
 function normalizeExperimentGovernanceState(value) {
   const source = isPlainObject(value) ? value : {};
   const experiments = Array.isArray(source.experiments)
@@ -507,9 +753,9 @@ function normalizeExperimentGovernanceState(value) {
   });
 }
 
-function buildDefaultV7State() {
+function buildDefaultV8State() {
   return {
-    schemaVersion: 7,
+    schemaVersion: 8,
     deterministicSerialization: true,
     lastDeterministicReplayAt: null,
     activeInitiatives: [],
@@ -569,20 +815,21 @@ function buildDefaultV7State() {
     },
     rlhfWorkflows: buildDefaultRlhfWorkflowsState(),
     rlhfOutcomes: buildDefaultRlhfOutcomesState(),
-    experimentGovernance: buildDefaultExperimentGovernanceState()
+    experimentGovernance: buildDefaultExperimentGovernanceState(),
+    complianceGovernance: buildDefaultComplianceGovernanceState()
   };
 }
 
 function normalizeRuntimeState(raw) {
-  const state = isPlainObject(raw) ? raw : buildDefaultV7State();
-  if (Number(state.schemaVersion) !== 7) {
+  const state = isPlainObject(raw) ? raw : buildDefaultV8State();
+  if (Number(state.schemaVersion) !== 8) {
     const error = new Error(`Unsupported runtime state schemaVersion: ${state.schemaVersion}`);
     error.code = "RUNTIME_STATE_SCHEMA_UNSUPPORTED";
     throw error;
   }
 
   if (!isPlainObject(state.apiGovernance)) {
-    state.apiGovernance = buildDefaultV7State().apiGovernance;
+    state.apiGovernance = buildDefaultV8State().apiGovernance;
   }
   if (!isPlainObject(state.apiGovernance.global)) {
     state.apiGovernance.global = { requestsToday: 0, tokensToday: 0 };
@@ -600,7 +847,7 @@ function normalizeRuntimeState(raw) {
     state.apiGovernance.violations = { count: 0, lastViolationAt: null, lastViolationCode: null };
   }
   if (!isPlainObject(state.apiGovernance.mutation)) {
-    state.apiGovernance.mutation = buildDefaultV7State().apiGovernance.mutation;
+    state.apiGovernance.mutation = buildDefaultV8State().apiGovernance.mutation;
   }
   if (!isPlainObject(state.apiGovernance.mutation.hourWindow)) {
     state.apiGovernance.mutation.hourWindow = { hourEpoch: 0, publishes: 0 };
@@ -625,7 +872,7 @@ function normalizeRuntimeState(raw) {
     : "research-record-v1";
 
   if (!isPlainObject(state.outboundMutation)) {
-    state.outboundMutation = buildDefaultV7State().outboundMutation;
+    state.outboundMutation = buildDefaultV8State().outboundMutation;
   }
   state.outboundMutation.enabled = Boolean(state.outboundMutation.enabled);
   state.outboundMutation.killSwitch = Boolean(state.outboundMutation.killSwitch);
@@ -732,6 +979,7 @@ function normalizeRuntimeState(raw) {
   );
 
   state.experimentGovernance = normalizeExperimentGovernanceState(state.experimentGovernance);
+  state.complianceGovernance = normalizeComplianceGovernanceState(state.complianceGovernance);
 
   return state;
 }
@@ -946,7 +1194,7 @@ function createApiGovernance(options = {}) {
   async function loadState() {
     await ensureNdjsonIntegrityOnce();
 
-    const raw = await readJsonOrDefault(statePath, buildDefaultV7State());
+    const raw = await readJsonOrDefault(statePath, buildDefaultV8State());
     const state = normalizeRuntimeState(raw);
 
     // Sequence reconciliation is source-of-truth by append-only NDJSON.

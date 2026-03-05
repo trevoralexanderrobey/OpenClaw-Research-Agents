@@ -1,0 +1,20 @@
+{
+  "workflow_runs": [
+    {
+      "id": 22670000001,
+      "name": "phase2-security",
+      "conclusion": "failure",
+      "head_sha": "de825fadcbe4e70eba604e0f497b2df48f9eda8f",
+      "created_at": "2026-03-04T12:00:00Z",
+      "html_url": "https://github.com/trevoralexanderrobey/OpenClaw-Research-Agents/actions/runs/22670000001"
+    },
+    {
+      "id": 22658655231,
+      "name": "phase2-security",
+      "conclusion": "failure",
+      "head_sha": "1111111111111111111111111111111111111111",
+      "created_at": "2026-03-03T21:00:00Z",
+      "html_url": "https://github.com/trevoralexanderrobey/OpenClaw-Research-Agents/actions/runs/22658655231"
+    }
+  ]
+}

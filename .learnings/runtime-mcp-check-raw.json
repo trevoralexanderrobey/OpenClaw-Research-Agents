@@ -1,0 +1,395 @@
+{
+  "connected": true,
+  "requestStatuses": {
+    "initialize": 202,
+    "initialized": 202,
+    "toolsList": 202,
+    "callSupervisorReadFileSanitized": 202,
+    "callSupervisorReadFileLegacyAlias": 202
+  },
+  "initializeOk": true,
+  "toolCount": 15,
+  "invalidCount": 0,
+  "invalidNames": [],
+  "aliasCompatibility": {
+    "supervisor_read_file": {
+      "ok": false,
+      "error": null,
+      "hasResultText": true
+    },
+    "supervisor.read_file": {
+      "ok": false,
+      "error": null,
+      "hasResultText": true
+    }
+  },
+  "invalidToolsNameErrorPresent": false,
+  "endpoint": "/mcp/messages?sessionId=e4aa2294-3694-4947-a049-855df1e26ca1",
+  "timestamp": "2026-03-04T23:59:26.244Z",
+  "tools": [
+    {
+      "name": "supervisor_read_file",
+      "description": "Read a file from the configured workspace.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        },
+        "required": [
+          "path"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "supervisor_write_file",
+      "description": "Write UTF-8 content to a workspace file.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 1048576
+          },
+          "createParents": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "path",
+          "content"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "supervisor_apply_patch",
+      "description": "Apply a unified patch to the workspace.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "patch": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 262144
+          }
+        },
+        "required": [
+          "patch"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "supervisor_git_status",
+      "description": "Get git working tree status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "supervisor_git_commit",
+      "description": "Create a git commit from staged/working changes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "addAll": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "supervisor_search",
+      "description": "Search workspace text with ripgrep.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "maxResults": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 500
+          }
+        },
+        "required": [
+          "pattern"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "supervisor_run_tests",
+      "description": "Run repository tests.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "enum": [
+              "npm",
+              "pnpm",
+              "yarn",
+              "bun"
+            ]
+          },
+          "args": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "supervisor_run_lint",
+      "description": "Run repository lint checks.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "enum": [
+              "npm",
+              "pnpm",
+              "yarn",
+              "bun"
+            ]
+          },
+          "args": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "supervisor_security_audit",
+      "description": "Run deployment/security audit checks.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "bridge_health",
+      "description": "Return OpenClaw bridge health JSON from /health.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "bridge_list_jobs",
+      "description": "List current OpenClaw bridge jobs from /jobs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "bridge_job_status",
+      "description": "Get one job record by id from /jobs/:id.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "description": "Job id"
+          }
+        },
+        "required": [
+          "job_id"
+        ]
+      }
+    },
+    {
+      "name": "bridge_submit_job",
+      "description": "Submit a new async bridge job to /jobs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "instruction": {
+            "type": "string"
+          },
+          "repo_url": {
+            "type": "string"
+          },
+          "context_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "hints": {
+            "type": "string"
+          },
+          "branch_name": {
+            "type": "string"
+          },
+          "requester": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "gateway_base_url": {
+            "type": "string"
+          },
+          "auth_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "instruction"
+        ]
+      }
+    },
+    {
+      "name": "bridge_cancel_job",
+      "description": "Cancel a queued/running job via /jobs/:id/cancel.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "description": "Job id"
+          }
+        },
+        "required": [
+          "job_id"
+        ]
+      }
+    },
+    {
+      "name": "bridge_execute_tool",
+      "description": "Execute a bridge tool through /execute-tool with optional skill routing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "skill": {
+            "type": "string"
+          },
+          "tool": {
+            "type": "string"
+          },
+          "args": {
+            "type": "object"
+          },
+          "internal": {
+            "type": "boolean"
+          },
+          "internal_token": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "tool"
+        ]
+      }
+    }
+  ],
+  "mappingRecords": [
+    {
+      "emittedName": "supervisor_read_file",
+      "description": "Read a file from the configured workspace."
+    },
+    {
+      "emittedName": "supervisor_write_file",
+      "description": "Write UTF-8 content to a workspace file."
+    },
+    {
+      "emittedName": "supervisor_apply_patch",
+      "description": "Apply a unified patch to the workspace."
+    },
+    {
+      "emittedName": "supervisor_git_status",
+      "description": "Get git working tree status."
+    },
+    {
+      "emittedName": "supervisor_git_commit",
+      "description": "Create a git commit from staged/working changes."
+    },
+    {
+      "emittedName": "supervisor_search",
+      "description": "Search workspace text with ripgrep."
+    },
+    {
+      "emittedName": "supervisor_run_tests",
+      "description": "Run repository tests."
+    },
+    {
+      "emittedName": "supervisor_run_lint",
+      "description": "Run repository lint checks."
+    },
+    {
+      "emittedName": "supervisor_security_audit",
+      "description": "Run deployment/security audit checks."
+    },
+    {
+      "emittedName": "bridge_health",
+      "description": "Return OpenClaw bridge health JSON from /health."
+    },
+    {
+      "emittedName": "bridge_list_jobs",
+      "description": "List current OpenClaw bridge jobs from /jobs."
+    },
+    {
+      "emittedName": "bridge_job_status",
+      "description": "Get one job record by id from /jobs/:id."
+    },
+    {
+      "emittedName": "bridge_submit_job",
+      "description": "Submit a new async bridge job to /jobs."
+    },
+    {
+      "emittedName": "bridge_cancel_job",
+      "description": "Cancel a queued/running job via /jobs/:id/cancel."
+    },
+    {
+      "emittedName": "bridge_execute_tool",
+      "description": "Execute a bridge tool through /execute-tool with optional skill routing."
+    }
+  ]
+}

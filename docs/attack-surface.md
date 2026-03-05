@@ -1,4 +1,4 @@
-# Attack Surface Enumeration (Phase 7)
+# Attack Surface Enumeration (Phase 8)
 
 ## Open Ports
 - `127.0.0.1:18789` (bridge control plane)
@@ -15,6 +15,11 @@ Mitigation:
 - Method allowlists split by route.
 - Supervisor route has no mutation methods.
 
+## Cline supervisor boundary
+- Cline supervisor boundary is enforced as orchestration-only interface behavior.
+- Cline supervisor traffic is non-mutation by default and cannot bypass operator mutation boundaries.
+- Cline supervisor policy verification is a blocking CI gate.
+
 ## Outbound Read Surface
 - Static read hosts:
   - `api.semanticscholar.org`
@@ -26,6 +31,7 @@ Mitigation:
   - `api.notion.com`
 - No additional outbound hosts are introduced by Phase 6.
 - No additional outbound hosts are introduced by Phase 7.
+- No new egress domains or dynamic endpoint expansion is permitted by Cline supervisor hardening.
 
 ## RLHF Internal Workflow Surface
 - Internal modules only:
@@ -61,6 +67,22 @@ Mitigation:
   - rollout apply (`applyRolloutDecision`)
   - ledger tail repair (`repairDecisionLedgerTail`)
 - Startup performs mandatory fail-closed Phase 7 integrity checks before MCP method handling.
+
+## Phase 8 Compliance Governance Surface
+- Internal-only modules:
+  - `workflows/compliance-governance/*`
+  - `analytics/compliance-explainability/*`
+  - `security/phase8-startup-integrity.js`
+- No external submission methods are added.
+- No browser/login automation, credential automation, or anti-detection behavior is added.
+- No new egress domains or dynamic endpoint expansion is introduced.
+- No new outbound mutation surface is introduced by Phase 8.
+- Protected mutation paths are operator-only, approval-token-scoped, transaction-bound, and kill-switch-gated:
+  - runtime attestation capture (`captureRuntimeAttestation`)
+  - evidence bundle build (`buildEvidenceBundle`)
+  - release gate apply (`applyReleaseGateDecision`)
+  - compliance ledger tail repair (`repairComplianceLedgerTail`)
+- Startup performs mandatory fail-closed Phase 8 integrity checks before MCP method handling.
 
 Mitigation:
 - Default egress deny-all.

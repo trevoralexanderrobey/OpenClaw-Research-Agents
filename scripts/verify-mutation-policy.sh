@@ -27,10 +27,10 @@ rg -q "applyMutationAccounting" "$MUTATION_CTRL" || fail "mutation-control missi
 rg -q "verifyMutationLogChain" "$MUTATION_CTRL" || fail "mutation-control missing mutation log chain verification"
 
 rg -q "assertOperatorRole" "$MCP_SERVICE" || fail "mcp-service missing operator role boundary"
-rg -q "mutation.preparePublication" "$MCP_SERVICE" || fail "mcp-service missing mutation.preparePublication method"
-rg -q "mutation.commitPublication" "$MCP_SERVICE" || fail "mcp-service missing mutation.commitPublication method"
-rg -q "mutation.retryPublication" "$MCP_SERVICE" || fail "mcp-service missing mutation.retryPublication method"
-rg -q "mutation.reconcilePublication" "$MCP_SERVICE" || fail "mcp-service missing mutation.reconcilePublication method"
+rg -q "MCP_METHODS\\.MUTATION_PREPARE_PUBLICATION" "$MCP_SERVICE" || fail "mcp-service missing mutation prepare method contract"
+rg -q "MCP_METHODS\\.MUTATION_COMMIT_PUBLICATION" "$MCP_SERVICE" || fail "mcp-service missing mutation commit method contract"
+rg -q "MCP_METHODS\\.MUTATION_RETRY_PUBLICATION" "$MCP_SERVICE" || fail "mcp-service missing mutation retry method contract"
+rg -q "MCP_METHODS\\.MUTATION_RECONCILE_PUBLICATION" "$MCP_SERVICE" || fail "mcp-service missing mutation reconcile method contract"
 
 rg -q "extends\\s+BaseMcp" "$NEWSLETTER_MCP" || fail "newsletter-mcp does not extend BaseMcp"
 rg -q "extends\\s+BaseMcp" "$NOTION_MCP" || fail "notion-mcp does not extend BaseMcp"

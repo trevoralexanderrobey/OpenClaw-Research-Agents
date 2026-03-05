@@ -22,6 +22,11 @@ Local-first, file-based, audit-oriented research orchestration scaffold built on
 - Phase 7 startup integrity gate verifies decision-ledger chain anchor + pre-registration locks and fails closed before MCP service handling
 - Rollout updates are recommendation-first and operator-approved only; no autonomous external execution is introduced
 - Deterministic explainability and audit evidence artifacts are generated under `audit/evidence/phase7/`
+- Phase 8 deterministic compliance governance enabled (runtime attestation, evidence bundles, release gate recommendation/apply, tamper-evident compliance decision ledger)
+- All Phase 8 protected mutations require operator role, scoped approval token, governance transaction wrapper, and kill-switch-open state
+- Phase 8 startup integrity gate verifies compliance decision ledger anchor + evidence bundle integrity and fails closed before MCP service handling
+- Phase 8 release decisions are operator-approved only and cannot autonomously trigger external actions
+- Deterministic explainability and audit evidence artifacts are generated under `audit/evidence/phase8/`
 
 ## Key directories
 - `openclaw-bridge/` runtime/control-plane scaffold
@@ -36,3 +41,11 @@ External RLHF submission to third-party platforms is manual-only.
 Platform login, attestation, and final submission actions are always human-operated.
 Outcome ingestion is operator-entered only.
 Phase 7 experimentation/rollout logic is internal-only and never submits externally.
+Phase 8 compliance attestation/release-gate logic is internal-only and never submits externally.
+
+## Supervisor Model (Cline)
+- Cline (VSCode Insiders extension) is the supervisor interface for supervised orchestration and approval-facing workflows.
+- Supervisor context is orchestration-only and does not hold privileged mutation authority.
+- Protected mutations require operator role, scoped approval token, governance transaction wrapper, and kill-switch-open state.
+- External submission, platform login, attestation, and final submission actions are manual-only and human-operated.
+- Cline-related policy gates are blocking in CI and build verification.

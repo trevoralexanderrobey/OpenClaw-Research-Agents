@@ -1,0 +1,8 @@
+# Cline Supervisor Rules
+
+1. Cline is the supervisor interface and remains orchestration-only.
+2. No autonomous external submission is allowed.
+3. No automated login, browser automation, or credential-handling submission flow is allowed.
+4. Protected mutations require operator role, scoped approval token, governance transaction checks, and kill-switch-open state.
+5. Supervisor context must not execute protected mutation pathways.
+6. Policy gates are blocking and must not be treated as advisory.

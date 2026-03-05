@@ -1,0 +1,92 @@
+{
+  "findings": [
+    {
+      "complianceMapping": [
+        "6",
+        "9"
+      ],
+      "confidence": "high",
+      "excerpt": "Supervisor direct tool execution remains blocked.",
+      "file": "README.md",
+      "implication": "Supervisor non-mutation boundary was already documented pre-change."
+    },
+    {
+      "complianceMapping": [
+        "1",
+        "2"
+      ],
+      "confidence": "high",
+      "excerpt": "External RLHF submission to third-party platforms is manual-only.",
+      "file": "README.md",
+      "implication": "Manual-only external submission boundary existed pre-change."
+    },
+    {
+      "complianceMapping": [
+        "6",
+        "8"
+      ],
+      "confidence": "high",
+      "excerpt": "supervisor: { allowToolExecution: false }",
+      "file": "security/runtime-policy.js",
+      "implication": "Runtime policy disabled supervisor tool execution pre-change."
+    },
+    {
+      "complianceMapping": [
+        "6"
+      ],
+      "confidence": "high",
+      "excerpt": "supervisor: { canExecuteTools: false, canSeeTools: false, canUseLegacy: false }",
+      "file": "openclaw-bridge/src/core/execution-router.ts",
+      "implication": "Router enforced hard deny on supervisor tool execution pre-change."
+    },
+    {
+      "complianceMapping": [
+        "3",
+        "5"
+      ],
+      "confidence": "high",
+      "excerpt": "consumeApprovalToken(...) and requireKillSwitchOpen(...)",
+      "file": "security/mutation-control.js",
+      "implication": "Protected mutations already required scoped token and kill-switch checks."
+    },
+    {
+      "complianceMapping": [
+        "9"
+      ],
+      "confidence": "high",
+      "excerpt": "if [[ -f scripts/verify-phase7-policy.sh ]]; then ... else ... skipping",
+      "file": ".github/workflows/phase2-security.yml",
+      "implication": "Pre-change workflow allowed conditional skip behavior that needed hard-fail tightening."
+    },
+    {
+      "complianceMapping": [
+        "success_criteria_gap"
+      ],
+      "confidence": "high",
+      "excerpt": "missing_pre_change: .vscode/extensions.json",
+      "file": ".vscode/extensions.json",
+      "implication": "Cline extension recommendation wiring was absent pre-change."
+    },
+    {
+      "complianceMapping": [
+        "success_criteria_gap"
+      ],
+      "confidence": "high",
+      "excerpt": "missing_pre_change: docs/supervisor-architecture.md",
+      "file": "docs/supervisor-architecture.md",
+      "implication": "No authoritative Cline supervisor contract doc existed pre-change."
+    },
+    {
+      "complianceMapping": [
+        "success_criteria_gap"
+      ],
+      "confidence": "high",
+      "excerpt": "missing_pre_change: .clinerules",
+      "file": ".clinerules",
+      "implication": "No repo-level Cline rule surface existed pre-change."
+    }
+  ],
+  "generatedAt": "2026-03-04T00:00:00Z",
+  "generatedBy": "codex",
+  "schemaVersion": 1
+}

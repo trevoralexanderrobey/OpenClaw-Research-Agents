@@ -1,0 +1,13 @@
+{
+  "baseline_with_all_disabled": "fail",
+  "suspect_server": "openclaw-local",
+  "first_failing_attempt": {
+    "attemptNumber": 1,
+    "server": "openclaw-local",
+    "timestamp": "2026-03-04T22:28:29Z",
+    "errorText": "Invalid 'tools[14].name': string does not match pattern. Expected a string that matches the pattern '^[a-zA-Z0-9_-]+$'.\\\",\\\"modelId\\\":\\\"gpt-5.3-codex\\\",\\\"providerId\\\":\\\"openai-codex\\\"}\"}"
+  },
+  "failing_tool_index": 14,
+  "failing_tool_name": null,
+  "next_action_recommendation": "Inspect tool list emitted by openclaw-local MCP server and sanitize invalid tool name(s) (at least tools[14]) to ^[A-Za-z0-9_-]+$ before payload submission."
+}

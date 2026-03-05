@@ -44,3 +44,8 @@
 - Mutation endpoints for creation, analysis, and rollout are explicitly operator-only.
 - Decision verification enforces ledger chain-hash integrity and chain-head anchoring that fail closed.
 - Autonomous rollout or automatic external submission of treatments is explicitly denied.
+
+## Compliance and Evidence Boundary
+- Evidence generation and compliance attestations are entirely deterministic and internal.
+- Tamper-evident governance requires operator authority for any release decision modifications.
+- Autonomous attestation publishing or remote evidence submission pathways are blocked.

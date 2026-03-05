@@ -1,0 +1,12 @@
+{
+  "jobs": [
+    {
+      "name": "phase2-gates",
+      "conclusion": "failure",
+      "steps": [
+        { "name": "Checkout", "conclusion": "success" },
+        { "name": "Phase 8 policy verification", "conclusion": "failure" }
+      ]
+    }
+  ]
+}

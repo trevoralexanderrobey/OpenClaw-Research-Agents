@@ -1,4 +1,4 @@
-# Failure Modes (Phase 7)
+# Failure Modes (Phase 8)
 
 ## Runtime Schema Mismatch
 Detection:
@@ -210,3 +210,72 @@ Detection:
 Handling:
 - Active rollout profile reverts to prior adopted deterministic profile.
 - Decision and ledger chain updated transactionally with tamper-evident hashes.
+
+## Phase 8 Runtime Attestation Idempotency Conflict
+Detection:
+- `captureRuntimeAttestation` receives reused idempotency key with divergent canonical payload.
+
+Handling:
+- Fail closed with `COMPLIANCE_IDEMPOTENCY_CONFLICT`.
+- Persisted attestation record remains unchanged.
+
+## Phase 8 Evidence Bundle Integrity Mismatch
+Detection:
+- Stored `bundleHash` does not match deterministic recomputation from canonical bundle payload.
+
+Handling:
+- Fail closed with `PHASE8_BUNDLE_HASH_MISMATCH`.
+- Release evaluation returns blocking integrity status until repaired.
+
+## Phase 8 Stale Evidence Hold
+Detection:
+- Evidence freshness exceeds `activeReleasePolicy.minEvidenceFreshnessHours`.
+
+Handling:
+- Deterministic gate evaluation returns `hold` with `policy_violation`.
+- No automatic release decision apply is performed.
+
+## Phase 8 Compliance Ledger Chain/Anchor Mismatch
+Detection:
+- `decisionHash`, `prevDecisionHash`, ledger `chainHash`, or chain-head anchor mismatch.
+
+Handling:
+- Fail closed (`PHASE8_*` ledger integrity errors).
+- Disallow automatic correction.
+- Allow only explicit operator truncated-tail repair path.
+
+## Phase 8 Startup Integrity Failure
+Detection:
+- Compliance decision ledger mismatch and/or evidence bundle integrity mismatch during startup verification.
+
+Handling:
+- Fail closed before MCP service starts handling requests.
+- Require explicit operator repair/remediation workflow.
+
+## Phase 8 Operator Override Controls
+Detection:
+- Operator attempts release-gate override with invalid scope token, missing token, or policy-invalid `allow`.
+
+Handling:
+- Reject with token/policy validation errors.
+- Keep release decisions transaction-bound and operator-approved only.
+
+## Cline supervisor policy gate failure
+Detection:
+- `scripts/verify-cline-supervisor-policy.sh` fails due to missing/contradictory Cline supervisor contract markers or missing config artifacts.
+
+Handling:
+- Fail closed in CI and local build verification.
+- Do not bypass or skip policy checks.
+- Correct the missing or contradictory contract/config artifact and rerun full policy gates.
+
+## Cline config missing/misconfigured in developer workspace
+Detection:
+- Missing `.vscode/extensions.json`, `.vscode/settings.json`, `.clinerules`, or `security/cline-extension-allowlist.json`.
+- Cline-related extension recommendation not in explicit allowlist.
+
+Handling (runbook):
+- Restore required files with approved content.
+- Verify allowlist consistency (`officialIds + approvedAliasIds == allowedIds`).
+- Run `bash scripts/verify-cline-supervisor-policy.sh`.
+- Run `npm run build:verify` before merge.

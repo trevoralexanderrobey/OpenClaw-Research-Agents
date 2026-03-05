@@ -2,15 +2,11 @@
 
 const MCP_MAX_BODY_BYTES = 32 * 1024;
 const MCP_CORRELATION_ID_PATTERN = /^[a-f0-9-]{16,64}$/;
-const MCP_METHOD_ALLOWLIST = Object.freeze(["research.search", "research.getPaper", "analytics.monetizationScore"]);
-const MCP_OPERATOR_METHOD_ALLOWLIST = Object.freeze([
-  "mutation.preparePublication",
-  "mutation.commitPublication",
-  "mutation.retryPublication",
-  "mutation.reconcilePublication",
-  "mutation.setMutationEnabled",
-  "mutation.setKillSwitch"
-]);
+const {
+  MCP_METHOD_ALLOWLIST,
+  MCP_OPERATOR_METHOD_ALLOWLIST,
+  normalizeMcpMethodName
+} = require("./mcp-method-registry.js");
 const MCP_REQUEST_KEYS = Object.freeze(["jsonrpc", "id", "method", "params"]);
 
 function assertMcpContentLength(contentLengthRaw) {
@@ -65,9 +61,10 @@ function normalizeMcpMessage(rawBody, options = {}) {
     throw error;
   }
 
-  const method = String(body.method || "").trim();
+  const methodRaw = String(body.method || "").trim();
+  const method = normalizeMcpMethodName(methodRaw);
   if (!allowlist.includes(method)) {
-    const error = new Error(`MCP method '${method}' is not allowed`);
+    const error = new Error(`MCP method '${methodRaw}' is not allowed`);
     error.code = "MCP_METHOD_NOT_ALLOWED";
     throw error;
   }

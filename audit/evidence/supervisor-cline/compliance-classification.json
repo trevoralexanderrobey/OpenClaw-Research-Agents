@@ -1,0 +1,9 @@
+{
+  "post_change_target": "COMPLIANT",
+  "pre_change": "PARTIAL",
+  "rationale": [
+    "Pre-change repository enforced supervisor/operator/kill-switch controls but lacked explicit Cline supervisor contract and Cline-specific policy gate wiring.",
+    "Post-change repository adds explicit Cline contract docs, allowlist-enforced extension policy, blocking CI checks, and dedicated tests/evidence artifacts."
+  ],
+  "schemaVersion": 1
+}

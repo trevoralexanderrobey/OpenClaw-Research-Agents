@@ -1,0 +1,17 @@
+{
+  "capturedAt": "2026-03-04T22:24:50Z",
+  "configFile": "/Users/trevorrobey/Library/Application Support/Code - Insiders/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json",
+  "serverCount": 1,
+  "activeServerCount": 1,
+  "servers": [
+    {
+      "name": "openclaw-local",
+      "disabled": false,
+      "enabled": true,
+      "type": "sse",
+      "url": "http://127.0.0.1:8787/mcp/sse",
+      "timeout": 60,
+      "autoApproveCount": 0
+    }
+  ]
+}

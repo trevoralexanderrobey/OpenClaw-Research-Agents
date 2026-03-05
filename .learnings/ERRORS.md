@@ -181,3 +181,63 @@ Use proper alternation syntax (`a|b`) in ripgrep patterns.
 ### Resolution
 - **Resolved**: 2026-03-04T00:33:00-08:00
 - **Notes**: Updated `rg` checks to use valid alternation, verification script now passes.
+
+## [ERR-20260304-007] python binary unavailable in shell automation edits
+
+**Logged**: 2026-03-04T13:05:00-08:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+A scripted edit step failed because `python` is not installed as `python` in the current shell environment.
+
+### Error
+```
+zsh:1: command not found: python
+```
+
+### Context
+- Command pattern: `python - <<'PY' ... PY`
+- Task: update workflow/build/package files during Phase 8 implementation.
+
+### Suggested Fix
+Use `node` or shell-native tools for deterministic file edits, or call `python3` only when available.
+
+### Metadata
+- Reproducible: yes
+- Related Files: .learnings/ERRORS.md
+
+### Resolution
+- **Resolved**: 2026-03-04T13:05:00-08:00
+- **Notes**: Switched to `node`-based one-shot file edits.
+
+## [ERR-20260304-008] nullish-coalescing precedence syntax error in policy snapshot builder
+
+**Logged**: 2026-03-04T13:08:00-08:00
+**Priority**: medium
+**Status**: resolved
+**Area**: backend
+
+### Summary
+A Phase 8 module load failed due to invalid `??` precedence mixed with `&&` in `buildPolicySnapshotHash()`.
+
+### Error
+```
+SyntaxError: missing ) after argument list
+```
+
+### Context
+- Command: `node -e "require('./workflows/compliance-governance/compliance-validator.js')"`
+- Root cause: expression `policy && policy.minEvidenceFreshnessHours ?? "24"` requires parentheses.
+
+### Suggested Fix
+Wrap logical expression before nullish coalescing, e.g. `String((policy && policy.minEvidenceFreshnessHours) ?? "24")`.
+
+### Metadata
+- Reproducible: yes
+- Related Files: workflows/compliance-governance/compliance-validator.js
+
+### Resolution
+- **Resolved**: 2026-03-04T13:08:00-08:00
+- **Notes**: Corrected operator precedence and revalidated module load.

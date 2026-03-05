@@ -1,0 +1,65 @@
+{
+  "headSha": "de825fadcbe4e70eba604e0f497b2df48f9eda8f",
+  "extension": {
+    "id": "saoudrizwan.claude-dev",
+    "installed": true,
+    "version": "3.69.0",
+    "allowlistMatch": true
+  },
+  "vscodeInsidersRunning": true,
+  "commands": {
+    "verify-cline-supervisor-policy.sh": "PASS",
+    "verify-mcp-policy.sh": "PASS",
+    "verify-mutation-policy.sh": "PASS",
+    "verify-phase5-policy.sh": "PASS",
+    "verify-phase6-policy.sh": "PASS",
+    "verify-phase7-policy.sh": "PASS",
+    "npm run build:verify": "PASS",
+    "verify-cline-supervisor-policy (no-rg)": "PASS",
+    "node tests": "PASS",
+    "verify-phase8-policy.sh": "PASS",
+    "verify-phase8-ci-health.js": "PASS"
+  },
+  "fixesApplied": [],
+  "notes": "All policy verification scripts passed locally. No policy-preserving fixes were required.",
+  "referencedShas": [
+    "a96c5acfde8d3602796822adf120a437356d9dd7"
+  ],
+  "finalVerdict": "BLOCKED_WITH_DELTAS"
+}
+{
+  "commands": [
+    {
+      "command": "bash scripts/verify-cline-supervisor-policy.sh",
+      "outcome": "pass"
+    },
+    {
+      "command": "node --test tests/security/cline-supervisor-contract.test.js tests/security/cline-extension-allowlist.test.js tests/security/cline-supervisor-policy-gate.test.js",
+      "outcome": "pass"
+    },
+    {
+      "command": "bash scripts/verify-mcp-policy.sh && bash scripts/verify-mutation-policy.sh && bash scripts/verify-phase5-policy.sh && bash scripts/verify-phase6-policy.sh && bash scripts/verify-phase7-policy.sh",
+      "outcome": "pass"
+    },
+    {
+      "command": "npm run build:verify",
+      "notes": "Node engine warning observed locally (v25.3.0 vs required 22.13.1); verification passed.",
+      "outcome": "pass"
+    },
+    {
+      "command": "node --test tests/**/*.test.js",
+      "notes": "Initial concurrent run with build:verify failed once due to npm ci contention on node_modules; sequential rerun passed.",
+      "outcome": "pass"
+    },
+    {
+      "command": "npm run phase2:gates",
+      "outcome": "pass"
+    }
+  ],
+  "failureAnalysis": {
+    "after": "Sequential rerun and phase2:gates completed with full pass.",
+    "before": "Concurrent run of build:verify and full test suite caused transient MODULE_NOT_FOUND (zod) while npm ci was mutating node_modules.",
+    "classification": "EXPECTED_TRANSIENT_LOCAL_CONTENTION"
+  },
+  "schemaVersion": 1
+}

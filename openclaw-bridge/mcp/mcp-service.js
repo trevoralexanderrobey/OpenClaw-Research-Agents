@@ -7,6 +7,7 @@ const { createApiGovernance } = require("../../security/api-governance.js");
 const { createOperatorAuthorization } = require("../../security/operator-authorization.js");
 const { createMutationControl } = require("../../security/mutation-control.js");
 const { verifyPhase7StartupIntegrity } = require("../../security/phase7-startup-integrity.js");
+const { verifyPhase8StartupIntegrity } = require("../../security/phase8-startup-integrity.js");
 const { createMonetizationEngine } = require("../../analytics/monetization-engine.js");
 const { createSemanticScholarMcp } = require("./semantic-scholar-mcp.js");
 const { createArxivMcp } = require("./arxiv-mcp.js");
@@ -15,6 +16,10 @@ const { createNotionMcpStub } = require("./notion-mcp.stub.js");
 const { createNewsletterMcp } = require("./newsletter-mcp.js");
 const { createNotionMcp } = require("./notion-mcp.js");
 const { BaseMcp } = require("./base-mcp.js");
+const {
+  MCP_METHODS,
+  normalizeMcpMethodName
+} = require("../bridge/mcp-method-registry.js");
 
 const RESEARCH_PROVIDERS = Object.freeze(["semantic-scholar", "arxiv", "newsletter", "notion"]);
 
@@ -203,6 +208,7 @@ function createMcpService(options = {}) {
       initializePromise = (async () => {
         await verifyStoredReplay();
         await verifyPhase7StartupIntegrity({ apiGovernance, logger });
+        await verifyPhase8StartupIntegrity({ apiGovernance, logger });
         return { ok: true };
       })().catch((error) => {
         initializePromise = null;
@@ -215,9 +221,10 @@ function createMcpService(options = {}) {
   async function handle(method, params, context = {}) {
     await initialize();
     const correlationId = typeof context.correlationId === "string" ? context.correlationId : "";
+    const normalizedMethod = normalizeMcpMethodName(method);
     assertNoForbiddenOverrides(params);
 
-    if (method === "research.search") {
+    if (normalizedMethod === MCP_METHODS.RESEARCH_SEARCH) {
       const parsed = SearchParamsSchema.safeParse(params);
       if (!parsed.success) {
         throw createMcpError("MCP_INVALID_PARAMS", "Invalid params for research.search", { issues: parsed.error.issues });
@@ -244,7 +251,7 @@ function createMcpService(options = {}) {
       };
     }
 
-    if (method === "research.getPaper") {
+    if (normalizedMethod === MCP_METHODS.RESEARCH_GET_PAPER) {
       const parsed = GetPaperParamsSchema.safeParse(params);
       if (!parsed.success) {
         throw createMcpError("MCP_INVALID_PARAMS", "Invalid params for research.getPaper", { issues: parsed.error.issues });
@@ -270,7 +277,7 @@ function createMcpService(options = {}) {
       };
     }
 
-    if (method === "analytics.monetizationScore") {
+    if (normalizedMethod === MCP_METHODS.ANALYTICS_MONETIZATION_SCORE) {
       const parsed = MonetizationParamsSchema.safeParse(params || {});
       if (!parsed.success) {
         throw createMcpError("MCP_INVALID_PARAMS", "Invalid params for analytics.monetizationScore", { issues: parsed.error.issues });
@@ -281,7 +288,7 @@ function createMcpService(options = {}) {
       };
     }
 
-    if (method === "mutation.setMutationEnabled") {
+    if (normalizedMethod === MCP_METHODS.MUTATION_SET_MUTATION_ENABLED) {
       assertOperatorRole(context);
       await ensureMutationHydrated();
       const parsed = SetMutationEnabledSchema.safeParse(params);
@@ -291,7 +298,7 @@ function createMcpService(options = {}) {
       return mutationControl.setMutationEnabled(parsed.data, { correlationId });
     }
 
-    if (method === "mutation.setKillSwitch") {
+    if (normalizedMethod === MCP_METHODS.MUTATION_SET_KILL_SWITCH) {
       assertOperatorRole(context);
       await ensureMutationHydrated();
       const parsed = SetKillSwitchSchema.safeParse(params);
@@ -301,7 +308,7 @@ function createMcpService(options = {}) {
       return mutationControl.setKillSwitch(parsed.data, { correlationId });
     }
 
-    if (method === "mutation.preparePublication") {
+    if (normalizedMethod === MCP_METHODS.MUTATION_PREPARE_PUBLICATION) {
       assertOperatorRole(context);
       await ensureMutationHydrated();
       const newsletterParsed = MutationPrepareNewsletterSchema.safeParse(params);
@@ -318,7 +325,7 @@ function createMcpService(options = {}) {
       });
     }
 
-    if (method === "mutation.commitPublication") {
+    if (normalizedMethod === MCP_METHODS.MUTATION_COMMIT_PUBLICATION) {
       assertOperatorRole(context);
       await ensureMutationHydrated();
       const parsed = MutationSequenceSchema.safeParse(params);
@@ -328,7 +335,7 @@ function createMcpService(options = {}) {
       return mutationControl.commitPublication(parsed.data, { correlationId });
     }
 
-    if (method === "mutation.retryPublication") {
+    if (normalizedMethod === MCP_METHODS.MUTATION_RETRY_PUBLICATION) {
       assertOperatorRole(context);
       await ensureMutationHydrated();
       const parsed = MutationSequenceSchema.safeParse(params);
@@ -338,7 +345,7 @@ function createMcpService(options = {}) {
       return mutationControl.retryPublication(parsed.data, { correlationId });
     }
 
-    if (method === "mutation.reconcilePublication") {
+    if (normalizedMethod === MCP_METHODS.MUTATION_RECONCILE_PUBLICATION) {
       assertOperatorRole(context);
       await ensureMutationHydrated();
       const parsed = MutationReconcileSchema.safeParse(params);
@@ -348,7 +355,7 @@ function createMcpService(options = {}) {
       return mutationControl.reconcilePublication(parsed.data, { correlationId });
     }
 
-    throw createMcpError("MCP_METHOD_NOT_ALLOWED", `Unsupported MCP method '${method}'`);
+    throw createMcpError("MCP_METHOD_NOT_ALLOWED", `Unsupported MCP method '${String(method || "").trim()}'`);
   }
 
   async function verifyStoredReplay() {

@@ -1,0 +1,109 @@
+{
+  "capturedAt": "2026-03-04T23:59:26.244Z",
+  "server": "openclaw-local",
+  "endpoint": "http://127.0.0.1:8787/mcp/sse",
+  "regex": "^[A-Za-z0-9_-]+$",
+  "toolCount": 15,
+  "invalidCount": 0,
+  "invalidNames": [],
+  "requestStatuses": {
+    "initialize": 202,
+    "initialized": 202,
+    "toolsList": 202,
+    "callSupervisorReadFileSanitized": 202,
+    "callSupervisorReadFileLegacyAlias": 202
+  },
+  "invalidToolsNameErrorPresent": false,
+  "tools": [
+    {
+      "index": 0,
+      "emittedName": "supervisor_read_file",
+      "regexPass": true,
+      "source": "/Users/trevorrobey/AI-Agent-BountyHunt/openclaw-bridge/src/supervisor/registry.ts:18"
+    },
+    {
+      "index": 1,
+      "emittedName": "supervisor_write_file",
+      "regexPass": true,
+      "source": "/Users/trevorrobey/AI-Agent-BountyHunt/openclaw-bridge/src/supervisor/registry.ts:34"
+    },
+    {
+      "index": 2,
+      "emittedName": "supervisor_apply_patch",
+      "regexPass": true,
+      "source": "/Users/trevorrobey/AI-Agent-BountyHunt/openclaw-bridge/src/supervisor/registry.ts:52"
+    },
+    {
+      "index": 3,
+      "emittedName": "supervisor_git_status",
+      "regexPass": true,
+      "source": "/Users/trevorrobey/AI-Agent-BountyHunt/openclaw-bridge/src/supervisor/registry.ts:67"
+    },
+    {
+      "index": 4,
+      "emittedName": "supervisor_git_commit",
+      "regexPass": true,
+      "source": "/Users/trevorrobey/AI-Agent-BountyHunt/openclaw-bridge/src/supervisor/registry.ts:79"
+    },
+    {
+      "index": 5,
+      "emittedName": "supervisor_search",
+      "regexPass": true,
+      "source": "/Users/trevorrobey/AI-Agent-BountyHunt/openclaw-bridge/src/supervisor/registry.ts:95"
+    },
+    {
+      "index": 6,
+      "emittedName": "supervisor_run_tests",
+      "regexPass": true,
+      "source": "/Users/trevorrobey/AI-Agent-BountyHunt/openclaw-bridge/src/supervisor/registry.ts:113"
+    },
+    {
+      "index": 7,
+      "emittedName": "supervisor_run_lint",
+      "regexPass": true,
+      "source": "/Users/trevorrobey/AI-Agent-BountyHunt/openclaw-bridge/src/supervisor/registry.ts:132"
+    },
+    {
+      "index": 8,
+      "emittedName": "supervisor_security_audit",
+      "regexPass": true,
+      "source": "/Users/trevorrobey/AI-Agent-BountyHunt/openclaw-bridge/src/supervisor/registry.ts:151"
+    },
+    {
+      "index": 9,
+      "emittedName": "bridge_health",
+      "regexPass": true,
+      "source": "/Users/trevorrobey/AI-Agent-BountyHunt/openclaw-bridge/bridge/server.ts:305"
+    },
+    {
+      "index": 10,
+      "emittedName": "bridge_list_jobs",
+      "regexPass": true,
+      "source": "/Users/trevorrobey/AI-Agent-BountyHunt/openclaw-bridge/bridge/server.ts:313"
+    },
+    {
+      "index": 11,
+      "emittedName": "bridge_job_status",
+      "regexPass": true,
+      "source": "/Users/trevorrobey/AI-Agent-BountyHunt/openclaw-bridge/bridge/server.ts:321"
+    },
+    {
+      "index": 12,
+      "emittedName": "bridge_submit_job",
+      "regexPass": true,
+      "source": "/Users/trevorrobey/AI-Agent-BountyHunt/openclaw-bridge/bridge/server.ts:335"
+    },
+    {
+      "index": 13,
+      "emittedName": "bridge_cancel_job",
+      "regexPass": true,
+      "source": "/Users/trevorrobey/AI-Agent-BountyHunt/openclaw-bridge/bridge/server.ts:357"
+    },
+    {
+      "index": 14,
+      "emittedName": "bridge_execute_tool",
+      "regexPass": true,
+      "source": "/Users/trevorrobey/AI-Agent-BountyHunt/openclaw-bridge/bridge/server.ts:371"
+    }
+  ]
+}

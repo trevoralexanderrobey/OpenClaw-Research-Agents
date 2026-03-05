@@ -1,0 +1,25 @@
+{
+  "files": [
+    {
+      "file": "baseline-findings.json",
+      "sha256": "da796a47f7dd507e9cd5dd4ae11f5dedf4e4e2df6e314db226ed5bd28ab13cf0"
+    },
+    {
+      "file": "cline-supervisor-contract-checklist.json",
+      "sha256": "e79129b8b0b2f5f83cb95e6b45709aac9cc5b0e19808e2362d4e5c96fafe0c78"
+    },
+    {
+      "file": "compliance-classification.json",
+      "sha256": "f1a31783c07e6cd7c66af1c549694379d0fe8cf4cc884aa43d75f9935f1fbafb"
+    },
+    {
+      "file": "final-verification-summary.md",
+      "sha256": "c649cf18bbd794fce27789ffafbbcd6456763c952792d0821275ec8a79652f1b"
+    },
+    {
+      "file": "policy-gate-results.json",
+      "sha256": "2ef1e49106a4ddbd1786e20f8cf54b1598d3187afb640de04deb00423f307ba2"
+    }
+  ],
+  "schemaVersion": 1
+}
