@@ -208,6 +208,7 @@ function defaultRuntimeState() {
     recentDecisions: [],
     openLoops: [],
     laneSnapshots: {},
+    missions: {},
   };
 }
 
@@ -222,6 +223,9 @@ function normalizeRuntimeState(state) {
   const laneSnapshots = isPlainObject(source.laneSnapshots)
     ? canonicalize(source.laneSnapshots)
     : {};
+  const missions = isPlainObject(source.missions)
+    ? canonicalize(source.missions)
+    : {};
 
   recentDecisions.sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0));
   openLoops.sort((left, right) => String(left.loopId || "").localeCompare(String(right.loopId || "")));
@@ -232,6 +236,7 @@ function normalizeRuntimeState(state) {
     recentDecisions,
     openLoops,
     laneSnapshots,
+    missions,
   });
 }
 
@@ -306,6 +311,9 @@ async function registerOpenLoop(loopEntry = {}, options = {}) {
     loopId,
     sessionId: String(loopEntry.sessionId || loopEntry.session_id || "default"),
     taskEnvelope: isPlainObject(loopEntry.taskEnvelope) ? canonicalize(loopEntry.taskEnvelope) : {},
+    missionId: String(loopEntry.missionId || loopEntry.mission_id || ""),
+    agentId: String(loopEntry.agentId || loopEntry.agent_id || ""),
+    laneKey: String(loopEntry.laneKey || loopEntry.lane_key || ""),
     createdAt: String(loopEntry.createdAt || isoFromNowMs(nowMs())),
     status: "open",
   });
@@ -337,6 +345,35 @@ async function resolveOpenLoop(loopId, options = {}) {
   };
 }
 
+async function upsertMissionRuntime(record = {}, options = {}) {
+  const missionId = String(record.mission_id || record.missionId || "").trim();
+  if (!missionId) {
+    const error = new Error("missionId is required");
+    error.code = "PHASE18_MISSION_ID_REQUIRED";
+    throw error;
+  }
+  const loaded = await loadRuntimeState(options);
+  const state = normalizeRuntimeState(loaded.state);
+  state.missions[missionId] = canonicalize({
+    ...(state.missions[missionId] || {}),
+    ...record,
+    mission_id: missionId,
+    updated_at: String(record.updated_at || record.updatedAt || isoFromNowMs(nowMs()))
+  });
+  await saveRuntimeState(state, options);
+  return canonicalize(state.missions[missionId]);
+}
+
+async function loadMissionRuntime(missionId, options = {}) {
+  const normalizedMissionId = String(missionId || "").trim();
+  if (!normalizedMissionId) {
+    return null;
+  }
+  const loaded = await loadRuntimeState(options);
+  const state = normalizeRuntimeState(loaded.state);
+  return state.missions[normalizedMissionId] ? canonicalize(state.missions[normalizedMissionId]) : null;
+}
+
 module.exports = {
   createPersistentStore,
   CONTROL_PLANE_STATE_VERSION,
@@ -349,4 +386,6 @@ module.exports = {
   appendRecentDecision,
   registerOpenLoop,
   resolveOpenLoop,
+  upsertMissionRuntime,
+  loadMissionRuntime,
 };

@@ -83,6 +83,13 @@ Phase 17 extensions:
 - `openclaw-bridge/state/*`
 - `openclaw-bridge/core/restart-resume-orchestrator.js`
 
+Phase 18 extensions:
+- `openclaw-bridge/core/agent-spawner.js`
+- `openclaw-bridge/core/spawn-orchestrator.js`
+- `openclaw-bridge/core/spawn-planner.js`
+- `openclaw-bridge/core/skill-provider.js`
+- `openclaw-bridge/core/mission-envelope-schema.js`
+
 Live Verification extensions:
 - `scripts/run-live-llm-verification.js`
 - `scripts/run-live-mcp-verification.js`
@@ -107,6 +114,7 @@ Live Verification extensions:
 | 15 | Multi-agent topology and comms/queue | Implemented |
 | 16 | MCP ingestion and normalization | Implemented |
 | 17 | Runtime hardening and resume orchestration | Implemented |
+| 18 | Agent Spawner & Mission Orchestration | Implemented |
 
 ## Important Paths
 - `workspace/research-input/` sample task inputs
@@ -122,6 +130,7 @@ bash scripts/verify-phase14-policy.sh
 bash scripts/verify-phase15-policy.sh
 bash scripts/verify-phase16-policy.sh
 bash scripts/verify-phase17-policy.sh
+bash scripts/verify-phase18-policy.sh
 node scripts/run-live-llm-verification.js
 node scripts/run-live-mcp-verification.js
 node --test tests/**/*.test.js

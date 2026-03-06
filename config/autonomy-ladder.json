@@ -1,6 +1,10 @@
 {
   "schemaVersion": "phase15-autonomy-ladder-v1",
   "roles": {
+    "orchestrator": {
+      "allowedActions": ["plan_mission", "spawn_agents", "resume_mission", "synthesize_mission"],
+      "requireHumanApproval": []
+    },
     "scout": {
       "allowedActions": ["collect_sources", "execute_task"],
       "requireHumanApproval": ["execute_task"]

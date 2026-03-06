@@ -40,6 +40,7 @@ function createCommsBus(options = {}) {
     ? options.timeProvider
     : { nowIso: () => "1970-01-01T00:00:00.000Z" };
   const basePath = path.resolve(safeString(options.basePath) || path.join(process.cwd(), "workspace", "comms"));
+  const missionBasePath = path.resolve(safeString(options.missionBasePath) || path.join(process.cwd(), "workspace", "missions"));
 
   const inboxPath = path.join(basePath, "inbox");
   const outboxPath = path.join(basePath, "outbox");
@@ -48,6 +49,31 @@ function createCommsBus(options = {}) {
 
   for (const dirPath of [inboxPath, outboxPath, blackboardPath, eventPath]) {
     ensureDir(dirPath);
+  }
+
+  function projectMissionMessage(kind, role, payload) {
+    const missionId = safeString(payload && payload.envelope && (payload.envelope.mission_id || payload.envelope.missionId));
+    const agentId = safeString(payload && payload.envelope && (payload.envelope.agent_id || payload.envelope.agentId));
+    if (!missionId || !agentId) {
+      return;
+    }
+    const targetPath = path.join(missionBasePath, missionId, "agents", agentId, `${kind}.jsonl`);
+    ensureDir(path.dirname(targetPath));
+    fs.appendFileSync(targetPath, `${JSON.stringify(canonicalize(payload))}\n`, "utf8");
+  }
+
+  function projectMissionBlackboard(payload) {
+    const missionId = safeString(payload && payload.entry && (payload.entry.mission_id || payload.entry.missionId));
+    if (!missionId) {
+      return;
+    }
+    const targetPath = path.join(missionBasePath, missionId, "blackboard.md");
+    ensureDir(path.dirname(targetPath));
+    const lines = [
+      `- ${safeString(payload.timestamp)} ${safeString(payload.entry.subtask_id || payload.entry.subtaskId || payload.entry.note || "event")}`,
+      safeString(payload.entry.output_path || payload.entry.outputPath) ? `  - output: ${safeString(payload.entry.output_path || payload.entry.outputPath)}` : "  - recorded"
+    ];
+    fs.appendFileSync(targetPath, `${lines.join("\n")}\n`, "utf8");
   }
 
   function writeMessage(targetDir, role, envelope = {}) {
@@ -72,12 +98,14 @@ function createCommsBus(options = {}) {
 
   function writeInboxMessage(role, envelope = {}) {
     const written = writeMessage(inboxPath, role, envelope);
+    projectMissionMessage("inbox", role, written.payload);
     logger.info({ event: "phase15_comms_inbox_write", role: safeString(role), sequence: written.sequence });
     return written;
   }
 
   function writeOutboxMessage(role, envelope = {}) {
     const written = writeMessage(outboxPath, role, envelope);
+    projectMissionMessage("outbox", role, written.payload);
     logger.info({ event: "phase15_comms_outbox_write", role: safeString(role), sequence: written.sequence });
     return written;
   }
@@ -97,6 +125,7 @@ function createCommsBus(options = {}) {
 
     const filePath = path.join(blackboardPath, `${String(seq).padStart(8, "0")}.json`);
     writeAtomic(filePath, canonicalJson(payload));
+    projectMissionBlackboard(payload);
     logger.info({ event: "phase15_blackboard_append", sequence: seq });
     return canonicalize({ sequence: seq, path: filePath, payload });
   }
@@ -104,6 +133,8 @@ function createCommsBus(options = {}) {
   function readMessages(filter = {}) {
     const scope = safeString(filter.scope).toLowerCase();
     const role = safeString(filter.role).toLowerCase();
+    const missionId = safeString(filter.mission_id || filter.missionId);
+    const agentId = safeString(filter.agent_id || filter.agentId);
 
     const roots = [];
     if (!scope || scope === "inbox") roots.push(inboxPath);
@@ -133,7 +164,20 @@ function createCommsBus(options = {}) {
     }
 
     out.sort((left, right) => Number(left.sequence || 0) - Number(right.sequence || 0));
-    return canonicalize(out);
+    return canonicalize(out.filter((record) => {
+      if (!missionId && !agentId) {
+        return true;
+      }
+      const recordMissionId = safeString(record && record.envelope && (record.envelope.mission_id || record.envelope.missionId) || record && record.entry && (record.entry.mission_id || record.entry.missionId));
+      const recordAgentId = safeString(record && record.envelope && (record.envelope.agent_id || record.envelope.agentId));
+      if (missionId && recordMissionId !== missionId) {
+        return false;
+      }
+      if (agentId && recordAgentId !== agentId) {
+        return false;
+      }
+      return true;
+    }));
   }
 
   function detectTamper(filter = {}) {

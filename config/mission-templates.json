@@ -1,0 +1,188 @@
+{
+  "schemaVersion": "phase18-mission-templates-v1",
+  "templates": {
+    "academic_trend_scan": {
+      "id": "academic_trend_scan",
+      "enabled": true,
+      "safety_class": "research_only",
+      "spawned_roles": [
+        "scout",
+        "analyst",
+        "synthesizer"
+      ],
+      "steps": [
+        {
+          "role": "scout",
+          "action_type": "collect_sources",
+          "task_type": "extract",
+          "description": "Collect and normalize source material for the mission",
+          "input_strategy": "mission_inputs"
+        },
+        {
+          "role": "analyst",
+          "action_type": "analyze_documents",
+          "task_type": "analyze",
+          "description": "Analyze the collected source material",
+          "input_strategy": "mission_and_dependency_outputs",
+          "depends_on": [
+            1
+          ]
+        },
+        {
+          "role": "synthesizer",
+          "action_type": "synthesize_output",
+          "task_type": "synthesize",
+          "description": "Synthesize the mission deliverable",
+          "input_strategy": "dependency_outputs",
+          "depends_on": [
+            2
+          ]
+        }
+      ]
+    },
+    "ai-trainer-eval": {
+      "id": "ai-trainer-eval",
+      "enabled": true,
+      "safety_class": "draft_artifact",
+      "spawned_roles": [
+        "scout",
+        "analyst",
+        "synthesizer"
+      ],
+      "steps": [
+        {
+          "role": "scout",
+          "action_type": "collect_sources",
+          "task_type": "extract",
+          "description": "Collect source material for the evaluation artifact",
+          "input_strategy": "mission_inputs"
+        },
+        {
+          "role": "analyst",
+          "action_type": "analyze_documents",
+          "task_type": "analyze",
+          "description": "Extract evaluator-relevant facts and reasoning gaps",
+          "input_strategy": "mission_and_dependency_outputs",
+          "depends_on": [
+            1
+          ]
+        },
+        {
+          "role": "synthesizer",
+          "action_type": "synthesize_output",
+          "task_type": "synthesize",
+          "description": "Draft the evaluation package",
+          "input_strategy": "dependency_outputs",
+          "depends_on": [
+            2
+          ]
+        }
+      ]
+    },
+    "raas-diligence": {
+      "id": "raas-diligence",
+      "enabled": true,
+      "safety_class": "draft_artifact",
+      "spawned_roles": [
+        "scout",
+        "analyst",
+        "synthesizer"
+      ],
+      "steps": [
+        {
+          "role": "scout",
+          "action_type": "collect_sources",
+          "task_type": "extract",
+          "description": "Collect diligence source material",
+          "input_strategy": "mission_inputs"
+        },
+        {
+          "role": "analyst",
+          "action_type": "analyze_documents",
+          "task_type": "analyze",
+          "description": "Run the diligence analysis",
+          "input_strategy": "mission_and_dependency_outputs",
+          "depends_on": [
+            1
+          ]
+        },
+        {
+          "role": "synthesizer",
+          "action_type": "synthesize_output",
+          "task_type": "synthesize",
+          "description": "Draft the diligence memo",
+          "input_strategy": "dependency_outputs",
+          "depends_on": [
+            2
+          ]
+        }
+      ]
+    },
+    "newsletter-digest": {
+      "id": "newsletter-digest",
+      "enabled": true,
+      "safety_class": "draft_artifact",
+      "spawned_roles": [
+        "scout",
+        "analyst",
+        "synthesizer"
+      ],
+      "steps": [
+        {
+          "role": "scout",
+          "action_type": "collect_sources",
+          "task_type": "extract",
+          "description": "Collect newsletter source material",
+          "input_strategy": "mission_inputs"
+        },
+        {
+          "role": "analyst",
+          "action_type": "analyze_documents",
+          "task_type": "analyze",
+          "description": "Analyze themes and anomalies for the digest",
+          "input_strategy": "mission_and_dependency_outputs",
+          "depends_on": [
+            1
+          ]
+        },
+        {
+          "role": "synthesizer",
+          "action_type": "synthesize_output",
+          "task_type": "synthesize",
+          "description": "Draft the newsletter artifact",
+          "input_strategy": "dependency_outputs",
+          "depends_on": [
+            2
+          ]
+        }
+      ]
+    },
+    "publish_newsletter": {
+      "id": "publish_newsletter",
+      "enabled": false,
+      "safety_class": "external_action",
+      "spawned_roles": [
+        "operator"
+      ],
+      "steps": []
+    },
+    "submit_eval_pack": {
+      "id": "submit_eval_pack",
+      "enabled": false,
+      "safety_class": "external_action",
+      "spawned_roles": [
+        "operator"
+      ],
+      "steps": []
+    },
+    "send_operator_payload": {
+      "id": "send_operator_payload",
+      "enabled": false,
+      "safety_class": "external_action",
+      "spawned_roles": [
+        "operator"
+      ],
+      "steps": []
+    }
+  }
+}

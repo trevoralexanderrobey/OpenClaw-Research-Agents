@@ -355,6 +355,29 @@ const PHASE17_REQUIRED = Object.freeze([
   "audit/evidence/runtime-resume/hash-manifest.json"
 ]);
 
+const PHASE18_REQUIRED = Object.freeze([
+  "config/agent-spawner.json",
+  "config/mission-templates.json",
+  "security/skill-registry.lock.json",
+  "openclaw-bridge/core/mission-envelope-schema.js",
+  "openclaw-bridge/core/agent-spawner.js",
+  "openclaw-bridge/core/spawn-planner.js",
+  "openclaw-bridge/core/spawn-orchestrator.js",
+  "openclaw-bridge/core/skill-provider.js",
+  "openclaw-bridge/core/skill-providers/openclaw-skill-provider.js",
+  "openclaw-bridge/core/skill-providers/openai-skill-provider.js",
+  "scripts/_research-runtime.js",
+  "scripts/verify-phase18-policy.sh",
+  "tests/core/phase18-agent-spawner.test.js",
+  "tests/core/phase18-skill-provider.test.js",
+  "tests/core/phase18-runtime-compat.test.js",
+  "tests/security/phase18-policy-gate.test.js",
+  "docs/phase18-agent-spawner.md",
+  "audit/evidence/mission-orchestration/mission-sample.json",
+  "audit/evidence/mission-orchestration/hash-manifest.json",
+  "workspace/missions/.gitkeep"
+]);
+
 const CLINE_REQUIRED = Object.freeze([
   "docs/supervisor-architecture.md",
   ".clinerules",
@@ -426,6 +449,7 @@ function createPhaseCompletenessValidator(options = {}) {
     const phase15Missing = missingFromSet(rootDir, PHASE15_REQUIRED);
     const phase16Missing = missingFromSet(rootDir, PHASE16_REQUIRED);
     const phase17Missing = missingFromSet(rootDir, PHASE17_REQUIRED);
+    const phase18Missing = missingFromSet(rootDir, PHASE18_REQUIRED);
     const clineMissing = missingFromSet(rootDir, CLINE_REQUIRED);
 
     const workflowText = readTextIfExists(path.join(rootDir, ".github/workflows/phase2-security.yml"));
@@ -468,7 +492,8 @@ function createPhaseCompletenessValidator(options = {}) {
       "bash scripts/verify-phase14-policy.sh",
       "bash scripts/verify-phase15-policy.sh",
       "bash scripts/verify-phase16-policy.sh",
-      "bash scripts/verify-phase17-policy.sh"
+      "bash scripts/verify-phase17-policy.sh",
+      "bash scripts/verify-phase18-policy.sh"
     ]) {
       if (!workflowText.includes(marker)) {
         contradictions.push(canonicalize({
@@ -513,6 +538,7 @@ function createPhaseCompletenessValidator(options = {}) {
       phaseStatus("phase15", phase15Missing),
       phaseStatus("phase16", phase16Missing),
       phaseStatus("phase17", phase17Missing),
+      phaseStatus("phase18", phase18Missing),
       phaseStatus("cline", clineMissing)
     ];
 
@@ -533,6 +559,7 @@ function createPhaseCompletenessValidator(options = {}) {
       ...phase15Missing,
       ...phase16Missing,
       ...phase17Missing,
+      ...phase18Missing,
       ...clineMissing
     ]);
 
@@ -589,6 +616,7 @@ module.exports = {
   PHASE15_REQUIRED,
   PHASE16_REQUIRED,
   PHASE17_REQUIRED,
+  PHASE18_REQUIRED,
   CLINE_REQUIRED,
   CONTRADICTION_RULES
 };

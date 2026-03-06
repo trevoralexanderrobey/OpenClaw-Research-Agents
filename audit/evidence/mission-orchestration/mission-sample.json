@@ -1,0 +1,11 @@
+{
+  "schema_version": "phase18-mission-sample-v1",
+  "mission_id": "mission-sample",
+  "status": "completed",
+  "templates_enabled": [
+    "academic_trend_scan",
+    "ai-trainer-eval",
+    "raas-diligence",
+    "newsletter-digest"
+  ]
+}

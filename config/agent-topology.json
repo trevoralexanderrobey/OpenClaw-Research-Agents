@@ -1,6 +1,7 @@
 {
   "schemaVersion": "phase15-agent-topology-v1",
   "roles": [
+    "orchestrator",
     "supervisor",
     "scout",
     "analyst",
@@ -8,6 +9,7 @@
     "operator"
   ],
   "routing": {
+    "mission_plan": "orchestrator",
     "summarize": "analyst",
     "extract": "analyst",
     "analyze": "analyst",

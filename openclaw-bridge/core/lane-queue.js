@@ -29,6 +29,23 @@ function normalizeSessionId(sessionId) {
   return safeString(sessionId) || "default";
 }
 
+function normalizeQueueEnvelope(envelope = {}) {
+  const source = envelope && typeof envelope === "object" ? envelope : {};
+  return canonicalize({
+    ...source,
+    mission_id: safeString(source.mission_id || source.missionId || source.missionID),
+    lane_key: safeString(source.lane_key || source.laneKey),
+    concurrency_key: safeString(source.concurrency_key || source.concurrencyKey),
+    agent_id: safeString(source.agent_id || source.agentId),
+    subtask_id: safeString(source.subtask_id || source.subtaskId),
+    task_envelope: source.task_envelope && typeof source.task_envelope === "object"
+      ? canonicalize(source.task_envelope)
+      : source.taskEnvelope && typeof source.taskEnvelope === "object"
+        ? canonicalize(source.taskEnvelope)
+        : {}
+  });
+}
+
 function createLaneQueue(options = {}) {
   const logger = options.logger && typeof options.logger === "object" ? options.logger : { info() {}, warn() {}, error() {} };
   const timeProvider = options.timeProvider && typeof options.timeProvider.nowIso === "function"
@@ -55,7 +72,12 @@ function createLaneQueue(options = {}) {
         queue_sequence: nextSequence,
         session_id: sid,
         enqueued_at: safeString(timeProvider.nowIso()),
-        envelope: canonicalize(envelope)
+        mission_id: safeString(envelope && (envelope.mission_id || envelope.missionId)),
+        lane_key: safeString(envelope && (envelope.lane_key || envelope.laneKey)),
+        concurrency_key: safeString(envelope && (envelope.concurrency_key || envelope.concurrencyKey)),
+        agent_id: safeString(envelope && (envelope.agent_id || envelope.agentId)),
+        subtask_id: safeString(envelope && (envelope.subtask_id || envelope.subtaskId)),
+        envelope: normalizeQueueEnvelope(envelope)
       });
       state.sessions[sid].push(queued);
       state.sessions[sid].sort((left, right) => Number(left.queue_sequence) - Number(right.queue_sequence));
@@ -99,11 +121,32 @@ function createLaneQueue(options = {}) {
     });
   }
 
+  function getMissionQueueState(missionId) {
+    const state = readState(persistencePath);
+    const normalizedMissionId = safeString(missionId);
+    const items = [];
+    for (const queue of Object.values(state.sessions || {})) {
+      for (const entry of Array.isArray(queue) ? queue : []) {
+        if (safeString(entry.mission_id || entry.envelope && entry.envelope.mission_id) !== normalizedMissionId) {
+          continue;
+        }
+        items.push(canonicalize(entry));
+      }
+    }
+    items.sort((left, right) => Number(left.queue_sequence || 0) - Number(right.queue_sequence || 0));
+    return canonicalize({
+      mission_id: normalizedMissionId,
+      queue_length: items.length,
+      items
+    });
+  }
+
   return Object.freeze({
     enqueue,
     dequeue,
     peek,
     getQueueState,
+    getMissionQueueState,
     persistencePath
   });
 }

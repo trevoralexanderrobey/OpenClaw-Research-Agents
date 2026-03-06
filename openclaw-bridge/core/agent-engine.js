@@ -102,6 +102,23 @@ function buildPrompt(taskDefinition, inputDocs) {
   return `${header}\n${docs.join("\n")}`.trim();
 }
 
+function buildOrchestratedTaskDefinition(taskEnvelope = {}, defaults = {}) {
+  return canonicalize({
+    task_id: safeString(taskEnvelope.task_id || taskEnvelope.taskId),
+    type: safeString(taskEnvelope.type) || safeString(defaults.defaultTaskType) || "freeform",
+    description: safeString(taskEnvelope.description) || safeString(defaults.defaultDescription) || "Mission subtask",
+    inputs: Array.isArray(taskEnvelope.inputs) ? canonicalize(taskEnvelope.inputs) : [],
+    output_format: safeString(taskEnvelope.output_format || taskEnvelope.outputFormat) || safeString(defaults.defaultOutputFormat) || "markdown",
+    constraints: canonicalize({
+      ...(isPlainObject(taskEnvelope.constraints) ? taskEnvelope.constraints : {}),
+      mission_id: safeString(taskEnvelope.mission_id || taskEnvelope.missionId),
+      agent_id: safeString(taskEnvelope.agent_id || taskEnvelope.agentId),
+      subtask_id: safeString(taskEnvelope.subtask_id || taskEnvelope.subtaskId)
+    }),
+    created_at: normalizeIso(taskEnvelope.created_at || taskEnvelope.createdAt || defaults.createdAt)
+  });
+}
+
 function createAgentEngine(options = {}) {
   const logger = isPlainObject(options.logger) ? options.logger : { info() {}, warn() {}, error() {} };
   const timeProvider = options.timeProvider && typeof options.timeProvider.nowIso === "function"
@@ -308,8 +325,19 @@ function createAgentEngine(options = {}) {
     return outputManager.getOutput(taskId);
   }
 
+  async function executeOrchestratedTask(taskEnvelope = {}, context = {}) {
+    const taskDefinition = buildOrchestratedTaskDefinition(taskEnvelope, {
+      defaultTaskType: safeString(context.defaultTaskType) || "freeform",
+      defaultDescription: safeString(taskEnvelope.description) || "Mission subtask",
+      defaultOutputFormat: safeString(taskEnvelope.output_format || taskEnvelope.outputFormat) || "markdown",
+      createdAt: safeString(taskEnvelope.created_at || taskEnvelope.createdAt)
+    });
+    return executeTask(taskDefinition, context);
+  }
+
   return Object.freeze({
     executeTask,
+    executeOrchestratedTask,
     getTaskStatus,
     listCompletedTasks,
     getTaskOutput

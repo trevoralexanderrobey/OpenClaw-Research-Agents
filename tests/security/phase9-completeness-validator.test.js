@@ -28,6 +28,7 @@ test("phase9 completeness validator passes when repository is complete", () => {
   assert.ok(result.phase_status.some((entry) => entry.phase === "phase15" && entry.complete === true));
   assert.ok(result.phase_status.some((entry) => entry.phase === "phase16" && entry.complete === true));
   assert.ok(result.phase_status.some((entry) => entry.phase === "phase17" && entry.complete === true));
+  assert.ok(result.phase_status.some((entry) => entry.phase === "phase18" && entry.complete === true));
 });
 
 test("phase9 completeness validator detects missing artifacts", async () => {
@@ -43,6 +44,7 @@ test("phase9 completeness validator detects missing artifacts", async () => {
   assert.ok(result.phase_status.some((entry) => entry.phase === "phase15" && entry.complete === false));
   assert.ok(result.phase_status.some((entry) => entry.phase === "phase16" && entry.complete === false));
   assert.ok(result.phase_status.some((entry) => entry.phase === "phase17" && entry.complete === false));
+  assert.ok(result.phase_status.some((entry) => entry.phase === "phase18" && entry.complete === false));
 });
 
 test("phase9 completeness validator detects cross-phase contradiction language", async () => {

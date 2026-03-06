@@ -36,6 +36,7 @@ bash scripts/verify-phase14-policy.sh
 bash scripts/verify-phase15-policy.sh
 bash scripts/verify-phase16-policy.sh
 bash scripts/verify-phase17-policy.sh
+bash scripts/verify-phase18-policy.sh
 
 FIRST_HASH="$(hash_file package-lock.json)"
 npm ci --offline --ignore-scripts --cache ./.ci/npm-cache

@@ -67,3 +67,7 @@
 ## Live Verification & Readiness Pipeline
 - Synthesizes read-only health checks orchestrating live LLM endpoints and active MCP components.
 - Commits timestamped evidence maps proving current configuration execution safely without breaking determinism rules.
+
+## Mission Orchestration (Phase 18)
+- Coordinates multiple spawn lifecycles mapped under a unified blackboard.
+- Routes deterministic agent configurations and registers dynamically generated local dependencies.

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "phase18-agent-spawner-v1",
+  "enabled": false,
+  "requireLiveVerificationEvidence": true,
+  "plannerVersion": "phase18-planner-v1",
+  "missionWorkspaceDir": "workspace/missions",
+  "runtimeStatePath": "state/runtime/state.json",
+  "liveEvidence": {
+    "llmSummaryPath": "audit/evidence/live-llm/summary-latest.json",
+    "mcpSummaryPath": "audit/evidence/mcp-live/summary-latest.json"
+  },
+  "skillConfig": {
+    "hostedSkillsEnabled": false,
+    "sources": {
+      "bundled": [
+        "skills"
+      ],
+      "shared": [
+        "$CODEX_HOME/skills",
+        "~/.codex/skills"
+      ],
+      "workspace": [
+        ".codex/skills",
+        "workspace/skills"
+      ]
+    }
+  }
+}

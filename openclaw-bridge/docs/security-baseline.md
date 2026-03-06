@@ -80,3 +80,6 @@
 
 ## Live Verification & Probe Execution Boundary
 - Live executing probes connecting to LLMs or valid MCP components are restricted entirely to internal read-only verifications, prohibiting external mutations or automated unapproved side-effects.
+
+## Spawner & Orchestrator Boundary (Phase 18)
+- Generated/spawned agents cannot independently escape their restricted sandbox loop to invoke actual MCP integrations, external tool bindings, or system shells. Only safe stubs (`research_only`, `draft_artifact`) are permitted live.

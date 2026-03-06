@@ -78,6 +78,7 @@ jobs:
             scripts/verify-phase15-policy.sh
             scripts/verify-phase16-policy.sh
             scripts/verify-phase17-policy.sh
+            scripts/verify-phase18-policy.sh
             scripts/run-research-task.js
             scripts/list-research-tasks.js
             scripts/view-research-output.js
@@ -168,6 +169,8 @@ jobs:
         run: bash scripts/verify-phase16-policy.sh
       - name: Phase 17 policy verification
         run: bash scripts/verify-phase17-policy.sh
+      - name: Phase 18 policy verification
+        run: bash scripts/verify-phase18-policy.sh
 
       - name: Phase 14 smoke test
         run: |

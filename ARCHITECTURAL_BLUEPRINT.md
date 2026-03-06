@@ -1,6 +1,6 @@
 # Architectural Blueprint (Implemented Scaffold)
 
-This repository now contains the full 17-Phase architecture scaffold for OpenClaw Research Agents.
+This repository now contains the full 18-Phase architecture scaffold for Openclaw Research Agents.
 
 Core outcomes:
 - Clean-room derivative controls recorded.
@@ -25,6 +25,7 @@ Core outcomes:
 - MCP Research Ingestion (Phase 16) normalizes external knowledge ingestion via structured, strict local integration pathways.
 - Runtime Hardening and Resume Orchestration (Phase 17) guarantees deterministic persistent state resumption across execution boundaries and component failures.
 - Live LLM & MCP Verification tools execute continuous endpoint probing and track live operational states in deterministic audit maps.
+- Agent Spawner & Mission Orchestrator (Phase 18) introduces dynamic mission planning, spawn orchestration, and localized blackboard management while strictly isolating capabilities away from live autonomous execution.
 - Audit, threat-model, and governance documentation scaffolded for formal review.
 
 See:

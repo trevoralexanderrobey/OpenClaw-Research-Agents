@@ -112,8 +112,24 @@ function createRestartResumeOrchestrator(options = {}) {
     });
   }
 
+  async function resumeMission(missionState = {}, context = {}) {
+    const missionId = safeString(missionState.mission_id || missionState.missionId);
+    const resumed = await resumePendingWork({
+      ...context,
+      sessionId: missionId || safeString(context.sessionId),
+      executeResumedTasks: context.executeResumedTasks !== false,
+      executeHandler: context.executeHandler
+    });
+    return canonicalize({
+      ...resumed,
+      mission_id: missionId,
+      mission_status: safeString(missionState.status)
+    });
+  }
+
   return Object.freeze({
-    resumePendingWork
+    resumePendingWork,
+    resumeMission
   });
 }
 

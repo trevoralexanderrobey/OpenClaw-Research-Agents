@@ -3,7 +3,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-const { safeString, sha256 } = require("../../workflows/governance-automation/common.js");
+const { canonicalize, safeString, sha256 } = require("../../workflows/governance-automation/common.js");
 
 function isPlainObject(value) {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
@@ -223,6 +223,9 @@ function createLLMAdapter(options = {}) {
   async function complete(prompt, completionOptions = {}) {
     const promptText = String(prompt || "");
     const model = safeString(completionOptions.model) || defaultModel;
+    const skillsContext = completionOptions.skillsContext && typeof completionOptions.skillsContext === "object"
+      ? canonicalize(completionOptions.skillsContext)
+      : { local_skills: [], hosted_skill_refs: [] };
     const startedAt = Number(timeProvider.nowMs());
 
     let result;
@@ -255,7 +258,9 @@ function createLLMAdapter(options = {}) {
         tokenCount: Math.max(0, Number.parseInt(String(result.tokenCount || 0), 10) || 0),
         metadata: {
           prompt_hash: sha256(promptText),
-          response_hash: sha256(safeString(result.text))
+          response_hash: sha256(safeString(result.text)),
+          phase18_skill_count: Array.isArray(skillsContext.local_skills) ? skillsContext.local_skills.length : 0,
+          phase18_hosted_skill_ref_count: Array.isArray(skillsContext.hosted_skill_refs) ? skillsContext.hosted_skill_refs.length : 0
         }
       });
     }
@@ -266,6 +271,7 @@ function createLLMAdapter(options = {}) {
       text: safeString(result.text),
       provider,
       model,
+      skillsContext,
       durationMs,
       tokenCount: Math.max(0, Number.parseInt(String(result.tokenCount || estimateTokenCount(result.text)), 10) || 0),
       raw: result.raw
@@ -273,11 +279,12 @@ function createLLMAdapter(options = {}) {
   }
 
   function getProviderInfo() {
-    return {
+    return canonicalize({
       provider,
       model: defaultModel,
-      configured: Boolean(providerConfig && Object.keys(providerConfig).length > 0)
-    };
+      configured: Boolean(providerConfig && Object.keys(providerConfig).length > 0),
+      skill_attachment_mode: "modeled_noop_until_verified"
+    });
   }
 
   return Object.freeze({

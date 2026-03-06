@@ -1,0 +1,9 @@
+{
+  "schema_version": "phase18-mission-hash-manifest-v1",
+  "files": [
+    {
+      "file": "mission-sample.json",
+      "sha256": "8b77c888148d44ef8b974642c8b91446d50d40d0043a3f141a5c22378a296045"
+    }
+  ]
+}

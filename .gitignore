@@ -17,5 +17,7 @@ config/llm-providers.local.json
 security/interaction-log.json
 workspace/research-output/*
 !workspace/research-output/.gitkeep
+workspace/missions/*
+!workspace/missions/.gitkeep
 state/runtime/state.json
 workspace/memory/research-ingestion.ndjson

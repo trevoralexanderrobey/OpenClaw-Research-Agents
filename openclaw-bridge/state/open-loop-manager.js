@@ -36,6 +36,9 @@ function createOpenLoopManager(options = {}) {
         : {};
       const enqueued = laneQueue.enqueue(sessionId, {
         loopId: String(loop.loopId || ""),
+        mission_id: safeString(loop.missionId || loop.mission_id),
+        agent_id: safeString(loop.agentId || loop.agent_id),
+        lane_key: safeString(loop.laneKey || loop.lane_key),
         taskEnvelope,
         resume: true
       });
@@ -43,6 +46,9 @@ function createOpenLoopManager(options = {}) {
         session_id: sessionId,
         queue_sequence: enqueued.queue_sequence,
         loop_id: String(loop.loopId || ""),
+        mission_id: safeString(loop.missionId || loop.mission_id),
+        agent_id: safeString(loop.agentId || loop.agent_id),
+        lane_key: safeString(loop.laneKey || loop.lane_key),
         task_envelope: taskEnvelope
       });
     }

@@ -56,6 +56,9 @@ function detectOutputFile(taskDir) {
 function buildTaskIndexRecord(input = {}) {
   return canonicalize({
     task_id: safeString(input.task_id),
+    mission_id: safeString(input.mission_id),
+    agent_id: safeString(input.agent_id),
+    subtask_id: safeString(input.subtask_id),
     status: safeString(input.status) || "completed",
     type: safeString(input.type) || "freeform",
     output_format: safeString(input.output_format) || "markdown",
@@ -123,6 +126,9 @@ function createResearchOutputManager(options = {}) {
     const metadataPath = path.join(taskDir, "metadata.json");
     const normalizedMetadata = canonicalize({
       task_id: normalizedTaskId,
+      mission_id: safeString(metadata.mission_id || metadata.missionId),
+      agent_id: safeString(metadata.agent_id || metadata.agentId),
+      subtask_id: safeString(metadata.subtask_id || metadata.subtaskId),
       status: safeString(metadata.status) || "completed",
       type: safeString(metadata.type) || "freeform",
       output_format: outputFormat,
@@ -158,6 +164,9 @@ function createResearchOutputManager(options = {}) {
     const index = loadIndex();
     const record = buildTaskIndexRecord({
       task_id: normalizedTaskId,
+      mission_id: normalizedMetadata.mission_id,
+      agent_id: normalizedMetadata.agent_id,
+      subtask_id: normalizedMetadata.subtask_id,
       status: normalizedMetadata.status,
       type: normalizedMetadata.type,
       output_format: outputFormat,
