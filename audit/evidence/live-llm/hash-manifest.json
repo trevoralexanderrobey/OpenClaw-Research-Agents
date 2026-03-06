@@ -1,0 +1,50 @@
+{
+  "files": [
+    {
+      "file": "anthropic-2026-03-06T00-55-50-353Z.json",
+      "sha256": "dad39b3c480de7babface918d5d9e5578234a2df2f6849672ad58ca30d3fef7e"
+    },
+    {
+      "file": "anthropic-latest.json",
+      "sha256": "dad39b3c480de7babface918d5d9e5578234a2df2f6849672ad58ca30d3fef7e"
+    },
+    {
+      "file": "hash-manifest.json",
+      "sha256": "8d13476df992134af405d02af2ec31f53e5077ea2e4f56f8cceb76a6cc72efe4"
+    },
+    {
+      "file": "local-2026-03-06T00-55-50-256Z.json",
+      "sha256": "6ba98046dfc2173d28ea3a9a7b747edcfea232f120eb4d4e046e7a12759ae946"
+    },
+    {
+      "file": "local-latest.json",
+      "sha256": "6ba98046dfc2173d28ea3a9a7b747edcfea232f120eb4d4e046e7a12759ae946"
+    },
+    {
+      "file": "openai-2026-03-06T00-55-50-353Z.json",
+      "sha256": "61e8f32c831536f871ebba9ab8e82ff7ea29a2408045cba250693a8e399b3455"
+    },
+    {
+      "file": "openai-latest.json",
+      "sha256": "61e8f32c831536f871ebba9ab8e82ff7ea29a2408045cba250693a8e399b3455"
+    },
+    {
+      "file": "openrouter-2026-03-06T00-55-50-353Z.json",
+      "sha256": "a4d11b785aafba6001d64aae0a11904dd9780e6bf9a4dce3fe7d442673b5e883"
+    },
+    {
+      "file": "openrouter-latest.json",
+      "sha256": "a4d11b785aafba6001d64aae0a11904dd9780e6bf9a4dce3fe7d442673b5e883"
+    },
+    {
+      "file": "summary-2026-03-06T00-55-50-256Z.json",
+      "sha256": "a48b04cf7e5738fb04f83e248f4a86315af341d18e0197a287fa0e3e60cdf8fd"
+    },
+    {
+      "file": "summary-latest.json",
+      "sha256": "a48b04cf7e5738fb04f83e248f4a86315af341d18e0197a287fa0e3e60cdf8fd"
+    }
+  ],
+  "generated_at": "2026-03-06T00:55:50.380Z",
+  "schema_version": "live-verification-hash-manifest-v1"
+}

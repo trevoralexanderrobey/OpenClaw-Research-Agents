@@ -1,0 +1,24 @@
+{
+  "attempts": [],
+  "blocker": {
+    "code": "PHASE14_LLM_MISSING_API_KEY",
+    "message": "openai credential is not configured",
+    "missing_prerequisite": "OPENAI_API_KEY"
+  },
+  "completed_at": "2026-03-06T00:55:50.353Z",
+  "provider": "openai",
+  "provider_config": {
+    "apiKeyEnv": "[REDACTED]",
+    "enabled": false,
+    "endpoint": "https://api.openai.com/v1/responses",
+    "model": "gpt-4.1-mini"
+  },
+  "retry_strategy": {
+    "adapter_retry_support": "none_observed",
+    "max_attempts": 2,
+    "source": "harness"
+  },
+  "runtime_logs": [],
+  "started_at": "2026-03-06T00:55:50.353Z",
+  "status": "blocked"
+}

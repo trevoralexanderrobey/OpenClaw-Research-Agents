@@ -1,0 +1,330 @@
+{
+  "controlled_retry": {
+    "attempts_observed": 2,
+    "backoff_behavior": 49,
+    "records_count": 1,
+    "status": "success"
+  },
+  "controlled_timeout": {
+    "attempts_observed": 3,
+    "error": {
+      "code": "MCP_OUTBOUND_REQUEST_FAILED",
+      "details": {
+        "attemptCount": 3,
+        "code": "MCP_OUTBOUND_TIMEOUT"
+      },
+      "message": "Injected timeout",
+      "name": "Error"
+    },
+    "status": "failed_as_expected"
+  },
+  "direct_client_live": {
+    "duration_ms": 850,
+    "provider": "arxiv",
+    "query": "transformer interpretability",
+    "record_count": 1,
+    "sample_hash": "7f0eb5bd6deca7689a07885fa15810914e21e4db7fb82eb26aee2b0d0b84d505",
+    "status": "success"
+  },
+  "mcp_service_live": {
+    "duration_ms": 169,
+    "error": {
+      "code": "MCP_OUTBOUND_REQUEST_FAILED",
+      "details": {
+        "attemptCount": 3,
+        "code": "ERR_INVALID_IP_ADDRESS"
+      },
+      "message": "Invalid IP address: undefined",
+      "name": "Error"
+    },
+    "provider": "arxiv",
+    "runtime_logs": [
+      {
+        "level": "info",
+        "payload": {
+          "chainHead": "",
+          "decisions": 0,
+          "event": "phase7_startup_integrity_verified",
+          "experiments": 0
+        },
+        "sequence": 1
+      },
+      {
+        "level": "info",
+        "payload": {
+          "bundles": 0,
+          "chainHead": "",
+          "decisions": 0,
+          "event": "phase8_startup_integrity_verified"
+        },
+        "sequence": 2
+      },
+      {
+        "level": "info",
+        "payload": {
+          "compliant": true,
+          "event": "phase9_compliance_scan_completed",
+          "violations": 0
+        },
+        "sequence": 3
+      },
+      {
+        "level": "info",
+        "payload": {
+          "drifts": 0,
+          "event": "phase9_policy_drift_detected",
+          "operatorActionRequired": false
+        },
+        "sequence": 4
+      },
+      {
+        "level": "info",
+        "payload": {
+          "compliant": true,
+          "contradictions": 0,
+          "event": "phase9_completeness_validation_complete",
+          "missingArtifacts": 0
+        },
+        "sequence": 5
+      },
+      {
+        "level": "info",
+        "payload": {
+          "baselineCiRunId": "22710324173",
+          "baselineCommit": "712982bd91345d686f4ccb6b4d87b982adeb8938",
+          "completeness": true,
+          "compliance": true,
+          "drifts": 0,
+          "event": "phase9_startup_integrity_verified",
+          "overrideLedgerValid": true
+        },
+        "sequence": 6
+      },
+      {
+        "level": "info",
+        "payload": {
+          "alerts": 1,
+          "breaches": 1,
+          "event": "phase10_slo_evaluated"
+        },
+        "sequence": 7
+      },
+      {
+        "level": "info",
+        "payload": {
+          "checks": "all",
+          "event": "phase10_startup_integrity_verified",
+          "healthy": true
+        },
+        "sequence": 8
+      },
+      {
+        "level": "info",
+        "payload": {
+          "artifacts": 2,
+          "checkpoint_id": "CHK-20260305-ab117680387b",
+          "event": "phase11_checkpoint_created"
+        },
+        "sequence": 9
+      },
+      {
+        "level": "info",
+        "payload": {
+          "artifacts": 2,
+          "checkpoint_id": "CHK-20260305-ab117680387b",
+          "event": "phase11_backup_manifest_built",
+          "manifest_id": "MAN-20260305-20fcf728094d"
+        },
+        "sequence": 10
+      },
+      {
+        "level": "info",
+        "payload": {
+          "artifacts": 2,
+          "event": "phase11_backup_integrity_verified"
+        },
+        "sequence": 11
+      },
+      {
+        "level": "info",
+        "payload": {
+          "advisory_only": true,
+          "breach_count": 0,
+          "event": "phase11_continuity_slo_evaluated"
+        },
+        "sequence": 12
+      },
+      {
+        "level": "info",
+        "payload": {
+          "drill_id": "DRL-20260305-5d90e7addab8",
+          "event": "phase11_chaos_drill_completed",
+          "outcome": "simulated_success",
+          "scenario": "component_failure"
+        },
+        "sequence": 13
+      },
+      {
+        "level": "info",
+        "payload": {
+          "blockers": 0,
+          "event": "phase11_failover_readiness_validated",
+          "ready": true,
+          "score": 100
+        },
+        "sequence": 14
+      },
+      {
+        "level": "info",
+        "payload": {
+          "checks": "all",
+          "event": "phase11_startup_integrity_verified",
+          "healthy": true
+        },
+        "sequence": 15
+      },
+      {
+        "level": "info",
+        "payload": {
+          "component_count": 1,
+          "event": "phase12_sbom_generated",
+          "sbom_hash": "sha256:bdfde772f37cc39355435a9b027c2df0d73fbc14db5c0c30ca3a0d52f4fec0b5"
+        },
+        "sequence": 16
+      },
+      {
+        "level": "info",
+        "payload": {
+          "dependency_count": 1,
+          "event": "phase12_dependency_integrity_verified",
+          "valid": true
+        },
+        "sequence": 17
+      },
+      {
+        "level": "info",
+        "payload": {
+          "artifact_count": 1,
+          "event": "phase12_build_provenance_generated",
+          "provenance_hash": "sha256:12a697ff7799c796dd40faca56037c8dfb54e291fd6b6a7abb65505d56faf72c"
+        },
+        "sequence": 18
+      },
+      {
+        "level": "info",
+        "payload": {
+          "advisory_count": 0,
+          "advisory_only": true,
+          "critical_count": 0,
+          "event": "phase12_vulnerability_scan_complete"
+        },
+        "sequence": 19
+      },
+      {
+        "level": "info",
+        "payload": {
+          "compliant": true,
+          "event": "phase12_supply_chain_policy_evaluated",
+          "score": 100,
+          "violations": 0
+        },
+        "sequence": 20
+      },
+      {
+        "level": "info",
+        "payload": {
+          "artifact_path": "/Users/trevorrobey/OpenClaw-Research-Agents/package-lock.json",
+          "event": "phase12_artifact_signed",
+          "signer_key_id": "phase12-sample-key"
+        },
+        "sequence": 21
+      },
+      {
+        "level": "info",
+        "payload": {
+          "checks": "all",
+          "event": "phase12_startup_integrity_verified",
+          "healthy": true
+        },
+        "sequence": 22
+      },
+      {
+        "level": "info",
+        "payload": {
+          "event": "phase13_rbac_registry_loaded",
+          "policy_path": "/Users/trevorrobey/OpenClaw-Research-Agents/security/rbac-policy.json",
+          "role_count": 4,
+          "schema_version": "phase13-access-control-v1"
+        },
+        "sequence": 23
+      },
+      {
+        "level": "info",
+        "payload": {
+          "event": "phase13_scope_registry_loaded",
+          "registry_path": "/Users/trevorrobey/OpenClaw-Research-Agents/security/scope-registry.json",
+          "schema_version": "phase13-access-control-v1",
+          "scope_count": 45
+        },
+        "sequence": 24
+      },
+      {
+        "level": "info",
+        "payload": {
+          "checks": "all",
+          "event": "phase13_startup_integrity_verified",
+          "healthy": true
+        },
+        "sequence": 25
+      },
+      {
+        "level": "info",
+        "payload": {
+          "checks": "all",
+          "event": "phase14_startup_integrity_verified",
+          "healthy": true
+        },
+        "sequence": 26
+      },
+      {
+        "level": "info",
+        "payload": {
+          "code": "ERR_INVALID_IP_ADDRESS",
+          "correlationId": "live-mcp-arxiv",
+          "domain": "export.arxiv.org",
+          "event": "egress_outbound_attempt",
+          "latency_ms": 54,
+          "status": "blocked"
+        },
+        "sequence": 27
+      },
+      {
+        "level": "info",
+        "payload": {
+          "code": "ERR_INVALID_IP_ADDRESS",
+          "correlationId": "live-mcp-arxiv",
+          "domain": "export.arxiv.org",
+          "event": "egress_outbound_attempt",
+          "latency_ms": 38,
+          "status": "blocked"
+        },
+        "sequence": 28
+      },
+      {
+        "level": "info",
+        "payload": {
+          "code": "ERR_INVALID_IP_ADDRESS",
+          "correlationId": "live-mcp-arxiv",
+          "domain": "export.arxiv.org",
+          "event": "egress_outbound_attempt",
+          "latency_ms": 42,
+          "status": "blocked"
+        },
+        "sequence": 29
+      }
+    ],
+    "status": "failed"
+  },
+  "provider": "arxiv",
+  "status": "partially_verified"
+}

@@ -1,0 +1,286 @@
+{
+  "generated_at": "2026-03-06T00:59:09.310Z",
+  "historical_reconstruction": true,
+  "limits": [
+    "No successful Phase 1-era workflow run is embedded in this artifact.",
+    "Current file contents may have evolved after their first introduction; this map proves first-introduction history, not unchanged content."
+  ],
+  "phase1_repo_seed_commit": {
+    "sha": "ae1e51aaa3818f99b6461c6029d7dc817e9dfcf9",
+    "subject": "Initial commit"
+  },
+  "summary": {
+    "first_phase1_bundle_commit": {
+      "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+      "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+    },
+    "implemented_count": 10,
+    "scaffolded_count": 12
+  },
+  "targets": [
+    {
+      "bucket": "historical-seed",
+      "claim": "Repository seed existed before the Phase 1 scaffold bundle.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "ae1e51aaa3818f99b6461c6029d7dc817e9dfcf9",
+        "subject": "Initial commit"
+      },
+      "kind": "scaffolded",
+      "path": "README.md"
+    },
+    {
+      "bucket": "phase1-docs",
+      "claim": "Phase 1 architectural blueprint was introduced as historical design documentation.",
+      "confidence": "high",
+      "file_exists_on_main": false,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "scaffolded",
+      "path": "PHASE1_ARCHITECTURAL_BLUEPRINT.md"
+    },
+    {
+      "bucket": "phase1-audit",
+      "claim": "Phase 1 audit checklist was introduced.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "scaffolded",
+      "path": "audit/phase1-checklist.md"
+    },
+    {
+      "bucket": "phase1-audit",
+      "claim": "Phase 1 sign-off record was introduced.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "scaffolded",
+      "path": "audit/phase1-signoff.md"
+    },
+    {
+      "bucket": "phase1-audit",
+      "claim": "Phase 1 shell-based verification harness was introduced.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "implemented",
+      "path": "audit/run_phase1_checks.sh"
+    },
+    {
+      "bucket": "phase1-audit",
+      "claim": "Phase 1 purge manifest was introduced.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "scaffolded",
+      "path": "audit/purge-manifest-phase1.md"
+    },
+    {
+      "bucket": "phase1-docs",
+      "claim": "Phase 1 chronological build-order documentation was introduced.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "scaffolded",
+      "path": "openclaw-bridge/docs/phase1-build-order.md"
+    },
+    {
+      "bucket": "phase1-docs",
+      "claim": "Phase 1 exit-criteria documentation was introduced.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "scaffolded",
+      "path": "openclaw-bridge/docs/phase1-exit-criteria.md"
+    },
+    {
+      "bucket": "phase1-docs",
+      "claim": "Phase 1 freeze-policy documentation was introduced.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "scaffolded",
+      "path": "openclaw-bridge/docs/phase1-freeze-policy.md"
+    },
+    {
+      "bucket": "phase1-docs",
+      "claim": "Phase 1 threat-model documentation was introduced.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "scaffolded",
+      "path": "openclaw-bridge/docs/threat-model-phase1.md"
+    },
+    {
+      "bucket": "phase1-docs",
+      "claim": "A state-schema document introduced in the Phase 1 scaffold bundle survived on main, although the content evolved later.",
+      "confidence": "medium",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "scaffolded",
+      "path": "openclaw-bridge/docs/state-schema-phase1.md"
+    },
+    {
+      "bucket": "phase1-docs",
+      "claim": "Phase 1 MCP contract scaffold documentation was introduced.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "scaffolded",
+      "path": "openclaw-bridge/docs/mcp-contracts-phase1.md"
+    },
+    {
+      "bucket": "runtime-skeleton",
+      "claim": "Operator authorization enforcement code was introduced in the Phase 1 scaffold bundle.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "implemented",
+      "path": "security/operator-authorization.js"
+    },
+    {
+      "bucket": "runtime-skeleton",
+      "claim": "Container runtime code was introduced in the Phase 1 scaffold bundle.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "implemented",
+      "path": "openclaw-bridge/execution/container-runtime.js"
+    },
+    {
+      "bucket": "runtime-skeleton",
+      "claim": "MCP service code was introduced in the Phase 1 scaffold bundle.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "implemented",
+      "path": "openclaw-bridge/mcp/mcp-service.js"
+    },
+    {
+      "bucket": "runtime-skeleton",
+      "claim": "Supervisor orchestration code was introduced in the Phase 1 scaffold bundle.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "implemented",
+      "path": "openclaw-bridge/supervisor/supervisor-v1.js"
+    },
+    {
+      "bucket": "runtime-skeleton",
+      "claim": "Request queue code was introduced in the Phase 1 scaffold bundle.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "implemented",
+      "path": "openclaw-bridge/supervisor/request-queue.js"
+    },
+    {
+      "bucket": "runtime-skeleton",
+      "claim": "Circuit breaker code was introduced in the Phase 1 scaffold bundle.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "implemented",
+      "path": "openclaw-bridge/supervisor/circuit-breaker.js"
+    },
+    {
+      "bucket": "runtime-skeleton",
+      "claim": "Execution-router code was introduced in the Phase 1 scaffold bundle.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "implemented",
+      "path": "openclaw-bridge/src/core/execution-router.ts"
+    },
+    {
+      "bucket": "runtime-skeleton",
+      "claim": "Persistent state code was introduced in the Phase 1 scaffold bundle.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "implemented",
+      "path": "openclaw-bridge/state/persistent-store.js"
+    },
+    {
+      "bucket": "workspace-scaffold",
+      "claim": "Workspace runtime state scaffold file was introduced.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "implemented",
+      "path": "workspace/runtime/state.json"
+    },
+    {
+      "bucket": "workspace-scaffold",
+      "claim": "Workspace comms scaffold path was introduced.",
+      "confidence": "high",
+      "file_exists_on_main": true,
+      "introduced_commit": {
+        "sha": "a050721b98a7e2eda91c29f527bcd417fd3cbccb",
+        "subject": "feat: Add Preflight Validation, Workload Integrity, and update docs"
+      },
+      "kind": "scaffolded",
+      "path": "workspace/comms/.gitkeep"
+    }
+  ]
+}

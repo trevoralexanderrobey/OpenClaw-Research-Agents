@@ -1,0 +1,34 @@
+{
+  "files": [
+    {
+      "file": "arxiv-2026-03-06T00-55-52-478Z.json",
+      "sha256": "dc02fc36c4761889a53deea3d8694eacf2ef2b3f1c620a081245919647e97fe9"
+    },
+    {
+      "file": "arxiv-latest.json",
+      "sha256": "dc02fc36c4761889a53deea3d8694eacf2ef2b3f1c620a081245919647e97fe9"
+    },
+    {
+      "file": "hash-manifest.json",
+      "sha256": "848bf67b8ccc88d7a57f9992903d5c59ff570391fca993e25ce1f5c4613a06fe"
+    },
+    {
+      "file": "semantic-scholar-2026-03-06T00-55-52-479Z.json",
+      "sha256": "b4eff07babad793d4490deffe7950bc388aa2c8d3a303dd3fb8454781d7f0288"
+    },
+    {
+      "file": "semantic-scholar-latest.json",
+      "sha256": "b4eff07babad793d4490deffe7950bc388aa2c8d3a303dd3fb8454781d7f0288"
+    },
+    {
+      "file": "summary-2026-03-06T00-55-52-476Z.json",
+      "sha256": "6588533fc5fefec5e7cdce295ea4c5f41faa63cc93404a2755e7224f56800711"
+    },
+    {
+      "file": "summary-latest.json",
+      "sha256": "6588533fc5fefec5e7cdce295ea4c5f41faa63cc93404a2755e7224f56800711"
+    }
+  ],
+  "generated_at": "2026-03-06T00:55:52.479Z",
+  "schema_version": "live-verification-hash-manifest-v1"
+}

@@ -83,6 +83,12 @@ Phase 17 extensions:
 - `openclaw-bridge/state/*`
 - `openclaw-bridge/core/restart-resume-orchestrator.js`
 
+Live Verification extensions:
+- `scripts/run-live-llm-verification.js`
+- `scripts/run-live-mcp-verification.js`
+- `scripts/generate-phase1-evidence-map.js`
+- `.github/workflows/live-verification.yml`
+
 ## Security and Governance Invariants
 - No autonomous publishing/submission.
 - No browser/login credential automation.
@@ -116,6 +122,9 @@ bash scripts/verify-phase14-policy.sh
 bash scripts/verify-phase15-policy.sh
 bash scripts/verify-phase16-policy.sh
 bash scripts/verify-phase17-policy.sh
+node scripts/run-live-llm-verification.js
+node scripts/run-live-mcp-verification.js
 node --test tests/**/*.test.js
+node --test tests/scripts/**/*.test.js
 npm run phase2:gates
 ```

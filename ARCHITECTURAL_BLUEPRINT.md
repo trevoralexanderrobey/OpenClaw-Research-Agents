@@ -24,6 +24,7 @@ Core outcomes:
 - Multi-Agent Topology (Phase 15) integrates deterministic lane queues, communication buses, and multi-actor interaction logging.
 - MCP Research Ingestion (Phase 16) normalizes external knowledge ingestion via structured, strict local integration pathways.
 - Runtime Hardening and Resume Orchestration (Phase 17) guarantees deterministic persistent state resumption across execution boundaries and component failures.
+- Live LLM & MCP Verification tools execute continuous endpoint probing and track live operational states in deterministic audit maps.
 - Audit, threat-model, and governance documentation scaffolded for formal review.
 
 See:

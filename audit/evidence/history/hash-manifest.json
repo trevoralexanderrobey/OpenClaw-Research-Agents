@@ -1,0 +1,22 @@
+{
+  "files": [
+    {
+      "file": "hash-manifest.json",
+      "sha256": "0e7e821341607441774985f4655ed23b6db54f72ced735ed0f51f7a4a55976ad"
+    },
+    {
+      "file": "phase1-evidence-map-2026-03-06T00-55-51-265Z.json",
+      "sha256": "5f4d73b9e0d677dda0feb2dae13fc5dd2bf8eeb6a7af56a772f88f1c31021e9f"
+    },
+    {
+      "file": "phase1-evidence-map-2026-03-06T00-59-09-310Z.json",
+      "sha256": "2d2496ec3525c947367019d172fbe1573ec92616ee1a2e5d4183a5a94f9bdb75"
+    },
+    {
+      "file": "phase1-evidence-map-latest.json",
+      "sha256": "2d2496ec3525c947367019d172fbe1573ec92616ee1a2e5d4183a5a94f9bdb75"
+    }
+  ],
+  "generated_at": "2026-03-06T00:59:09.350Z",
+  "schema_version": "live-verification-hash-manifest-v1"
+}

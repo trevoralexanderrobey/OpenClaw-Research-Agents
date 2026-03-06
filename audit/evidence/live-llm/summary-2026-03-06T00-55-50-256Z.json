@@ -1,0 +1,142 @@
+{
+  "completed_at": "2026-03-06T00:55:50.353Z",
+  "overall_status": "needs_verification",
+  "providers": [
+    "local",
+    "openai",
+    "anthropic",
+    "openrouter"
+  ],
+  "results": [
+    {
+      "attempts": [
+        {
+          "attempt": 1,
+          "duration_ms": 83,
+          "error": {
+            "code": "PHASE14_LLM_LOCAL_HTTP_ERROR",
+            "details": {},
+            "message": "Local provider request failed (404)",
+            "name": "Error"
+          },
+          "retryable_on_failure": true,
+          "status": "failed"
+        },
+        {
+          "attempt": 2,
+          "duration_ms": 6,
+          "error": {
+            "code": "PHASE14_LLM_LOCAL_HTTP_ERROR",
+            "details": {},
+            "message": "Local provider request failed (404)",
+            "name": "Error"
+          },
+          "retryable_on_failure": true,
+          "status": "failed"
+        }
+      ],
+      "blocker": null,
+      "completed_at": "2026-03-06T00:55:50.353Z",
+      "final_error": {
+        "code": "PHASE14_LLM_LOCAL_HTTP_ERROR",
+        "details": {},
+        "message": "Local provider request failed (404)",
+        "name": "Error"
+      },
+      "interaction_count": 0,
+      "provider": "local",
+      "provider_config": {
+        "enabled": false,
+        "endpoint": "http://localhost:11434/api/generate",
+        "model": "llama3.1"
+      },
+      "provider_info": {
+        "configured": true,
+        "model": "llama3.1",
+        "provider": "local"
+      },
+      "response": null,
+      "retry_strategy": {
+        "adapter_retry_support": "none_observed",
+        "max_attempts": 2,
+        "source": "harness"
+      },
+      "runtime_logs": [],
+      "started_at": "2026-03-06T00:55:50.256Z",
+      "status": "failed"
+    },
+    {
+      "attempts": [],
+      "blocker": {
+        "code": "PHASE14_LLM_MISSING_API_KEY",
+        "message": "openai credential is not configured",
+        "missing_prerequisite": "OPENAI_API_KEY"
+      },
+      "completed_at": "2026-03-06T00:55:50.353Z",
+      "provider": "openai",
+      "provider_config": {
+        "apiKeyEnv": "[REDACTED]",
+        "enabled": false,
+        "endpoint": "https://api.openai.com/v1/responses",
+        "model": "gpt-4.1-mini"
+      },
+      "retry_strategy": {
+        "adapter_retry_support": "none_observed",
+        "max_attempts": 2,
+        "source": "harness"
+      },
+      "runtime_logs": [],
+      "started_at": "2026-03-06T00:55:50.353Z",
+      "status": "blocked"
+    },
+    {
+      "attempts": [],
+      "blocker": {
+        "code": "PHASE14_LLM_MISSING_API_KEY",
+        "message": "anthropic credential is not configured",
+        "missing_prerequisite": "ANTHROPIC_API_KEY"
+      },
+      "completed_at": "2026-03-06T00:55:50.353Z",
+      "provider": "anthropic",
+      "provider_config": {
+        "apiKeyEnv": "[REDACTED]",
+        "enabled": false,
+        "endpoint": "https://api.anthropic.com/v1/messages",
+        "model": "claude-3-5-sonnet-latest"
+      },
+      "retry_strategy": {
+        "adapter_retry_support": "none_observed",
+        "max_attempts": 2,
+        "source": "harness"
+      },
+      "runtime_logs": [],
+      "started_at": "2026-03-06T00:55:50.353Z",
+      "status": "blocked"
+    },
+    {
+      "attempts": [],
+      "blocker": {
+        "code": "PHASE14_LLM_MISSING_API_KEY",
+        "message": "openrouter credential is not configured",
+        "missing_prerequisite": "OPENROUTER_API_KEY"
+      },
+      "completed_at": "2026-03-06T00:55:50.353Z",
+      "provider": "openrouter",
+      "provider_config": {
+        "apiKeyEnv": "[REDACTED]",
+        "enabled": false,
+        "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+        "model": "openai/gpt-4o-mini"
+      },
+      "retry_strategy": {
+        "adapter_retry_support": "none_observed",
+        "max_attempts": 2,
+        "source": "harness"
+      },
+      "runtime_logs": [],
+      "started_at": "2026-03-06T00:55:50.353Z",
+      "status": "blocked"
+    }
+  ],
+  "started_at": "2026-03-06T00:55:50.256Z"
+}

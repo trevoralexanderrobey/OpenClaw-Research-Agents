@@ -77,3 +77,6 @@
 - Direct agent automation execution paths without operator/supervisor gate approvals strictly fail.
 - Re-injected resume loops cannot bypass or substitute previously completed local authorization verifications.
 - Network activity is formally isolated to verified MCP endpoints and the scoped `openclaw-bridge/core/llm-adapter.js` interface.
+
+## Live Verification & Probe Execution Boundary
+- Live executing probes connecting to LLMs or valid MCP components are restricted entirely to internal read-only verifications, prohibiting external mutations or automated unapproved side-effects.

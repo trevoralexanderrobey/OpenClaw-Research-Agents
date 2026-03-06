@@ -1,0 +1,24 @@
+{
+  "attempts": [],
+  "blocker": {
+    "code": "PHASE14_LLM_MISSING_API_KEY",
+    "message": "anthropic credential is not configured",
+    "missing_prerequisite": "ANTHROPIC_API_KEY"
+  },
+  "completed_at": "2026-03-06T00:55:50.353Z",
+  "provider": "anthropic",
+  "provider_config": {
+    "apiKeyEnv": "[REDACTED]",
+    "enabled": false,
+    "endpoint": "https://api.anthropic.com/v1/messages",
+    "model": "claude-3-5-sonnet-latest"
+  },
+  "retry_strategy": {
+    "adapter_retry_support": "none_observed",
+    "max_attempts": 2,
+    "source": "harness"
+  },
+  "runtime_logs": [],
+  "started_at": "2026-03-06T00:55:50.353Z",
+  "status": "blocked"
+}
