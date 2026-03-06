@@ -80,14 +80,14 @@ for file in "${REQUIRED_FILES[@]}"; do
 done
 
 SCAN_TARGETS=(
-  "$ROOT/openclaw-bridge/core/agent-spawner.js"
-  "$ROOT/openclaw-bridge/core/spawn-planner.js"
-  "$ROOT/openclaw-bridge/core/spawn-orchestrator.js"
-  "$ROOT/openclaw-bridge/core/skill-provider.js"
-  "$ROOT/openclaw-bridge/core/skill-providers/openclaw-skill-provider.js"
-  "$ROOT/openclaw-bridge/core/skill-providers/openai-skill-provider.js"
   "$ROOT/scripts/_research-runtime.js"
+  "$ROOT/scripts/run-research-task.js"
 )
+
+while IFS= read -r file; do
+  [[ "$file" == "$ROOT/openclaw-bridge/core/llm-adapter.js" ]] && continue
+  SCAN_TARGETS+=("$file")
+done < <(find "$ROOT/openclaw-bridge/core" -type f -name '*.js' | sort)
 
 UNSAFE_NETWORK="$(search_lines 'fetch\(|axios|http\.request\(|https\.request\(|node:http|node:https|WebSocket|browser\.launch|playwright|puppeteer|selenium|child_process\.exec|child_process\.spawn|docker run' "${SCAN_TARGETS[@]}")"
 if [[ -n "$UNSAFE_NETWORK" ]]; then
@@ -97,8 +97,11 @@ fi
 
 search_quiet 'executeOrchestratedTask' "$ROOT/openclaw-bridge/core/agent-engine.js" || fail "agent-engine missing orchestrated task wrapper"
 search_quiet 'roleRouter\.dispatch' "$ROOT/openclaw-bridge/core/spawn-orchestrator.js" || fail "spawn-orchestrator must route work through role-router"
+search_quiet 'Promise\.race' "$ROOT/openclaw-bridge/core/spawn-orchestrator.js" || fail "spawn-orchestrator must provide bounded concurrent dispatch scheduling"
+search_quiet 'laneInflight' "$ROOT/openclaw-bridge/core/spawn-orchestrator.js" || fail "spawn-orchestrator must track lane bounded concurrency"
 search_quiet 'agentSpawner\.spawnMission' "$ROOT/scripts/run-research-task.js" || fail "run-research-task missing mission spawn path"
 search_quiet 'resumeMission\(' "$ROOT/scripts/run-research-task.js" || fail "run-research-task missing mission resume path"
+search_quiet 'supervisor_approved' "$ROOT/openclaw-bridge/core/agent-spawner.js" || fail "agent-spawner must persist supervisor_approved mission status"
 search_quiet '^workspace/missions/\*$' "$ROOT/.gitignore" || fail "workspace/missions/* must be gitignored"
 search_quiet '^!workspace/missions/\.gitkeep$' "$ROOT/.gitignore" || fail "workspace/missions/.gitkeep exception missing"
 
@@ -126,6 +129,9 @@ if (spawnerConfig.missionWorkspaceDir !== "workspace/missions") {
 }
 if (spawnerConfig.runtimeStatePath !== "state/runtime/state.json") {
   fail("Phase 18 runtime state path must remain state/runtime/state.json");
+}
+if (spawnerConfig.finalSynthesisMode !== "orchestrator_aggregation") {
+  fail("Phase 18 final synthesis ownership must remain orchestrator_aggregation");
 }
 if (!spawnerConfig.skillConfig || spawnerConfig.skillConfig.hostedSkillsEnabled !== false) {
   fail("Hosted skill refs must remain disabled by default in config/agent-spawner.json");

@@ -86,6 +86,7 @@ function resolveSpawnerConfig(rootDir, overrides = {}) {
     enabled: false,
     requireLiveVerificationEvidence: true,
     plannerVersion: "phase18-planner-v1",
+    finalSynthesisMode: "orchestrator_aggregation",
     missionWorkspaceDir: path.join(rootDir, "workspace", "missions"),
     runtimeStatePath: path.join(rootDir, "state", "runtime", "state.json"),
     skillConfig: {
@@ -282,6 +283,7 @@ async function buildResearchRuntime(options = {}) {
     commsBus,
     roleRouter,
     outputManager,
+    synthesisMode: safeString(spawnerConfig.finalSynthesisMode) || "orchestrator_aggregation",
     timeProvider: options.timeProvider,
     missionBasePath: spawnerConfig.missionWorkspaceDir,
     runtimeStatePath: spawnerConfig.runtimeStatePath

@@ -3,6 +3,16 @@
   "enabled": false,
   "requireLiveVerificationEvidence": true,
   "plannerVersion": "phase18-planner-v1",
+  "finalSynthesisMode": "orchestrator_aggregation",
+  "defaultLaneMaxInflight": 1,
+  "laneDefaults": {
+    "perRole": {
+      "scout": 1,
+      "analyst": 1,
+      "synthesizer": 1,
+      "operator": 1
+    }
+  },
   "missionWorkspaceDir": "workspace/missions",
   "runtimeStatePath": "state/runtime/state.json",
   "liveEvidence": {

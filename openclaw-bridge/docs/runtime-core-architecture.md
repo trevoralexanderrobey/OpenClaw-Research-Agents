@@ -69,5 +69,5 @@
 - Commits timestamped evidence maps proving current configuration execution safely without breaking determinism rules.
 
 ## Mission Orchestration (Phase 18)
-- Coordinates multiple spawn lifecycles mapped under a unified blackboard.
-- Routes deterministic agent configurations and registers dynamically generated local dependencies.
+- Coordinates multiple spawn lifecycles mapped under a unified blackboard with dependency-aware, deterministic scheduling.
+- Routes deterministic agent configurations and registers dynamically generated local dependencies using bounded concurrency limits.

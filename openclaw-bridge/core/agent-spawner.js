@@ -43,6 +43,8 @@ function createAgentSpawner(options = {}) {
     ? options.timeProvider
     : { nowIso: () => "1970-01-01T00:00:00.000Z" };
   const missionBasePath = path.resolve(safeString(config.missionWorkspaceDir) || path.join(process.cwd(), "workspace", "missions"));
+  const validMissionStatuses = new Set(MISSION_STATUSES.map((status) => safeString(status)).filter(Boolean));
+  const rejectionCodes = new Set(["SUPERVISOR_APPROVAL_REQUIRED", "PHASE18_GOVERNANCE_REQUIRED"]);
 
   if (!spawnPlanner || typeof spawnPlanner.buildPlan !== "function") {
     throw new Error("spawnPlanner.buildPlan is required");
@@ -77,12 +79,36 @@ function createAgentSpawner(options = {}) {
     const existing = readJson(paths.statusPath, {
       mission_id: missionId,
       status: "draft",
+      status_history: [],
       subtasks: []
     });
+    const requestedStatus = safeString(partial.status) || safeString(existing.status) || "draft";
+    if (!validMissionStatuses.has(requestedStatus)) {
+      const error = new Error(`Unsupported mission status '${requestedStatus}'`);
+      error.code = "PHASE18_MISSION_STATUS_INVALID";
+      throw error;
+    }
+    const existingHistory = Array.isArray(existing.status_history) ? existing.status_history : [];
+    const history = existingHistory
+      .map((entry) => canonicalize({
+        status: safeString(entry && entry.status),
+        timestamp: safeString(entry && entry.timestamp)
+      }))
+      .filter((entry) => entry.status && validMissionStatuses.has(entry.status));
+    const lastStatus = history.length > 0 ? safeString(history[history.length - 1].status) : "";
+    if (requestedStatus && requestedStatus !== lastStatus) {
+      history.push(canonicalize({
+        status: requestedStatus,
+        timestamp: safeString(timeProvider.nowIso())
+      }));
+    }
+
     const next = canonicalize({
       ...existing,
       ...partial,
       mission_id: missionId,
+      status: requestedStatus,
+      status_history: history,
       updated_at: safeString(timeProvider.nowIso())
     });
     writeJson(paths.statusPath, next);
@@ -97,6 +123,7 @@ function createAgentSpawner(options = {}) {
     if (!supervisorDecision || supervisorDecision.approved !== true) {
       const error = new Error("Mission requires supervisor approval");
       error.code = "SUPERVISOR_APPROVAL_REQUIRED";
+      error.supervisorDecision = supervisorDecision;
       throw error;
     }
     const governanceDecision = context.governanceDecision || await governanceBridge.requestTaskApproval({
@@ -112,6 +139,8 @@ function createAgentSpawner(options = {}) {
     if (!governanceDecision || governanceDecision.approved !== true) {
       const error = new Error("Mission requires governance approval");
       error.code = "PHASE18_GOVERNANCE_REQUIRED";
+      error.supervisorDecision = supervisorDecision;
+      error.governanceDecision = governanceDecision;
       throw error;
     }
     return canonicalize({ supervisorDecision, governanceDecision });
@@ -165,12 +194,23 @@ function createAgentSpawner(options = {}) {
 
   async function executePlan(spawnPlan, context = {}) {
     await writeMissionStatus(spawnPlan.mission.mission_id, { status: "running" });
-    const result = await spawnOrchestrator.executePlan(spawnPlan, context);
-    await writeMissionStatus(spawnPlan.mission.mission_id, {
-      status: "synthesizing",
-      output_path: safeString(result.output_path)
-    });
-    return result;
+    try {
+      const result = await spawnOrchestrator.executePlan(spawnPlan, context);
+      await writeMissionStatus(spawnPlan.mission.mission_id, {
+        status: "synthesizing",
+        output_path: safeString(result.output_path),
+        synthesis_mode: safeString(result.synthesis_mode)
+      });
+      return result;
+    } catch (error) {
+      await writeMissionStatus(spawnPlan.mission.mission_id, {
+        status: "failed",
+        error_code: safeString(error && error.code) || "PHASE18_MISSION_EXECUTION_FAILED",
+        error_message: safeString(error && error.message) || "Mission execution failed",
+        subtask_results: Array.isArray(error && error.subtask_results) ? error.subtask_results : []
+      });
+      throw error;
+    }
   }
 
   async function synthesizeAndPersist(spawnPlan, results) {
@@ -182,11 +222,11 @@ function createAgentSpawner(options = {}) {
       output_path: safeString(results.output_path),
       metadata_path: safeString(results.metadata_path),
       manifest_path: safeString(results.manifest_path),
+      synthesis_mode: safeString(results.synthesis_mode) || "orchestrator_aggregation",
       subtask_results: Array.isArray(results.results) ? results.results : []
     });
     writeJson(path.join(resolveMissionPaths(missionBasePath, missionId).artifactsPath, "mission-summary.json"), summary);
     await writeMissionStatus(missionId, summary);
-    await writeMissionStatus(missionId, { status: "completed" });
     if (agentRegistry && typeof agentRegistry.teardownMissionAgents === "function") {
       agentRegistry.teardownMissionAgents(missionId);
     }
@@ -196,23 +236,57 @@ function createAgentSpawner(options = {}) {
   async function spawnMission(missionEnvelope, context = {}) {
     assertPhase18Enabled();
     const normalizedMission = validateMissionEnvelope(missionEnvelope);
-    await writeMissionStatus(normalizedMission.mission_id, {
+    const missionId = normalizedMission.mission_id;
+    let spawnPlan = null;
+    await writeMissionStatus(missionId, {
       status: "draft",
       template_id: normalizedMission.template_id,
       created_at: normalizedMission.created_at
     });
-    const approvals = await assertMandatoryApprovals(normalizedMission, context);
-    await writeMissionStatus(normalizedMission.mission_id, { status: "governance_approved" });
-    const spawnPlan = await buildCanonicalPlan(normalizedMission, context);
-    await persistMissionState(spawnPlan);
-    await registerSpawnedAgents(spawnPlan);
-    const results = await executePlan(spawnPlan, {
-      ...context,
-      supervisorDecision: approvals.supervisorDecision,
-      governanceDecision: approvals.governanceDecision
-    });
-    logger.info({ event: "phase18_mission_spawned", mission_id: normalizedMission.mission_id });
-    return synthesizeAndPersist(spawnPlan, results);
+    try {
+      const approvals = await assertMandatoryApprovals(normalizedMission, context);
+      await writeMissionStatus(missionId, {
+        status: "supervisor_approved",
+        supervisor_decision: canonicalize(approvals.supervisorDecision)
+      });
+      await writeMissionStatus(missionId, {
+        status: "governance_approved",
+        governance_decision: canonicalize(approvals.governanceDecision)
+      });
+      spawnPlan = await buildCanonicalPlan(normalizedMission, context);
+      await persistMissionState(spawnPlan);
+      await registerSpawnedAgents(spawnPlan);
+      const results = await executePlan(spawnPlan, {
+        ...context,
+        supervisorDecision: approvals.supervisorDecision,
+        governanceDecision: approvals.governanceDecision
+      });
+      logger.info({ event: "phase18_mission_spawned", mission_id: missionId });
+      return synthesizeAndPersist(spawnPlan, results);
+    } catch (error) {
+      if (error && error.supervisorDecision && error.supervisorDecision.approved === true) {
+        await writeMissionStatus(missionId, {
+          status: "supervisor_approved",
+          supervisor_decision: canonicalize(error.supervisorDecision)
+        });
+      }
+      if (error && error.governanceDecision && error.governanceDecision.approved === true) {
+        await writeMissionStatus(missionId, {
+          status: "governance_approved",
+          governance_decision: canonicalize(error.governanceDecision)
+        });
+      }
+
+      await writeMissionStatus(missionId, {
+        status: rejectionCodes.has(safeString(error && error.code)) ? "rejected" : "failed",
+        error_code: safeString(error && error.code) || "PHASE18_MISSION_FAILED",
+        error_message: safeString(error && error.message) || "Mission failed"
+      });
+      if (spawnPlan && agentRegistry && typeof agentRegistry.teardownMissionAgents === "function") {
+        agentRegistry.teardownMissionAgents(missionId);
+      }
+      throw error;
+    }
   }
 
   async function resumeMission(missionId, context = {}) {

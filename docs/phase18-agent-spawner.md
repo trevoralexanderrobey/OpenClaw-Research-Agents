@@ -8,6 +8,7 @@ Phase 18 adds mission orchestration on top of the validated Phase 14-17 baseline
 - `agent-spawner` and `spawn-orchestrator` may plan, register, dispatch, aggregate, persist, and resume.
 - They may not directly invoke MCP tools, shell execution, container execution, browser automation, or external HTTP requests.
 - Phase 18 is disabled by default until live LLM and live MCP evidence is upgraded from partial verification to passing proof.
+- Final mission synthesis ownership is explicit: `finalSynthesisMode = orchestrator_aggregation`.
 
 ## Mission Layout
 - `workspace/missions/<missionId>/mission.json`
@@ -17,6 +18,13 @@ Phase 18 adds mission orchestration on top of the validated Phase 14-17 baseline
 - `workspace/missions/<missionId>/agents/<agentId>/outbox.jsonl`
 - `workspace/missions/<missionId>/artifacts/`
 - `workspace/missions/<missionId>/status.json`
+
+`status.json` keeps the current state and an append-only `status_history` for lifecycle transitions, including `supervisor_approved`.
+
+## Execution Model
+- Subtasks are dispatched through bounded concurrency using lane and concurrency-key inflight counters (`max_inflight` from the spawn plan).
+- Scheduling is dependency-aware and deterministic by queue order.
+- All side effects remain in worker paths routed through `role-router -> agent-engine -> existing execution boundaries`.
 
 ## Enabled Template Classes
 - `research_only`

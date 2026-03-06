@@ -83,3 +83,4 @@
 
 ## Spawner & Orchestrator Boundary (Phase 18)
 - Generated/spawned agents cannot independently escape their restricted sandbox loop to invoke actual MCP integrations, external tool bindings, or system shells. Only safe stubs (`research_only`, `draft_artifact`) are permitted live.
+- All live side effects must route strictly through existing bounded worker execution paths (`role-router` -> `agent-engine`).
