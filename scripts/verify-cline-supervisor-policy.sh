@@ -58,17 +58,12 @@ REQUIRED_FILES=(
   "docs/attack-surface.md"
   "docs/failure-modes.md"
   "docs/supervisor-architecture.md"
-  ".vscode/extensions.json"
-  ".vscode/settings.json"
-  ".clinerules"
-  "security/cline-extension-allowlist.json"
   "security/mutation-control.js"
   "security/operator-authorization.js"
   "openclaw-bridge/src/core/execution-router.ts"
   "openclaw-bridge/mcp/mcp-service.js"
   "scripts/build-verify.sh"
   "package.json"
-  ".github/archived-workflows/phase2-security.yml.disabled"
 )
 
 for rel in "${REQUIRED_FILES[@]}"; do
@@ -80,31 +75,48 @@ README_FILE="$ROOT/README.md"
 ATTACK_FILE="$ROOT/docs/attack-surface.md"
 FAILURE_FILE="$ROOT/docs/failure-modes.md"
 RULES_FILE="$ROOT/.clinerules"
+EXTENSIONS_FILE="$ROOT/.vscode/extensions.json"
+EXTENSION_SETTINGS_FILE="$ROOT/.vscode/settings.json"
+ALLOWLIST_FILE="$ROOT/security/cline-extension-allowlist.json"
 
-contains_fixed "Cline (VSCode Insiders extension) is the supervisor interface" "$DOC_FILE" || fail "supervisor architecture missing explicit Cline supervisor declaration"
+contains_fixed "Cline (Plan/Act) is a recommended outer operator workflow for this repository." "$DOC_FILE" || fail "supervisor architecture missing outer Cline workflow declaration"
+contains_fixed "The canonical runtime supervisor/governance authority remains in-repo." "$DOC_FILE" || fail "supervisor architecture missing in-repo runtime authority clause"
+contains_fixed "No runtime dependency on Cline is required." "$DOC_FILE" || fail "supervisor architecture missing tool-agnostic dependency clause"
 contains_fixed "Supervisor is orchestration/approval-facing only and is not a privileged mutation executor" "$DOC_FILE" || fail "supervisor architecture missing orchestration-only boundary"
 contains_fixed "Protected mutations require operator role, scoped approval token, governance transaction wrapper, and kill-switch-open state" "$DOC_FILE" || fail "supervisor architecture missing protected mutation contract"
 contains_fixed "External submission, platform login, attestation, and final submission actions are manual-only" "$DOC_FILE" || fail "supervisor architecture missing manual-only boundary"
 contains_fixed "CI policy gates are release-blocking" "$DOC_FILE" || fail "supervisor architecture missing CI blocking gate clause"
 
-contains_fixed "## Supervisor Model (Cline)" "$README_FILE" || fail "README missing Supervisor Model (Cline) section"
+contains_fixed "## Outer Operator Workflow (Cline-compatible)" "$README_FILE" || fail "README missing Outer Operator Workflow section"
+contains_fixed "Use Plan mode first for repo assessment and architecture decisions, then switch to Act mode after review/approval." "$README_FILE" || fail "README missing Plan->Act operating guidance"
+contains_fixed "Use conservative Auto Approve settings for internal read/edit/safe local command work only." "$README_FILE" || fail "README missing conservative Auto Approve guidance"
+contains_fixed 'Repo runtime authority remains in-repo through `supervisor-authority` plus governance pathways.' "$README_FILE" || fail "README missing in-repo authority wording"
+contains_fixed "Do not use YOLO mode for governed workflows in this repository." "$README_FILE" || fail "README missing YOLO prohibition wording"
 contains_fixed "manual-only" "$README_FILE" || fail "README missing manual-only boundary wording"
 
-contains_fixed "Cline supervisor boundary" "$ATTACK_FILE" || fail "attack-surface doc missing Cline supervisor boundary statement"
+contains_fixed "Outer Cline workflow boundary" "$ATTACK_FILE" || fail "attack-surface doc missing outer Cline boundary statement"
+contains_fixed "The canonical runtime supervisor/governance authority remains in-repo and fail-closed." "$ATTACK_FILE" || fail "attack-surface doc missing in-repo authority statement"
 contains_fixed "No new egress domains or dynamic endpoint expansion" "$ATTACK_FILE" || fail "attack-surface doc missing non-expansion boundary statement"
 
 contains_fixed "Cline supervisor policy gate failure" "$FAILURE_FILE" || fail "failure-modes doc missing Cline policy gate failure mode"
 contains_fixed "runbook" "$FAILURE_FILE" || fail "failure-modes doc missing policy gate runbook guidance"
 
-contains_fixed "No autonomous external submission" "$RULES_FILE" || fail ".clinerules missing autonomous submission prohibition"
-contains_fixed "No automated login, browser automation" "$RULES_FILE" || fail ".clinerules missing login/browser automation prohibition"
-contains_fixed "Policy gates are blocking" "$RULES_FILE" || fail ".clinerules missing blocking gate rule"
+if [[ -f "$RULES_FILE" ]]; then
+  contains_fixed "No autonomous external submission" "$RULES_FILE" || fail ".clinerules missing autonomous submission prohibition"
+  contains_fixed "No automated login, browser automation" "$RULES_FILE" || fail ".clinerules missing login/browser automation prohibition"
+  contains_fixed "Policy gates are blocking" "$RULES_FILE" || fail ".clinerules missing blocking gate rule"
+fi
 
 if search_quiet "autonomous external submission is enabled|supervisor may execute protected mutations|supervisor bypasses operator approval|automated login is enabled" "$DOC_FILE"; then
   fail "supervisor architecture contains contradictory boundary language"
 fi
+if search_quiet "Cline \(VSCode Insiders extension\) is the supervisor interface for this repository" "$DOC_FILE"; then
+  fail "supervisor architecture contains outdated embedded-supervisor wording"
+fi
 
-node - "$ROOT/security/cline-extension-allowlist.json" "$ROOT/.vscode/extensions.json" <<'NODE'
+if [[ -f "$EXTENSIONS_FILE" ]]; then
+  [[ -f "$ALLOWLIST_FILE" ]] || fail "Cline allowlist is required when .vscode/extensions.json is present"
+  node - "$ALLOWLIST_FILE" "$EXTENSIONS_FILE" <<'NODE'
 const fs = require("node:fs");
 
 function fail(message) {
@@ -168,18 +180,15 @@ for (const id of recommendations) {
   }
 }
 NODE
+fi
+
+if [[ -f "$EXTENSION_SETTINGS_FILE" && ! -f "$EXTENSIONS_FILE" ]]; then
+  fail ".vscode/settings.json exists without .vscode/extensions.json; expected Cline extension recommendations when settings are present"
+fi
 
 contains_fixed "verify-cline-supervisor-policy.sh" "$ROOT/scripts/build-verify.sh" || fail "build-verify missing cline supervisor policy gate"
 contains_fixed "verify:cline-supervisor" "$ROOT/package.json" || fail "package.json missing verify:cline-supervisor script"
 contains_fixed "verify-cline-supervisor-policy.sh" "$ROOT/package.json" || fail "package.json script chain missing cline supervisor policy invocation"
-
-WF="$ROOT/.github/archived-workflows/phase2-security.yml.disabled"
-contains_fixed "Verify required policy scripts exist" "$WF" || fail "workflow missing required policy script pre-check step"
-contains_fixed "ERROR: required script missing:" "$WF" || fail "workflow missing clear hard error for missing scripts"
-contains_fixed "bash scripts/verify-cline-supervisor-policy.sh" "$WF" || fail "workflow missing cline supervisor policy verification step"
-if contains_fixed "if [[ -f scripts/verify-phase7-policy.sh ]]; then" "$WF"; then
-  fail "workflow contains forbidden conditional skip for phase7 policy script"
-fi
 
 contains_fixed "canExecuteTools: false" "$ROOT/openclaw-bridge/src/core/execution-router.ts" || fail "execution router missing supervisor non-execution boundary"
 contains_fixed "assertOperatorRole" "$ROOT/openclaw-bridge/mcp/mcp-service.js" || fail "mcp service missing operator-only mutation assertion"

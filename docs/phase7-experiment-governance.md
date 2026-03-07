@@ -148,5 +148,4 @@ Artifact generation:
 - `scripts/verify-phase7-policy.sh`
 - Wired into:
   - `scripts/build-verify.sh`
-  - `.github/archived-workflows/phase2-security.yml.disabled`
   - `package.json` (`phase7:verify`, `phase2:gates`)

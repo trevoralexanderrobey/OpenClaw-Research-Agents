@@ -65,6 +65,7 @@ REQUIRED_FILES=(
   "$ROOT/scripts/verify-monetization-policy.sh"
   "$ROOT/README.md"
   "$ROOT/docs/attack-surface.md"
+  "$ROOT/docs/supervisor-architecture.md"
 )
 
 for file in "${REQUIRED_FILES[@]}"; do
@@ -88,8 +89,14 @@ fi
 search_quiet 'validateApprovedRelease' "$ROOT/scripts/export-release.js" || fail "export-release must validate release approval before export"
 search_quiet 'release-approval\.json' "$ROOT/openclaw-bridge/monetization/release-approval-manager.js" || fail "release approval artifact handling is required"
 search_quiet 'manual-only' "$ROOT/README.md" || fail "README must state manual-only external submission boundary"
-search_quiet 'packaging artifact' "$ROOT/README.md" || fail "README must state monetization bundles are packaging artifacts"
+search_quiet 'packaging artifacts, not proof of publication' "$ROOT/README.md" || fail "README must state monetization bundles are packaging artifacts and not publication proof"
 search_quiet 'manual-only' "$ROOT/docs/attack-surface.md" || fail "attack-surface doc must state manual-only monetization boundary"
+search_quiet 'Outer Operator Workflow \(Cline-compatible\)' "$ROOT/README.md" || fail "README must document outer Cline-compatible operator workflow"
+search_quiet 'Repo runtime authority remains in-repo through `supervisor-authority` plus governance pathways\.' "$ROOT/README.md" || fail "README must preserve in-repo runtime authority wording"
+search_quiet 'Outer Cline workflow boundary' "$ROOT/docs/attack-surface.md" || fail "attack-surface doc must document outer Cline workflow boundary"
+search_quiet 'recommended outer operator workflow' "$ROOT/docs/supervisor-architecture.md" || fail "supervisor architecture must document Cline as recommended outer operator workflow"
+search_quiet 'canonical runtime supervisor/governance authority remains in-repo' "$ROOT/docs/supervisor-architecture.md" || fail "supervisor architecture must preserve in-repo runtime authority wording"
+search_quiet 'manual-only' "$ROOT/docs/supervisor-architecture.md" || fail "supervisor architecture must preserve manual-only external action boundary"
 
 ROOT_DIR="$ROOT" node <<'NODE'
 const fs = require("node:fs");

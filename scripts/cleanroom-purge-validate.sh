@@ -3,9 +3,11 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-BANNED_PATTERN='nmap|metasploit|burp|sqlmap|msfvenom|aircrack|ffuf|nikto|hashcat|lateral movement|exploit payload|network scanning'
+# Keep single-token checks boundary-aware so identifiers like monetizationMap do not false-positive on nmap.
+BANNED_TOKEN_PATTERN='\b(nmap|metasploit|burp|sqlmap|msfvenom|aircrack|ffuf|nikto|hashcat)\b'
+BANNED_PHRASE_PATTERN='lateral movement|exploit payload|network scanning'
 
-if rg -n -S "$BANNED_PATTERN" "$ROOT/openclaw-bridge" --glob '!**/docs/**' --glob '!**/security/**'; then
+if rg -n -S -e "$BANNED_TOKEN_PATTERN" -e "$BANNED_PHRASE_PATTERN" "$ROOT/openclaw-bridge" --glob '!**/docs/**' --glob '!**/security/**'; then
   echo "Forbidden offensive capability identifiers detected in active runtime paths" >&2
   exit 1
 fi

@@ -4,7 +4,6 @@ const path = require("node:path");
 const {
   canonicalize,
   findLineNumber,
-  PHASE2_GATE_MANIFEST,
   pushViolation,
   readTextIfExists,
   safeString,
@@ -18,7 +17,6 @@ const DEFAULT_CONTRACT_FILES = Object.freeze([
   "security/operator-authorization.js",
   "security/mutation-control.js",
   "scripts/build-verify.sh",
-  PHASE2_GATE_MANIFEST,
   "docs/phase8-compliance-attestation.md",
   "workflows/compliance-governance/evidence-bundle-builder.js",
   "workflows/compliance-governance/compliance-decision-ledger.js"

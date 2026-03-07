@@ -20,10 +20,14 @@ Governed, local-first research, dataset, and release-packaging system built on O
 - External publishing, uploads, marketplace submissions, customer delivery, login automation, and browser automation remain manual-only.
 - Phase 19 release bundles are packaging artifacts, not proof of publication.
 
-## Supervisor Model (Cline)
-- Cline is the supervisor interface for governed local operations in this repository.
-- Supervisor activity is orchestration and approval facing only; protected mutations still require explicit operator approval.
-- External submission and platform interaction remain manual-only.
+## Outer Operator Workflow (Cline-compatible)
+- Cline (Plan/Act) is a recommended outer human-operated workflow for this repository.
+- Use Plan mode first for repo assessment and architecture decisions, then switch to Act mode after review/approval.
+- Use conservative Auto Approve settings for internal read/edit/safe local command work only.
+- Do not use YOLO mode for governed workflows in this repository.
+- The repository remains tool-agnostic and local-first; no runtime dependency on Cline is required.
+- Repo runtime authority remains in-repo through `supervisor-authority` plus governance pathways.
+- Final release approval and all external submission/publication actions remain manual-only.
 
 ## Key Paths
 - `workspace/research-output/` research task outputs and manifests
@@ -206,7 +210,7 @@ node --test tests/**/*.test.js
 npm run build:verify
 ```
 
-GitHub Actions workflows are archived under `.github/archived-workflows/` so validation stays local-only and uses the script/package command chain instead of cloud runners.
+GitHub cloud workflows are removed from `.github/workflows/`, so validation stays local-only through the script/package command chain.
 
 ## Phase Status
 

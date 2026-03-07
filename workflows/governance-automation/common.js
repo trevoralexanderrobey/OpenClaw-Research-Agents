@@ -4,8 +4,6 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 
-const PHASE2_GATE_MANIFEST = ".github/archived-workflows/phase2-security.yml.disabled";
-
 function isPlainObject(value) {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
@@ -143,6 +141,5 @@ module.exports = {
   hashFile,
   findLineNumber,
   pushViolation,
-  sortViolations,
-  PHASE2_GATE_MANIFEST
+  sortViolations
 };

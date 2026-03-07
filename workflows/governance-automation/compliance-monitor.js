@@ -19,8 +19,7 @@ const {
   readTextIfExists,
   safeString,
   sortViolations,
-  stableSortStrings,
-  PHASE2_GATE_MANIFEST
+  stableSortStrings
 } = require("./common.js");
 
 const PHASE8_HASH_TARGETS = Object.freeze([
@@ -32,8 +31,11 @@ const PHASE8_HASH_TARGETS = Object.freeze([
   "workflows/compliance-governance/compliance-decision-ledger.js"
 ]);
 
-const CLINE_CONTRACT_FILES = Object.freeze([
+const CLINE_REQUIRED_CONTRACT_FILES = Object.freeze([
   "docs/supervisor-architecture.md",
+]);
+
+const CLINE_OPTIONAL_CONTRACT_FILES = Object.freeze([
   ".clinerules",
   "security/cline-extension-allowlist.json",
   ".vscode/extensions.json",
@@ -41,9 +43,10 @@ const CLINE_CONTRACT_FILES = Object.freeze([
 ]);
 
 const CLINE_REQUIRED_MARKERS = Object.freeze([
-  "Cline (VSCode Insiders extension) is the supervisor interface",
+  "Cline (Plan/Act) is a recommended outer operator workflow for this repository.",
+  "The canonical runtime supervisor/governance authority remains in-repo.",
   "Protected mutations require operator role, scoped approval token, governance transaction wrapper, and kill-switch-open state",
-  "No autonomous external submission"
+  "External submission, platform login, attestation, and final submission actions are manual-only"
 ]);
 
 const PHASE8_MUTATION_FILES = Object.freeze([
@@ -133,7 +136,7 @@ function createComplianceMonitor(options = {}) {
       runtime_state_schema_version: null
     };
 
-    for (const rel of CLINE_CONTRACT_FILES) {
+    for (const rel of CLINE_REQUIRED_CONTRACT_FILES) {
       const full = path.join(rootDir, rel);
       evidence.checked_files.push(rel);
       if (!fs.existsSync(full)) {
@@ -146,6 +149,13 @@ function createComplianceMonitor(options = {}) {
           message: `Required Cline contract file missing: ${rel}`,
           recommended_fix: `Restore ${rel} from frozen baseline`
         });
+      }
+    }
+
+    for (const rel of CLINE_OPTIONAL_CONTRACT_FILES) {
+      const full = path.join(rootDir, rel);
+      if (fs.existsSync(full)) {
+        evidence.checked_files.push(rel);
       }
     }
 
@@ -262,7 +272,6 @@ function createComplianceMonitor(options = {}) {
       }
     }
 
-    const workflowText = readTextIfExists(path.join(rootDir, PHASE2_GATE_MANIFEST));
     const buildVerifyText = readTextIfExists(path.join(rootDir, "scripts/build-verify.sh"));
     const packageText = readTextIfExists(path.join(rootDir, "package.json"));
 
@@ -272,17 +281,6 @@ function createComplianceMonitor(options = {}) {
       "bash scripts/verify-phase9-policy.sh"
     ];
     for (const marker of requiredGateMarkers) {
-      if (!workflowText.includes(marker)) {
-        pushViolation(violations, {
-          id: "policy-gate-missing-workflow",
-          severity: "critical",
-          file: PHASE2_GATE_MANIFEST,
-          line: findLineNumber(workflowText, "phase2-gates"),
-          clause: "Policy gates must be blocking",
-          message: `Missing blocking gate marker in workflow: ${marker}`,
-          recommended_fix: `Add unconditional workflow step: ${marker}`
-        });
-      }
       if (!buildVerifyText.includes(marker)) {
         pushViolation(violations, {
           id: "policy-gate-missing-build-verify",
@@ -305,18 +303,6 @@ function createComplianceMonitor(options = {}) {
           recommended_fix: `Include ${marker.replace("bash ", "")} in phase2:gates`
         });
       }
-    }
-
-    if (workflowText.includes("if [[ -f scripts/verify-phase")) {
-      pushViolation(violations, {
-        id: "policy-gate-skip-logic-detected",
-        severity: "critical",
-        file: PHASE2_GATE_MANIFEST,
-        line: findLineNumber(workflowText, "if [[ -f scripts/verify-phase"),
-        clause: "No silent gate skipping",
-        message: "Conditional skip logic detected for policy gates",
-        recommended_fix: "Remove conditional gate skip logic"
-      });
     }
 
     for (const rel of PHASE8_MUTATION_FILES) {
@@ -412,10 +398,9 @@ function createComplianceMonitor(options = {}) {
     }
 
     const policyGatesBlocking = requiredGateMarkers.every((marker) => {
-      return workflowText.includes(marker)
-        && buildVerifyText.includes(marker)
+      return buildVerifyText.includes(marker)
         && packageText.includes(marker.replace("bash ", ""));
-    }) && !workflowText.includes("if [[ -f scripts/verify-phase");
+    });
 
     evidence.checked_files = stableSortStrings(evidence.checked_files);
     evidence.policy_gates_blocking = policyGatesBlocking;
@@ -444,6 +429,7 @@ function createComplianceMonitor(options = {}) {
 module.exports = {
   createComplianceMonitor,
   PHASE8_HASH_TARGETS,
-  CLINE_CONTRACT_FILES,
+  CLINE_REQUIRED_CONTRACT_FILES,
+  CLINE_OPTIONAL_CONTRACT_FILES,
   CLINE_REQUIRED_MARKERS
 };

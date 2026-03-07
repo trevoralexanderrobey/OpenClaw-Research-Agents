@@ -28,6 +28,14 @@ const QUERY_BY_PROVIDER = Object.freeze({
   arxiv: "transformer interpretability",
   "semantic-scholar": "foundation models"
 });
+const CONTROLLED_TEST_RESOLVER = Object.freeze({
+  async resolve4() {
+    return ["93.184.216.34"];
+  },
+  async resolve6() {
+    return [];
+  }
+});
 
 function parseArgs(argv) {
   const out = {
@@ -142,6 +150,7 @@ async function probeControlledRetry(provider) {
   const module = createMcpModule(provider, {
     apiGovernance: governance,
     egressPolicies: TOOL_EGRESS_POLICIES,
+    resolver: CONTROLLED_TEST_RESOLVER,
     httpGet: async () => {
       callTimes.push(Date.now());
       if (callTimes.length === 1) {
@@ -188,6 +197,7 @@ async function probeControlledTimeout(provider) {
   const module = createMcpModule(provider, {
     apiGovernance: governance,
     egressPolicies: TOOL_EGRESS_POLICIES,
+    resolver: CONTROLLED_TEST_RESOLVER,
     httpGet: async () => {
       callCount += 1;
       const error = new Error("Injected timeout");

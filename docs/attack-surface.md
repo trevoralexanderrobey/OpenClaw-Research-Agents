@@ -15,10 +15,12 @@ Mitigation:
 - Method allowlists split by route.
 - Supervisor route has no mutation methods.
 
-## Cline supervisor boundary
-- Cline supervisor boundary is enforced as orchestration-only interface behavior.
-- Cline supervisor traffic is non-mutation by default and cannot bypass operator mutation boundaries.
-- Cline supervisor policy verification is a blocking CI gate.
+## Outer Cline workflow boundary
+- Cline is treated as an outer operator workflow shell (Plan/Act), not an embedded runtime dependency.
+- The canonical runtime supervisor/governance authority remains in-repo and fail-closed.
+- The repository remains tool-agnostic and local-first.
+- Internal artifact preparation may be autonomous, but protected mutations remain operator-gated.
+- External submission/publication remains manual-only.
 
 ## Outbound Read Surface
 - Static read hosts:

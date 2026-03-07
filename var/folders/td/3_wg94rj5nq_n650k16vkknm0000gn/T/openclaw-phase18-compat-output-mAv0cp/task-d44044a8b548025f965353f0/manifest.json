@@ -1,0 +1,14 @@
+{
+  "files": [
+    {
+      "file": "metadata.json",
+      "sha256": "b7b724c8668339d17908a4de7274de0674a1dfd80d8aa369c2a4da1cfd09fcdb"
+    },
+    {
+      "file": "output.md",
+      "sha256": "9f6a983dd20074c60d0404c3144a5a5d2f0ace9431a87dd41b2031b1589488f4"
+    }
+  ],
+  "schema_version": "phase14-output-manifest-v1",
+  "task_id": "task-d44044a8b548025f965353f0"
+}

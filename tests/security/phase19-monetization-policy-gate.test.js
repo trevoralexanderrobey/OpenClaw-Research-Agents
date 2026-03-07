@@ -25,7 +25,8 @@ const REQUIRED_FIXTURE_FILES = [
   "scripts/export-release.js",
   "scripts/verify-monetization-policy.sh",
   "README.md",
-  "docs/attack-surface.md"
+  "docs/attack-surface.md",
+  "docs/supervisor-architecture.md"
 ];
 
 async function createFixture() {
@@ -68,4 +69,3 @@ test("phase19 monetization policy gate fails when a platform target is no longer
   assert.notEqual(run.status, 0);
   assert.match(run.stderr, /manual_only/);
 });
-

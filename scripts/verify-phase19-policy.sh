@@ -55,6 +55,9 @@ REQUIRED_FILES=(
   "$ROOT/config/dataset-quality-rules.json"
   "$ROOT/config/mission-templates.json"
   "$ROOT/config/autonomy-ladder.json"
+  "$ROOT/README.md"
+  "$ROOT/docs/attack-surface.md"
+  "$ROOT/docs/supervisor-architecture.md"
   "$ROOT/openclaw-bridge/core/mission-envelope-schema.js"
   "$ROOT/openclaw-bridge/dataset/schema-engine.js"
   "$ROOT/openclaw-bridge/dataset/dataset-builder.js"
@@ -98,6 +101,14 @@ search_quiet 'resolveLatestSuccessfulBuild' "$ROOT/openclaw-bridge/monetization/
 search_quiet 'mission_type' "$ROOT/openclaw-bridge/core/mission-envelope-schema.js" || fail "Mission envelope must include mission_type"
 search_quiet 'dataset_type' "$ROOT/openclaw-bridge/core/mission-envelope-schema.js" || fail "Mission envelope must include dataset_type"
 search_quiet 'dataset_id' "$ROOT/openclaw-bridge/core/mission-envelope-schema.js" || fail "Mission envelope must include dataset_id"
+search_quiet 'Outer Operator Workflow \(Cline-compatible\)' "$ROOT/README.md" || fail "README must document outer Cline-compatible operator workflow"
+search_quiet 'Final release approval remains human-only\.' "$ROOT/README.md" || fail "README must keep final release approval human-only"
+search_quiet 'packaging artifacts, not proof of publication' "$ROOT/README.md" || fail "README must keep packaging-not-publication boundary explicit"
+search_quiet 'External publishing, uploads, marketplace submissions, customer delivery, login automation, and browser automation remain manual-only\.' "$ROOT/README.md" || fail "README must keep external submission/publication actions manual-only"
+search_quiet 'Outer Cline workflow boundary' "$ROOT/docs/attack-surface.md" || fail "attack-surface doc must document outer Cline workflow boundary"
+search_quiet 'External submission/publication remains manual-only\.' "$ROOT/docs/attack-surface.md" || fail "attack-surface doc must keep manual-only external boundary"
+search_quiet 'canonical runtime supervisor/governance authority remains in-repo' "$ROOT/docs/supervisor-architecture.md" || fail "supervisor architecture must preserve in-repo runtime authority wording"
+search_quiet 'External submission, platform login, attestation, and final submission actions are manual-only' "$ROOT/docs/supervisor-architecture.md" || fail "supervisor architecture must keep manual-only external boundary"
 
 ROOT_DIR="$ROOT" node <<'NODE'
 const fs = require("node:fs");

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+echo "[pre-push] Running local CI gate: npm run phase2:gates"
+npm run phase2:gates
+
+echo "[pre-push] Running deterministic build gate: npm run build:verify"
+npm run build:verify
+
+echo "[pre-push] All local CI checks passed."

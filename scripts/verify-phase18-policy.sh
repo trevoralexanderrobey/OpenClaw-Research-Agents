@@ -70,6 +70,7 @@ REQUIRED_FILES=(
   "$ROOT/tests/core/phase18-runtime-compat.test.js"
   "$ROOT/tests/security/phase18-policy-gate.test.js"
   "$ROOT/docs/phase18-agent-spawner.md"
+  "$ROOT/docs/supervisor-architecture.md"
   "$ROOT/audit/evidence/mission-orchestration/mission-sample.json"
   "$ROOT/audit/evidence/mission-orchestration/hash-manifest.json"
   "$ROOT/workspace/missions/.gitkeep"
@@ -108,6 +109,12 @@ search_quiet 'resumeMission\(' "$ROOT/scripts/run-research-task.js" || fail "run
 search_quiet 'supervisor_approved' "$ROOT/openclaw-bridge/core/agent-spawner.js" || fail "agent-spawner must persist supervisor_approved mission status"
 search_quiet '^workspace/missions/\*$' "$ROOT/.gitignore" || fail "workspace/missions/* must be gitignored"
 search_quiet '^!workspace/missions/\.gitkeep$' "$ROOT/.gitignore" || fail "workspace/missions/.gitkeep exception missing"
+search_quiet 'Phase 18 runtime authority remains in-repo \(`supervisor-authority` \+ governance path\)\.' "$ROOT/docs/phase18-agent-spawner.md" || fail "Phase 18 doc must preserve in-repo runtime authority wording"
+search_quiet 'mission runtime remains tool-agnostic and does not depend on Cline programmatically\.' "$ROOT/docs/phase18-agent-spawner.md" || fail "Phase 18 doc must preserve tool-agnostic runtime wording"
+search_quiet 'canonical runtime supervisor/governance authority remains in-repo' "$ROOT/docs/supervisor-architecture.md" || fail "supervisor architecture must preserve in-repo runtime authority wording"
+if search_quiet 'is the supervisor interface for this repository' "$ROOT/docs/supervisor-architecture.md"; then
+  fail "supervisor architecture must not describe Cline as the embedded runtime supervisor interface"
+fi
 
 ROOT_DIR="$ROOT" node <<'NODE'
 const fs = require("node:fs");

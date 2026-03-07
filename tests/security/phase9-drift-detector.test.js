@@ -16,7 +16,7 @@ test("phase9 drift detector identifies drift categories", () => {
     currentContracts: {
       "docs/supervisor-architecture.md": "supervisor may execute protected mutations\napproval token optional\n",
       "security/operator-authorization.js": "module.exports = {};\n",
-      ".github/archived-workflows/phase2-security.yml.disabled": "if [[ -f scripts/verify-phase7-policy.sh ]]; then\n",
+      "scripts/build-verify.sh": "continue-on-error: true\n",
       "security/mutation-control.js": "module.exports = {};\n",
       "docs/phase8-compliance-attestation.md": ""
     }

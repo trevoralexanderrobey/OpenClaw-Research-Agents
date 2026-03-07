@@ -7,8 +7,7 @@ const {
   findLineNumber,
   readTextIfExists,
   safeString,
-  stableSortStrings,
-  PHASE2_GATE_MANIFEST
+  stableSortStrings
 } = require("./common.js");
 
 const PHASE2_REQUIRED = Object.freeze([
@@ -453,7 +452,6 @@ function createPhaseCompletenessValidator(options = {}) {
     const phase18Missing = missingFromSet(rootDir, PHASE18_REQUIRED);
     const clineMissing = missingFromSet(rootDir, CLINE_REQUIRED);
 
-    const workflowText = readTextIfExists(path.join(rootDir, PHASE2_GATE_MANIFEST));
     const buildVerifyText = readTextIfExists(path.join(rootDir, "scripts/build-verify.sh"));
     const packageText = readTextIfExists(path.join(rootDir, "package.json"));
 
@@ -473,15 +471,6 @@ function createPhaseCompletenessValidator(options = {}) {
       }));
     }
 
-    if (workflowText.includes("if [[ -f scripts/verify-phase")) {
-      contradictions.push(canonicalize({
-        id: "policy-gate-silent-skip",
-        file: PHASE2_GATE_MANIFEST,
-        line: findLineNumber(workflowText, "if [[ -f scripts/verify-phase"),
-        message: "Conditional skip logic for policy gates is not allowed"
-      }));
-    }
-
     for (const marker of [
       "bash scripts/verify-cline-supervisor-policy.sh",
       "bash scripts/verify-phase8-policy.sh",
@@ -496,14 +485,6 @@ function createPhaseCompletenessValidator(options = {}) {
       "bash scripts/verify-phase17-policy.sh",
       "bash scripts/verify-phase18-policy.sh"
     ]) {
-      if (!workflowText.includes(marker)) {
-        contradictions.push(canonicalize({
-          id: "policy-gate-not-blocking-workflow",
-          file: PHASE2_GATE_MANIFEST,
-          line: findLineNumber(workflowText, "phase2-gates"),
-          message: `Missing blocking workflow gate marker: ${marker}`
-        }));
-      }
       if (!buildVerifyText.includes(marker)) {
         contradictions.push(canonicalize({
           id: "policy-gate-not-blocking-build-verify",

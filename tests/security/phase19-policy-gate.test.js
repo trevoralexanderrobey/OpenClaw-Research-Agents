@@ -16,6 +16,9 @@ const REQUIRED_FIXTURE_FILES = [
   "config/dataset-quality-rules.json",
   "config/mission-templates.json",
   "config/autonomy-ladder.json",
+  "README.md",
+  "docs/attack-surface.md",
+  "docs/supervisor-architecture.md",
   "openclaw-bridge/core/mission-envelope-schema.js",
   "openclaw-bridge/dataset/schema-engine.js",
   "openclaw-bridge/dataset/dataset-builder.js",
@@ -68,4 +71,3 @@ test("phase19 policy gate fails when latest-build logic drifts into filesystem t
   assert.notEqual(run.status, 0);
   assert.match(run.stderr, /timestamp scanning/);
 });
-

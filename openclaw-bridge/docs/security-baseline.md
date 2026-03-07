@@ -93,3 +93,8 @@
 ## Local-Only Build & Verification Boundary
 - Cloud-hosted continuous integration execution (like GitHub Actions) is prohibited.
 - All workflows and tests are archived to enforce validation execution strictly within deterministic, local-only runner scopes (`npm run build:verify`).
+
+## Outer Operator Workflow Boundary (Cline-compatible)
+- External operational tools (e.g., Cline via Plan/Act mode) are recommended for repo modifications but maintain no direct internal runtime permissions or hooks.
+- "YOLO" execution mode is strictly prohibited for governed workflows; auto-confirmations must be conservatively scoped to local read/edit actions only.
+- Core execution logic remains tool-agnostic; local enforcement (via `supervisor-authority`) isolates repo operations from outer shell extensions.

@@ -48,3 +48,8 @@ Phase 18 adds mission orchestration on top of the validated Phase 14-17 baseline
 - Dataset building and monetization packaging happen after mission completion through dedicated Phase 19 scripts and modules.
 - Internal packaging autonomy is expanded for local artifact preparation only.
 - External publishing, upload, marketplace submission, and delivery remain manual-only and outside the Phase 18 mission runtime.
+
+## Outer Operator Workflow Compatibility
+- Phase 18 runtime authority remains in-repo (`supervisor-authority` + governance path).
+- Cline is a recommended outer operator shell for planning/review and approved implementation work.
+- The mission runtime remains tool-agnostic and does not depend on Cline programmatically.

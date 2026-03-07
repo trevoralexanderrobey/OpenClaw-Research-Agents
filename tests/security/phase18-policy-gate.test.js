@@ -32,6 +32,7 @@ const REQUIRED_FIXTURE_FILES = [
   "tests/core/phase18-runtime-compat.test.js",
   "tests/security/phase18-policy-gate.test.js",
   "docs/phase18-agent-spawner.md",
+  "docs/supervisor-architecture.md",
   "audit/evidence/mission-orchestration/mission-sample.json",
   "audit/evidence/mission-orchestration/hash-manifest.json",
   "workspace/missions/.gitkeep"

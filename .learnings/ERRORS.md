@@ -272,3 +272,34 @@ Keep README policy headings aligned with shell gate assertions whenever governan
 ### Resolution
 - **Resolved**: 2026-03-07T00:03:05-08:00
 - **Notes**: Added the missing README section and reran the affected policy/test suite successfully.
+
+## [ERR-20260307-010] orphaned variable after workflow-manifest removal
+
+**Logged**: 2026-03-07T02:49:46-08:00
+**Priority**: low
+**Status**: resolved
+**Area**: backend
+
+### Summary
+`phase9` compliance monitor tests failed after removing archived workflow dependencies because `workflowText` was still referenced in the gate aggregation block.
+
+### Error
+```
+ReferenceError: workflowText is not defined
+```
+
+### Context
+- Command: `node --test tests/security/phase9-compliance-monitor.test.js ...`
+- Trigger: refactor to remove `.github/archived-workflows/*.disabled` dependencies.
+- Root cause: one leftover reference in `workflows/governance-automation/compliance-monitor.js`.
+
+### Suggested Fix
+After deleting a dependency path, run a fast symbol check (`rg workflowText`) in edited files before test execution.
+
+### Metadata
+- Reproducible: yes
+- Related Files: workflows/governance-automation/compliance-monitor.js
+
+### Resolution
+- **Resolved**: 2026-03-07T02:49:46-08:00
+- **Notes**: Removed the stale reference and re-ran the targeted policy tests successfully.
