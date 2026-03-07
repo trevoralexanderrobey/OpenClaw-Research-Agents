@@ -102,6 +102,7 @@ search_quiet 'laneInflight' "$ROOT/openclaw-bridge/core/spawn-orchestrator.js" |
 search_quiet 'PHASE18_MISSION_TIMEOUT' "$ROOT/openclaw-bridge/core/spawn-orchestrator.js" || fail "spawn-orchestrator must enforce mission runtime timeout guard"
 search_quiet 'PHASE18_MISSION_STALLED' "$ROOT/openclaw-bridge/core/spawn-orchestrator.js" || fail "spawn-orchestrator must enforce mission stall detection guard"
 search_quiet 'checkpoint_artifacts' "$ROOT/openclaw-bridge/core/spawn-orchestrator.js" || fail "spawn-orchestrator must emit checkpoint artifact metadata"
+search_quiet 'validateTemplateStructure' "$ROOT/openclaw-bridge/core/spawn-planner.js" || fail "spawn-planner must validate template structure before planning"
 search_quiet 'agentSpawner\.spawnMission' "$ROOT/scripts/run-research-task.js" || fail "run-research-task missing mission spawn path"
 search_quiet 'resumeMission\(' "$ROOT/scripts/run-research-task.js" || fail "run-research-task missing mission resume path"
 search_quiet 'supervisor_approved' "$ROOT/openclaw-bridge/core/agent-spawner.js" || fail "agent-spawner must persist supervisor_approved mission status"
@@ -126,6 +127,8 @@ function readJson(rel) {
 const spawnerConfig = readJson("config/agent-spawner.json");
 const missionTemplates = readJson("config/mission-templates.json");
 const skillLock = readJson("security/skill-registry.lock.json");
+const allowedTaskTypes = new Set(["summarize", "extract", "analyze", "synthesize", "freeform"]);
+const allowedInputStrategies = new Set(["mission_inputs", "mission_and_dependency_outputs", "dependency_outputs"]);
 
 if (spawnerConfig.missionWorkspaceDir !== "workspace/missions") {
   fail("Phase 18 mission workspace dir must remain workspace/missions");
@@ -165,6 +168,29 @@ for (const [templateId, template] of Object.entries(templates)) {
   }
   if (template.enabled === true && !["research_only", "draft_artifact"].includes(template.safety_class)) {
     fail(`Enabled template '${templateId}' must be research_only or draft_artifact`);
+  }
+  const roles = Array.isArray(template.spawned_roles) ? template.spawned_roles : [];
+  const steps = Array.isArray(template.steps) ? template.steps : [];
+  for (let index = 0; index < steps.length; index += 1) {
+    const step = steps[index] || {};
+    if (!roles.includes(step.role)) {
+      fail(`Template '${templateId}' step ${index + 1} uses undeclared role '${step.role || ""}'`);
+    }
+    if (!step.action_type || typeof step.action_type !== "string") {
+      fail(`Template '${templateId}' step ${index + 1} must declare a non-empty action_type`);
+    }
+    if (!allowedTaskTypes.has(step.task_type)) {
+      fail(`Template '${templateId}' step ${index + 1} uses unsupported task_type '${step.task_type || ""}'`);
+    }
+    if (!allowedInputStrategies.has(step.input_strategy)) {
+      fail(`Template '${templateId}' step ${index + 1} uses unsupported input_strategy '${step.input_strategy || ""}'`);
+    }
+    const dependsOn = Array.isArray(step.depends_on) ? step.depends_on : [];
+    for (const dependency of dependsOn) {
+      if (!Number.isInteger(dependency) || dependency < 1 || dependency >= index + 1) {
+        fail(`Template '${templateId}' step ${index + 1} has invalid dependency '${dependency}'`);
+      }
+    }
   }
 }
 

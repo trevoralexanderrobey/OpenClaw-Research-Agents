@@ -79,6 +79,13 @@ jobs:
             scripts/verify-phase16-policy.sh
             scripts/verify-phase17-policy.sh
             scripts/verify-phase18-policy.sh
+            scripts/verify-monetization-policy.sh
+            scripts/verify-phase19-policy.sh
+            scripts/generate-offer.js
+            scripts/approve-release.js
+            scripts/export-release.js
+            scripts/build-dataset-from-task.js
+            scripts/run-dataset-mission.js
             scripts/run-research-task.js
             scripts/list-research-tasks.js
             scripts/view-research-output.js
@@ -171,6 +178,10 @@ jobs:
         run: bash scripts/verify-phase17-policy.sh
       - name: Phase 18 policy verification
         run: bash scripts/verify-phase18-policy.sh
+      - name: Monetization policy verification
+        run: bash scripts/verify-monetization-policy.sh
+      - name: Phase 19 policy verification
+        run: bash scripts/verify-phase19-policy.sh
 
       - name: Phase 14 smoke test
         run: |
@@ -190,6 +201,9 @@ jobs:
 
       - name: Phase 17 restart/resume smoke test
         run: node --test tests/core/phase17-resume-orchestrator.test.js
+
+      - name: Phase 19 verification suite
+        run: npm run phase19:verify
 
       - name: Test suite
         run: node --test tests/**/*.test.js

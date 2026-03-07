@@ -1,0 +1,257 @@
+{
+  "platform_targets": {
+    "aws_data_exchange": {
+      "checklist_requirements": [
+        "Provider onboarding completed manually",
+        "Offer fields reviewed by operator",
+        "Bundle prepared for manual submission only"
+      ],
+      "copy_block_requirements": [
+        "title",
+        "description",
+        "delivery_notes"
+      ],
+      "manual_only": true,
+      "required_artifact_placeholders": [
+        "listing-fields.json",
+        "checklist.md",
+        "copy-blocks.json"
+      ],
+      "supported_product_lines": [
+        "enterprise_private_delivery"
+      ],
+      "supported_tiers": [
+        "premium",
+        "enterprise"
+      ]
+    },
+    "datarade": {
+      "checklist_requirements": [
+        "Provider listing completed manually",
+        "Sample pack reviewed manually",
+        "Manual listing notes confirmed"
+      ],
+      "copy_block_requirements": [
+        "title",
+        "description",
+        "sample_summary"
+      ],
+      "manual_only": true,
+      "required_artifact_placeholders": [
+        "listing-fields.json",
+        "checklist.md",
+        "copy-blocks.json"
+      ],
+      "supported_product_lines": [
+        "custom_dataset_services",
+        "dataset_packs",
+        "dataset_samples",
+        "enterprise_private_delivery"
+      ],
+      "supported_tiers": [
+        "sample",
+        "standard",
+        "premium",
+        "enterprise"
+      ]
+    },
+    "github_sponsors": {
+      "checklist_requirements": [
+        "Tier copy reviewed by operator",
+        "Sponsors setup remains manual",
+        "No automatic publication implied"
+      ],
+      "copy_block_requirements": [
+        "tier_name",
+        "tier_summary",
+        "tier_description"
+      ],
+      "manual_only": true,
+      "required_artifact_placeholders": [
+        "tier-copy.md",
+        "checklist.md",
+        "copy-blocks.json"
+      ],
+      "supported_product_lines": [
+        "dataset_samples",
+        "sponsorship_assets"
+      ],
+      "supported_tiers": [
+        "sample",
+        "standard",
+        "premium",
+        "enterprise"
+      ]
+    },
+    "google_cloud_marketplace_bigquery": {
+      "checklist_requirements": [
+        "Marketplace prerequisites reviewed manually",
+        "Commercialization steps reviewed by operator",
+        "Manual submission only"
+      ],
+      "copy_block_requirements": [
+        "title",
+        "description",
+        "delivery_notes"
+      ],
+      "manual_only": true,
+      "required_artifact_placeholders": [
+        "listing-fields.json",
+        "checklist.md",
+        "copy-blocks.json"
+      ],
+      "supported_product_lines": [
+        "enterprise_private_delivery"
+      ],
+      "supported_tiers": [
+        "premium",
+        "enterprise"
+      ]
+    },
+    "gumroad": {
+      "checklist_requirements": [
+        "Manual product creation required",
+        "Store copy reviewed by operator",
+        "Thumbnail and delivery checklist reviewed manually"
+      ],
+      "copy_block_requirements": [
+        "title",
+        "subtitle",
+        "description"
+      ],
+      "manual_only": true,
+      "required_artifact_placeholders": [
+        "product-copy.md",
+        "checklist.md",
+        "copy-blocks.json"
+      ],
+      "supported_product_lines": [
+        "dataset_packs",
+        "dataset_subscriptions",
+        "research_packs",
+        "research_retainers",
+        "research_subscriptions"
+      ],
+      "supported_tiers": [
+        "sample",
+        "standard",
+        "premium",
+        "enterprise"
+      ]
+    },
+    "hugging_face": {
+      "checklist_requirements": [
+        "Manual upload instructions included",
+        "Dataset card reviewed by operator",
+        "Supported files limited to jsonl/csv/parquet/arrow"
+      ],
+      "copy_block_requirements": [
+        "title",
+        "description",
+        "dataset_summary"
+      ],
+      "manual_only": true,
+      "required_artifact_placeholders": [
+        "dataset-card.md",
+        "checklist.md",
+        "copy-blocks.json"
+      ],
+      "supported_product_lines": [
+        "dataset_packs",
+        "dataset_samples"
+      ],
+      "supported_tiers": [
+        "sample",
+        "standard",
+        "premium",
+        "enterprise"
+      ]
+    },
+    "kaggle": {
+      "checklist_requirements": [
+        "dataset-metadata.json reviewed",
+        "Manual CLI or UI submission required",
+        "No automated upload path"
+      ],
+      "copy_block_requirements": [
+        "title",
+        "subtitle",
+        "description"
+      ],
+      "manual_only": true,
+      "required_artifact_placeholders": [
+        "dataset-metadata.json",
+        "checklist.md",
+        "copy-blocks.json"
+      ],
+      "supported_product_lines": [
+        "dataset_packs",
+        "dataset_samples"
+      ],
+      "supported_tiers": [
+        "sample",
+        "standard",
+        "premium",
+        "enterprise"
+      ]
+    },
+    "lemon_squeezy": {
+      "checklist_requirements": [
+        "Manual product or subscription setup required",
+        "Store copy reviewed manually",
+        "Delivery file checklist completed manually"
+      ],
+      "copy_block_requirements": [
+        "title",
+        "subtitle",
+        "description"
+      ],
+      "manual_only": true,
+      "required_artifact_placeholders": [
+        "product-copy.md",
+        "checklist.md",
+        "copy-blocks.json"
+      ],
+      "supported_product_lines": [
+        "custom_dataset_services",
+        "dataset_packs",
+        "dataset_subscriptions",
+        "research_packs",
+        "research_retainers",
+        "research_subscriptions"
+      ],
+      "supported_tiers": [
+        "sample",
+        "standard",
+        "premium",
+        "enterprise"
+      ]
+    },
+    "snowflake_marketplace": {
+      "checklist_requirements": [
+        "Provider profile prerequisites reviewed manually",
+        "Listing fields reviewed by operator",
+        "Manual submission only"
+      ],
+      "copy_block_requirements": [
+        "title",
+        "description",
+        "delivery_notes"
+      ],
+      "manual_only": true,
+      "required_artifact_placeholders": [
+        "listing-fields.json",
+        "checklist.md",
+        "copy-blocks.json"
+      ],
+      "supported_product_lines": [
+        "enterprise_private_delivery"
+      ],
+      "supported_tiers": [
+        "premium",
+        "enterprise"
+      ]
+    }
+  },
+  "schema_version": "phase19-platform-targets-v1"
+}

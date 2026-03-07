@@ -34,3 +34,17 @@ Phase 18 adds mission orchestration on top of the validated Phase 14-17 baseline
 - `draft_artifact`
 
 `external_action` templates exist only as disabled stubs in Phase 18.
+
+## Phase 19 Compatibility
+- New Phase 19 templates continue to use the existing mission runtime shape:
+  - `research_pack`
+  - `dataset_sample`
+  - `subscription_refresh`
+- Allowed task types remain bounded to the existing validated set:
+  - `extract`
+  - `analyze`
+  - `synthesize`
+  - `freeform`
+- Dataset building and monetization packaging happen after mission completion through dedicated Phase 19 scripts and modules.
+- Internal packaging autonomy is expanded for local artifact preparation only.
+- External publishing, upload, marketplace submission, and delivery remain manual-only and outside the Phase 18 mission runtime.

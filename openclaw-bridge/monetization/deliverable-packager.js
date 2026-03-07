@@ -1,0 +1,322 @@
+"use strict";
+
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+
+const { canonicalize, canonicalJson, safeString, sha256 } = require("../../workflows/governance-automation/common.js");
+
+function ensureDir(dirPath) {
+  fs.mkdirSync(dirPath, { recursive: true });
+}
+
+function writeText(filePath, body) {
+  ensureDir(path.dirname(filePath));
+  fs.writeFileSync(filePath, String(body || ""), "utf8");
+}
+
+function writeJson(filePath, value) {
+  ensureDir(path.dirname(filePath));
+  fs.writeFileSync(filePath, canonicalJson(canonicalize(value)), "utf8");
+}
+
+function hashFile(filePath) {
+  return sha256(fs.readFileSync(filePath, "utf8"));
+}
+
+function renderCsv(rows) {
+  const lines = rows.map((row) => row.map((value) => {
+    const normalized = String(value || "");
+    return /[,"\n]/.test(normalized) ? `"${normalized.replace(/"/g, "\"\"")}"` : normalized;
+  }).join(","));
+  return lines.length > 0 ? `${lines.join("\n")}\n` : "";
+}
+
+function shortText(value, length = 800) {
+  return String(value || "").trim().slice(0, length);
+}
+
+function relativeFrom(baseDir, filePath) {
+  return path.relative(baseDir, filePath).split(path.sep).join("/");
+}
+
+function asStringArray(value) {
+  return Array.isArray(value)
+    ? value.map((entry) => safeString(entry)).filter(Boolean).sort((left, right) => left.localeCompare(right))
+    : [];
+}
+
+function createDeliverablePackager(options = {}) {
+  const rootDir = path.resolve(safeString(options.rootDir) || process.cwd());
+  const releasesDir = path.resolve(safeString(options.releasesDir) || path.join(rootDir, "workspace", "releases"));
+
+  function renderStoreCopy(offer, sourceContext) {
+    return [
+      `# ${safeString(offer.offer_title)}`,
+      "",
+      `Product line: ${safeString(offer.product_line)}`,
+      `Tier: ${safeString(offer.tier)}`,
+      `Source: ${safeString(sourceContext.source_kind)} ${safeString(sourceContext.source_id)}`,
+      "",
+      "This release bundle is a packaging artifact prepared for manual review and manual submission only.",
+      "",
+      "## Description",
+      safeString(sourceContext.description) || safeString(offer.offer_title),
+      ""
+    ].join("\n");
+  }
+
+  function renderResearchReport(offer, sourceContext) {
+    const lines = [
+      `# ${safeString(offer.offer_title)}`,
+      "",
+      "Manual-only packaging artifact.",
+      "",
+      `Source mission: ${safeString(sourceContext.source_id)}`,
+      `Product line: ${safeString(offer.product_line)}`,
+      `Tier: ${safeString(offer.tier)}`,
+      "",
+      "## Source Summary",
+      safeString(sourceContext.description) || "Mission summary unavailable.",
+      ""
+    ];
+
+    for (const artifact of Array.isArray(sourceContext.artifacts) ? sourceContext.artifacts : []) {
+      lines.push(`## ${safeString(artifact.task_id)}`);
+      lines.push("");
+      lines.push(shortText(artifact.output_excerpt, 2400) || "No output excerpt available.");
+      lines.push("");
+    }
+    return `${lines.join("\n")}\n`;
+  }
+
+  function renderEvidenceAppendix(sourceContext) {
+    const lines = [
+      "# Evidence Appendix",
+      "",
+      "Source task outputs included in this manual-only package:",
+      ""
+    ];
+    for (const artifact of Array.isArray(sourceContext.artifacts) ? sourceContext.artifacts : []) {
+      lines.push(`- ${safeString(artifact.task_id)} :: ${safeString(artifact.output_rel)}`);
+    }
+    lines.push("");
+    return `${lines.join("\n")}\n`;
+  }
+
+  function renderDatasetCard(offer, sourceContext) {
+    return [
+      `# ${safeString(offer.offer_title)}`,
+      "",
+      "This dataset card is generated for manual review and manual submission only.",
+      "",
+      `Dataset ID: ${safeString(sourceContext.source_id)}`,
+      `Build ID: ${safeString(sourceContext.build_id)}`,
+      `Dataset Type: ${safeString(sourceContext.metadata.dataset_type)}`,
+      `Rows: ${String(sourceContext.metadata.row_count || 0)}`,
+      ""
+    ].join("\n");
+  }
+
+  function renderPrivateDeliveryNote(offer) {
+    return [
+      "# Private Delivery Note",
+      "",
+      `Offer ${safeString(offer.offer_id)} is prepared for manual-only delivery or manual-only listing review.`,
+      "",
+      "No external publication or submission has occurred as part of this package build.",
+      ""
+    ].join("\n");
+  }
+
+  function createBundleWorkspace(offerId) {
+    ensureDir(releasesDir);
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-phase19-release-"));
+    const tempBundleDir = path.join(tempRoot, offerId);
+    ensureDir(tempBundleDir);
+    return tempBundleDir;
+  }
+
+  function writeDeliverables(bundleDir, offer, sourceContext) {
+    const deliverablesDir = path.join(bundleDir, "deliverables");
+    ensureDir(deliverablesDir);
+    const artifactRefs = {};
+
+    if (safeString(sourceContext.source_kind) === "mission") {
+      const reportPath = path.join(deliverablesDir, "report.md");
+      const appendixPath = path.join(deliverablesDir, "evidence-appendix.md");
+      const tablesPath = path.join(deliverablesDir, "tables.csv");
+      const previewPath = path.join(deliverablesDir, "sample-preview.md");
+      writeText(reportPath, renderResearchReport(offer, sourceContext));
+      writeText(appendixPath, renderEvidenceAppendix(sourceContext));
+      writeText(tablesPath, renderCsv([
+        ["task_id", "output_path", "status"],
+        ...(Array.isArray(sourceContext.summary.subtask_results) ? sourceContext.summary.subtask_results : []).map((entry) => [
+          safeString(entry.subtask_id || entry.task_id),
+          safeString(entry.output_path),
+          safeString(entry.status) || "completed"
+        ])
+      ]));
+      writeText(previewPath, shortText(renderResearchReport(offer, sourceContext), 1200));
+      artifactRefs.primary_deliverable = relativeFrom(bundleDir, reportPath);
+      artifactRefs.structured_support = relativeFrom(bundleDir, tablesPath);
+      artifactRefs.supporting_appendix = relativeFrom(bundleDir, appendixPath);
+      artifactRefs.sample_preview = relativeFrom(bundleDir, previewPath);
+    } else {
+      const datasetPath = path.join(deliverablesDir, "dataset.jsonl");
+      const schemaPath = path.join(deliverablesDir, "schema.json");
+      const buildReportPath = path.join(deliverablesDir, "build-report.json");
+      const cardPath = path.join(deliverablesDir, "dataset-card.md");
+      const previewPath = path.join(deliverablesDir, "sample-preview.jsonl");
+      fs.copyFileSync(sourceContext.dataset_path, datasetPath);
+      fs.copyFileSync(sourceContext.schema_path, schemaPath);
+      fs.copyFileSync(sourceContext.build_report_path, buildReportPath);
+      writeText(cardPath, renderDatasetCard(offer, sourceContext));
+      const previewLines = fs.readFileSync(sourceContext.dataset_path, "utf8").split("\n").filter(Boolean).slice(0, 5).join("\n");
+      writeText(previewPath, previewLines ? `${previewLines}\n` : "");
+      artifactRefs.primary_deliverable = relativeFrom(bundleDir, datasetPath);
+      artifactRefs.structured_support = relativeFrom(bundleDir, schemaPath);
+      artifactRefs.supporting_appendix = relativeFrom(bundleDir, cardPath);
+      artifactRefs.sample_preview = relativeFrom(bundleDir, previewPath);
+      artifactRefs.build_report = relativeFrom(bundleDir, buildReportPath);
+    }
+
+    const storeCopyPath = path.join(deliverablesDir, "store-copy.md");
+    const submissionMetadataPath = path.join(deliverablesDir, "submission-metadata.json");
+    const deliveryManifestPath = path.join(deliverablesDir, "delivery-manifest.json");
+    const privateDeliveryNotePath = path.join(deliverablesDir, "private-delivery-note.md");
+    writeText(storeCopyPath, renderStoreCopy(offer, sourceContext));
+    writeJson(submissionMetadataPath, canonicalize({
+      offer_id: safeString(offer.offer_id),
+      offer_title: safeString(offer.offer_title),
+      manual_only: true,
+      packaging_artifact: true,
+      source_kind: safeString(sourceContext.source_kind),
+      source_id: safeString(sourceContext.source_id),
+      build_id: safeString(sourceContext.build_id),
+      platform_targets: Array.isArray(offer.platform_targets) ? offer.platform_targets : []
+    }));
+    writeJson(deliveryManifestPath, canonicalize({
+      offer_id: safeString(offer.offer_id),
+      product_line: safeString(offer.product_line),
+      tier: safeString(offer.tier),
+      source_kind: safeString(sourceContext.source_kind),
+      source_id: safeString(sourceContext.source_id),
+      build_id: safeString(sourceContext.build_id),
+      manual_only: true
+    }));
+    writeText(privateDeliveryNotePath, renderPrivateDeliveryNote(offer));
+    artifactRefs.store_copy = relativeFrom(bundleDir, storeCopyPath);
+    artifactRefs.submission_metadata = relativeFrom(bundleDir, submissionMetadataPath);
+    artifactRefs.delivery_manifest = relativeFrom(bundleDir, deliveryManifestPath);
+    artifactRefs.private_delivery_note = relativeFrom(bundleDir, privateDeliveryNotePath);
+
+    const missingSlots = asStringArray(offer.artifact_slots).filter((slot) => !safeString(artifactRefs[slot]));
+    if (missingSlots.length > 0) {
+      const error = new Error(`Bundle is missing required artifact slots: ${missingSlots.join(", ")}`);
+      error.code = "PHASE19_RELEASE_ARTIFACT_SLOT_MISSING";
+      throw error;
+    }
+
+    return canonicalize(artifactRefs);
+  }
+
+  function writeBundleRoot(bundleDir, offer, sourceContext, artifactRefs, submissionRefs = {}) {
+    const offerPath = path.join(bundleDir, "offer.json");
+    const metadataPath = path.join(bundleDir, "metadata.json");
+    const releaseNotesPath = path.join(bundleDir, "release-notes.md");
+    writeJson(offerPath, canonicalize({
+      ...offer,
+      artifact_refs: canonicalize({
+        ...artifactRefs,
+        submission: submissionRefs
+      })
+    }));
+    writeJson(metadataPath, canonicalize({
+      offer_id: safeString(offer.offer_id),
+      offer_title: safeString(offer.offer_title),
+      product_line: safeString(offer.product_line),
+      tier: safeString(offer.tier),
+      source_kind: safeString(sourceContext.source_kind),
+      source_id: safeString(sourceContext.source_id),
+      build_id: safeString(sourceContext.build_id),
+      platform_targets: Array.isArray(offer.platform_targets) ? offer.platform_targets : [],
+      workflow_roles: Array.isArray(offer.workflow_roles) ? offer.workflow_roles : [],
+      release_status: safeString(offer.release_status) || "packaged",
+      packaging_artifact: true,
+      publication_state: "not_published",
+      manual_submission_only: true
+    }));
+    writeText(releaseNotesPath, [
+      `# Release Notes: ${safeString(offer.offer_id)}`,
+      "",
+      "This bundle is prepared for manual-only delivery or manual-only listing submission.",
+      "",
+      `Product line: ${safeString(offer.product_line)}`,
+      `Tier: ${safeString(offer.tier)}`,
+      `Source: ${safeString(sourceContext.source_kind)} ${safeString(sourceContext.source_id)}`,
+      `Targets: ${(Array.isArray(offer.platform_targets) ? offer.platform_targets : []).join(", ")}`,
+      ""
+    ].join("\n"));
+  }
+
+  function finalizeBundle(bundleDir) {
+    const files = [];
+    const stack = [bundleDir];
+    while (stack.length > 0) {
+      const current = stack.pop();
+      const entries = fs.readdirSync(current, { withFileTypes: true }).sort((left, right) => left.name.localeCompare(right.name));
+      for (const entry of entries) {
+        const fullPath = path.join(current, entry.name);
+        if (entry.isDirectory()) {
+          stack.push(fullPath);
+          continue;
+        }
+        const rel = relativeFrom(bundleDir, fullPath);
+        if (["manifest.json", "checksums.txt", "release-approval.json"].includes(rel)) {
+          continue;
+        }
+        files.push(canonicalize({
+          file: rel,
+          sha256: hashFile(fullPath)
+        }));
+      }
+    }
+    files.sort((left, right) => left.file.localeCompare(right.file));
+    const manifestPath = path.join(bundleDir, "manifest.json");
+    const checksumsPath = path.join(bundleDir, "checksums.txt");
+    writeJson(manifestPath, canonicalize({
+      schema_version: "phase19-release-manifest-v1",
+      files
+    }));
+    writeText(checksumsPath, files.map((entry) => `${entry.sha256}  ${entry.file}`).join("\n") + (files.length > 0 ? "\n" : ""));
+    return canonicalize({
+      manifest_path: manifestPath,
+      checksums_path: checksumsPath,
+      files
+    });
+  }
+
+  function commitBundle(tempBundleDir, offerId) {
+    const finalBundleDir = path.join(releasesDir, offerId);
+    if (fs.existsSync(finalBundleDir)) {
+      fs.rmSync(finalBundleDir, { recursive: true, force: true });
+    }
+    ensureDir(path.dirname(finalBundleDir));
+    fs.renameSync(tempBundleDir, finalBundleDir);
+    return finalBundleDir;
+  }
+
+  return Object.freeze({
+    createBundleWorkspace,
+    writeDeliverables,
+    writeBundleRoot,
+    finalizeBundle,
+    commitBundle,
+    releasesDir
+  });
+}
+
+module.exports = {
+  createDeliverablePackager
+};

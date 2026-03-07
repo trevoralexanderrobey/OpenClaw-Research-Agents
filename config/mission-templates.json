@@ -157,6 +157,123 @@
         }
       ]
     },
+    "research_pack": {
+      "id": "research_pack",
+      "enabled": true,
+      "safety_class": "draft_artifact",
+      "spawned_roles": [
+        "scout",
+        "analyst",
+        "synthesizer"
+      ],
+      "steps": [
+        {
+          "role": "scout",
+          "action_type": "discover_sources",
+          "task_type": "extract",
+          "description": "Discover research sources for a productized research pack",
+          "input_strategy": "mission_inputs"
+        },
+        {
+          "role": "analyst",
+          "action_type": "analyze_documents",
+          "task_type": "analyze",
+          "description": "Analyze research findings for the packaged deliverable",
+          "input_strategy": "mission_and_dependency_outputs",
+          "depends_on": [
+            1
+          ]
+        },
+        {
+          "role": "synthesizer",
+          "action_type": "synthesize_output",
+          "task_type": "synthesize",
+          "description": "Synthesize the research pack source artifact",
+          "input_strategy": "dependency_outputs",
+          "depends_on": [
+            2
+          ]
+        }
+      ]
+    },
+    "dataset_sample": {
+      "id": "dataset_sample",
+      "enabled": true,
+      "safety_class": "draft_artifact",
+      "spawned_roles": [
+        "scout",
+        "analyst",
+        "synthesizer"
+      ],
+      "steps": [
+        {
+          "role": "scout",
+          "action_type": "discover_sources",
+          "task_type": "extract",
+          "description": "Discover source material for dataset generation",
+          "input_strategy": "mission_inputs"
+        },
+        {
+          "role": "analyst",
+          "action_type": "extract_structured",
+          "task_type": "analyze",
+          "description": "Extract structured findings to support a staged dataset build",
+          "input_strategy": "mission_and_dependency_outputs",
+          "depends_on": [
+            1
+          ]
+        },
+        {
+          "role": "synthesizer",
+          "action_type": "synthesize_output",
+          "task_type": "synthesize",
+          "description": "Synthesize the dataset-ready mission source artifact",
+          "input_strategy": "dependency_outputs",
+          "depends_on": [
+            2
+          ]
+        }
+      ]
+    },
+    "subscription_refresh": {
+      "id": "subscription_refresh",
+      "enabled": true,
+      "safety_class": "draft_artifact",
+      "spawned_roles": [
+        "scout",
+        "analyst",
+        "synthesizer"
+      ],
+      "steps": [
+        {
+          "role": "scout",
+          "action_type": "discover_sources",
+          "task_type": "extract",
+          "description": "Discover updated sources for a recurring intelligence refresh",
+          "input_strategy": "mission_inputs"
+        },
+        {
+          "role": "analyst",
+          "action_type": "analyze_documents",
+          "task_type": "analyze",
+          "description": "Analyze deltas and updates for the refresh cycle",
+          "input_strategy": "mission_and_dependency_outputs",
+          "depends_on": [
+            1
+          ]
+        },
+        {
+          "role": "synthesizer",
+          "action_type": "synthesize_output",
+          "task_type": "synthesize",
+          "description": "Synthesize the refreshed subscription artifact",
+          "input_strategy": "dependency_outputs",
+          "depends_on": [
+            2
+          ]
+        }
+      ]
+    },
     "publish_newsletter": {
       "id": "publish_newsletter",
       "enabled": false,

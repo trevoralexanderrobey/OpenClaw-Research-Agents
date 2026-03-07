@@ -1,0 +1,62 @@
+{
+  "schema_version": "phase19-dataset-quality-rules-v1",
+  "dataset_types": {
+    "benchmark_eval": {
+      "min_row_count": 1,
+      "non_empty_fields": [
+        "evaluation_criteria",
+        "expected_answer",
+        "prompt"
+      ],
+      "unique_by": "row_hash"
+    },
+    "classification": {
+      "min_lengths": {
+        "text": 8
+      },
+      "min_row_count": 1,
+      "non_empty_fields": [
+        "label",
+        "label_rationale",
+        "text"
+      ],
+      "unique_by": "row_hash"
+    },
+    "instruction_qa": {
+      "min_lengths": {
+        "answer": 8,
+        "instruction": 8
+      },
+      "min_row_count": 1,
+      "non_empty_fields": [
+        "answer",
+        "context",
+        "instruction"
+      ],
+      "unique_by": "row_hash"
+    },
+    "knowledge_graph": {
+      "min_row_count": 1,
+      "non_empty_fields": [
+        "context",
+        "object",
+        "predicate",
+        "subject"
+      ],
+      "unique_by": "row_hash"
+    },
+    "retrieval_qa": {
+      "min_lengths": {
+        "answer": 8,
+        "query": 8
+      },
+      "min_row_count": 1,
+      "non_empty_fields": [
+        "answer",
+        "context",
+        "query"
+      ],
+      "unique_by": "row_hash"
+    }
+  }
+}

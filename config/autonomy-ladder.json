@@ -6,20 +6,20 @@
       "requireHumanApproval": []
     },
     "scout": {
-      "allowedActions": ["collect_sources", "execute_task"],
+      "allowedActions": ["collect_sources", "execute_task", "discover_sources"],
       "requireHumanApproval": ["execute_task"]
     },
     "analyst": {
-      "allowedActions": ["analyze_documents", "execute_task"],
+      "allowedActions": ["analyze_documents", "execute_task", "extract_structured"],
       "requireHumanApproval": ["execute_task"]
     },
     "synthesizer": {
-      "allowedActions": ["synthesize_output", "execute_task"],
+      "allowedActions": ["synthesize_output", "execute_task", "build_dataset_rows", "write_dataset_card", "generate_store_copy", "generate_submission_pack", "package_release"],
       "requireHumanApproval": ["execute_task"]
     },
     "operator": {
-      "allowedActions": ["approve_mutation", "execute_task"],
-      "requireHumanApproval": ["approve_mutation", "execute_task"]
+      "allowedActions": ["approve_mutation", "execute_task", "approve_release"],
+      "requireHumanApproval": ["approve_mutation", "execute_task", "approve_release"]
     },
     "supervisor": {
       "allowedActions": ["queue_task", "approve_task"],

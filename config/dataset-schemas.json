@@ -1,0 +1,61 @@
+{
+  "schema_version": "phase19-dataset-schemas-v1",
+  "dataset_types": {
+    "benchmark_eval": {
+      "allow_additional_fields": false,
+      "dataset_type": "benchmark_eval",
+      "required_fields": [
+        "evaluation_criteria",
+        "expected_answer",
+        "prompt",
+        "row_hash"
+      ],
+      "schema_version": "phase19-benchmark-eval-v1"
+    },
+    "classification": {
+      "allow_additional_fields": false,
+      "dataset_type": "classification",
+      "required_fields": [
+        "label",
+        "label_rationale",
+        "row_hash",
+        "text"
+      ],
+      "schema_version": "phase19-classification-v1"
+    },
+    "instruction_qa": {
+      "allow_additional_fields": false,
+      "dataset_type": "instruction_qa",
+      "required_fields": [
+        "answer",
+        "context",
+        "instruction",
+        "row_hash"
+      ],
+      "schema_version": "phase19-instruction-qa-v1"
+    },
+    "knowledge_graph": {
+      "allow_additional_fields": false,
+      "dataset_type": "knowledge_graph",
+      "required_fields": [
+        "context",
+        "object",
+        "predicate",
+        "row_hash",
+        "subject"
+      ],
+      "schema_version": "phase19-knowledge-graph-v1"
+    },
+    "retrieval_qa": {
+      "allow_additional_fields": false,
+      "dataset_type": "retrieval_qa",
+      "required_fields": [
+        "answer",
+        "context",
+        "query",
+        "row_hash"
+      ],
+      "schema_version": "phase19-retrieval-qa-v1"
+    }
+  }
+}

@@ -235,6 +235,32 @@ Mitigation:
 - RLHF drafts may be mirrored in deterministic artifact store `workspace/memory/rlhf-drafts.ndjson`.
 - RLHF manual package output is local-only at `workspace/memory/rlhf-manual-packages/`.
 
+## Phase 18 Mission Orchestration Surface
+- Mission execution remains local-first under `workspace/missions/`.
+- Mission templates remain constrained to `research_only` and `draft_artifact` classes when enabled.
+- External action templates remain disabled stubs only.
+- Mission orchestration does not add browser automation, login automation, shell execution, container launch, or direct external submission paths.
+
+## Phase 19 Dataset Foundation Surface
+- New local dataset surface:
+  - `workspace/datasets/raw/<datasetId>/`
+  - `workspace/datasets/staged/<datasetId>/<buildId>/`
+  - `workspace/datasets/index/datasets-index.json`
+- Dataset builds are derived from existing local research outputs or mission artifacts.
+- Latest-build lookup is index-based, not filesystem timestamp-based.
+- Dataset generation remains local-only and does not add outbound publish, upload, or marketplace submission paths.
+- Phase 19 does not add full provenance, licensing review, dataset scoring, dedupe, or publisher adapters.
+
+## Phase 19 Monetization and Release Packaging Surface
+- New local packaging surface:
+  - `workspace/releases/<offerId>/`
+  - `workspace/releases/<offerId>/submission/<platform>/`
+- Submission packs are manual-only preparation artifacts.
+- Release bundles are packaging artifacts, not proof of publication.
+- Final release approval is a human-only local sign-off before export.
+- Export remains local-only; external publishing, upload, delivery, and marketplace submission remain manual-only.
+- No new outbound hosts are introduced by Phase 19 monetization or release packaging.
+
 ## Container/Credential Boundaries
 - Non-root, non-privileged, no host-network, read-only rootfs.
 - Per-MCP credential handle isolation and writable namespace isolation.

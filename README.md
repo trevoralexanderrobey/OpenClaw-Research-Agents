@@ -1,14 +1,37 @@
 # OpenClaw Research Agents
 
-Local-first, file-based, audit-oriented research orchestration scaffold built on OpenClaw architectural patterns.
+Governed, local-first research, dataset, and release-packaging system built on OpenClaw patterns.
 
-## What It Does Now
-- Runs operator-initiated research tasks through a supervisor-gated agent engine.
-- Supports deterministic mock LLM execution out of the box (`mock` provider).
-- Supports optional real providers (`local`/Ollama, `openai`, `anthropic`, `openrouter`) via local config.
-- Persists task outputs, manifests, interaction logs, and governance artifacts on local disk.
-- Enforces Cline supervisor authority and governance checks before execution.
-- Includes multi-agent topology scaffolding, deterministic lane queues, comms bus, MCP ingestion connectors, and runtime resume modules.
+## Current Baseline
+- Operator-initiated research tasks run through supervisor and governance approval.
+- Phase 18 mission orchestration is already in place:
+  - bounded concurrent dispatch
+  - dependency-aware scheduling
+  - deterministic orchestrator-owned synthesis
+  - timeout, stall, resume, and checkpoint controls
+  - bounded deterministic lane scaling
+- Phase 19 adds:
+  - deterministic dataset foundation under `workspace/datasets/`
+  - deterministic monetization and release packaging under `workspace/releases/`
+
+## Governance Boundary
+- Internal generation may be autonomous for research synthesis, dataset builds, packaging, store copy, and submission-pack preparation.
+- Final release approval remains human-only.
+- External publishing, uploads, marketplace submissions, customer delivery, login automation, and browser automation remain manual-only.
+- Phase 19 release bundles are packaging artifacts, not proof of publication.
+
+## Key Paths
+- `workspace/research-output/` research task outputs and manifests
+- `workspace/missions/` mission-local orchestration state
+- `workspace/datasets/raw/<datasetId>/` raw dataset source snapshots
+- `workspace/datasets/staged/<datasetId>/<buildId>/` deterministic staged dataset builds
+- `workspace/datasets/index/datasets-index.json` canonical dataset/build index and latest-build lookup
+- `workspace/releases/<offerId>/` deterministic release bundles
+
+## Dataset Identity
+- `dataset_id` is the stable dataset identity.
+- `build_id` is the specific deterministic dataset build identity.
+- Latest-build lookup comes from `workspace/datasets/index/datasets-index.json`, not filesystem timestamps.
 
 ## Quick Start
 
@@ -17,7 +40,7 @@ Local-first, file-based, audit-oriented research orchestration scaffold built on
 npm ci --offline --ignore-scripts --cache ./.ci/npm-cache
 ```
 
-2. Run a mock research task (no API keys required):
+2. Run a mock research task:
 ```bash
 node scripts/run-research-task.js \
   --task "Summarize the sample input documents" \
@@ -28,112 +51,164 @@ node scripts/run-research-task.js \
   --confirm
 ```
 
-3. Inspect results:
+3. Build a dataset from an existing research task:
 ```bash
-node scripts/list-research-tasks.js
-node scripts/view-interaction-log.js
+node scripts/build-dataset-from-task.js \
+  --task-id task-EXAMPLE \
+  --dataset-type instruction_qa \
+  --confirm
 ```
 
-## Provider Configuration
+4. Run a first `research_to_dataset` mission:
+```bash
+node scripts/run-dataset-mission.js \
+  --task "Build a dataset-ready mission artifact from the sample corpus" \
+  --dataset-type retrieval_qa \
+  --input workspace/research-input/sample/ \
+  --confirm
+```
 
-Committed template:
-- `config/llm-providers.json`
+5. Generate a release bundle from a completed mission:
+```bash
+node scripts/generate-offer.js \
+  --source mission-EXAMPLE \
+  --product-line research_packs \
+  --tier standard \
+  --targets gumroad,lemon_squeezy \
+  --confirm
+```
 
-Local secrets/config (gitignored):
-- `config/llm-providers.local.json`
+6. Generate a release bundle from a completed dataset:
+```bash
+node scripts/generate-offer.js \
+  --source dataset-EXAMPLE \
+  --product-line dataset_packs \
+  --tier premium \
+  --targets hugging_face,kaggle \
+  --confirm
+```
 
-Runtime interaction log (gitignored):
-- `security/interaction-log.json`
+7. Approve the exact packaged bundle for export:
+```bash
+node scripts/approve-release.js \
+  --offer-id offer-EXAMPLE \
+  --operator-id operator-cli \
+  --confirm
+```
 
-Default provider is `mock` for safe deterministic local execution.
+8. Export for manual upload or manual delivery:
+```bash
+node scripts/export-release.js \
+  --offer-id offer-EXAMPLE \
+  --format zip \
+  --confirm
+```
 
-## Supervisor Model (Cline)
-- Supervisor mediation is mandatory for task execution.
-- Required lifecycle:
-  - `pending -> supervisor_approved -> governance_approved -> executing -> completed|failed|rejected`
-- Direct engine execution without `context.supervisorDecision.approved === true` fails closed (`SUPERVISOR_APPROVAL_REQUIRED`).
-- `scripts/run-research-task.js` routes execution through supervisor approval and `runApprovedTask` only.
-- External submission, platform login, attestation, and final submission actions are manual-only.
+## Dataset Foundation
+
+Supported Phase 19 dataset types:
+- `instruction_qa`
+- `retrieval_qa`
+- `benchmark_eval`
+- `classification`
+- `knowledge_graph`
+
+Dataset builds write deterministic artifacts:
+- `dataset.jsonl`
+- `metadata.json`
+- `manifest.json`
+- `schema.json`
+- `build-report.json`
+
+Phase 19 does not yet implement full provenance, licensing review, dataset scoring, dedupe, or publisher adapters.
+
+## Monetization and Release Packaging
+
+Supported product lines:
+- `research_retainers`
+- `research_subscriptions`
+- `research_packs`
+- `dataset_samples`
+- `dataset_packs`
+- `dataset_subscriptions`
+- `custom_dataset_services`
+- `enterprise_private_delivery`
+- `sponsorship_assets`
+
+Supported tiers:
+- `sample`
+- `standard`
+- `premium`
+- `enterprise`
+
+Release bundles write deterministic local artifacts:
+- `offer.json`
+- `metadata.json`
+- `manifest.json`
+- `checksums.txt`
+- `release-notes.md`
+- `deliverables/`
+- `submission/<platform>/`
+- `release-approval.json` only after manual approval
+
+Supported platform submission packs remain manual-only:
+- `hugging_face`
+- `kaggle`
+- `gumroad`
+- `lemon_squeezy`
+- `aws_data_exchange`
+- `snowflake_marketplace`
+- `google_cloud_marketplace_bigquery`
+- `datarade`
+- `github_sponsors`
 
 ## Architecture
 
-Core Phase 14 path:
+Core research runtime:
 - `scripts/run-research-task.js`
-- `openclaw-bridge/core/supervisor-authority.js`
-- `openclaw-bridge/core/governance-bridge.js`
+- `scripts/_research-runtime.js`
 - `openclaw-bridge/core/agent-engine.js`
-- `openclaw-bridge/core/llm-adapter.js`
 - `openclaw-bridge/core/research-output-manager.js`
-- `openclaw-bridge/core/interaction-log.js`
-
-Phase 15 extensions:
-- `openclaw-bridge/core/agent-registry.js`
-- `openclaw-bridge/core/role-router.js`
-- `openclaw-bridge/core/lane-queue.js`
-- `openclaw-bridge/core/comms-bus.js`
-- `openclaw-bridge/core/autonomy-ladder.js`
-- `openclaw-bridge/core/heartbeat-state.js`
-
-Phase 16 extensions:
-- `integrations/mcp/*`
-- `workflows/research-ingestion/*`
-
-Phase 17 extensions:
-- `openclaw-bridge/execution/*`
-- `openclaw-bridge/state/*`
-- `openclaw-bridge/core/restart-resume-orchestrator.js`
-
-Phase 18 extensions:
-- `openclaw-bridge/core/agent-spawner.js`
-- `openclaw-bridge/core/spawn-orchestrator.js`
-- `openclaw-bridge/core/spawn-planner.js`
-- `openclaw-bridge/core/skill-provider.js`
 - `openclaw-bridge/core/mission-envelope-schema.js`
+- `openclaw-bridge/core/agent-spawner.js`
+- `openclaw-bridge/core/spawn-planner.js`
+- `openclaw-bridge/core/spawn-orchestrator.js`
 
-Live Verification extensions:
-- `scripts/run-live-llm-verification.js`
-- `scripts/run-live-mcp-verification.js`
-- `scripts/generate-phase1-evidence-map.js`
-- `.github/workflows/live-verification.yml`
+Phase 19 dataset runtime:
+- `openclaw-bridge/dataset/schema-engine.js`
+- `openclaw-bridge/dataset/dataset-builder.js`
+- `openclaw-bridge/dataset/dataset-output-manager.js`
+- `scripts/build-dataset-from-task.js`
+- `scripts/run-dataset-mission.js`
 
-## Security and Governance Invariants
-- No autonomous publishing/submission.
-- No browser/login credential automation.
-- Operator confirmation required for protected actions.
-- Deterministic hashing/canonical JSON for audit artifacts.
-- Network isolation for new phases:
-  - Allowed only in `openclaw-bridge/core/llm-adapter.js` and `integrations/mcp/*`.
-- Startup integrity is fail-closed.
+Phase 19 monetization runtime:
+- `scripts/_monetization-runtime.js`
+- `openclaw-bridge/monetization/offer-schema.js`
+- `openclaw-bridge/monetization/offer-builder.js`
+- `openclaw-bridge/monetization/deliverable-packager.js`
+- `openclaw-bridge/monetization/submission-pack-generator.js`
+- `openclaw-bridge/monetization/release-approval-manager.js`
+
+## Validation Commands
+```bash
+bash scripts/verify-phase18-policy.sh
+bash scripts/verify-monetization-policy.sh
+bash scripts/verify-phase19-policy.sh
+npm run monetization:verify
+npm run phase19:verify
+node --test tests/**/*.test.js
+npm run build:verify
+```
 
 ## Phase Status
 
 | Phase | Focus | Status |
 |---|---|---|
-| 2–13 | Governance/security foundation | Complete |
-| 14 | Core research agent engine | Implemented |
-| 15 | Multi-agent topology and comms/queue | Implemented |
+| 2-13 | Governance and security foundation | Complete |
+| 14 | Core research execution | Implemented |
+| 15 | Multi-agent topology and comms | Implemented |
 | 16 | MCP ingestion and normalization | Implemented |
-| 17 | Runtime hardening and resume orchestration | Implemented |
-| 18 | Agent Spawner & Mission Orchestration | Implemented |
-
-## Important Paths
-- `workspace/research-input/` sample task inputs
-- `workspace/research-output/` task outputs and index
-- `workspace/comms/` multi-agent comms artifacts
-- `workspace/research-raw/`, `workspace/research-normalized/`, `workspace/research-index/` ingestion artifacts
-- `state/runtime/state.json` runtime resume state (gitignored)
-- `audit/evidence/` deterministic evidence bundles
-
-## Validation Commands
-```bash
-bash scripts/verify-phase14-policy.sh
-bash scripts/verify-phase15-policy.sh
-bash scripts/verify-phase16-policy.sh
-bash scripts/verify-phase17-policy.sh
-bash scripts/verify-phase18-policy.sh
-node scripts/run-live-llm-verification.js
-node scripts/run-live-mcp-verification.js
-node --test tests/**/*.test.js
-node --test tests/scripts/**/*.test.js
-npm run phase2:gates
-```
+| 17 | Runtime hardening and resume | Implemented |
+| 18 | Mission orchestration | Implemented |
+| 19A | Monetization and release packaging | Implemented |
+| 19B | Dataset foundation | Implemented |

@@ -1,0 +1,346 @@
+{
+  "schema_version": "phase19-monetization-map-v1",
+  "product_lines": {
+    "custom_dataset_services": {
+      "artifact_profile": "dataset",
+      "default_platform_targets": [
+        "datarade",
+        "lemon_squeezy"
+      ],
+      "product_line": "custom_dataset_services",
+      "source_kinds": [
+        "dataset",
+        "mission"
+      ],
+      "supported_tiers": [
+        "premium",
+        "enterprise"
+      ],
+      "workflow_roles": [
+        "opportunity_agent",
+        "source_agent",
+        "builder_agent",
+        "transformation_agent",
+        "validator_agent",
+        "documentation_agent",
+        "packaging_agent",
+        "versioning_agent",
+        "sales_ops_agent"
+      ]
+    },
+    "dataset_packs": {
+      "artifact_profile": "dataset",
+      "default_platform_targets": [
+        "gumroad",
+        "hugging_face",
+        "kaggle",
+        "lemon_squeezy"
+      ],
+      "product_line": "dataset_packs",
+      "source_kinds": [
+        "dataset"
+      ],
+      "supported_tiers": [
+        "standard",
+        "premium",
+        "enterprise"
+      ],
+      "workflow_roles": [
+        "builder_agent",
+        "transformation_agent",
+        "validator_agent",
+        "documentation_agent",
+        "packaging_agent",
+        "store_agent",
+        "release_agent"
+      ]
+    },
+    "dataset_samples": {
+      "artifact_profile": "dataset",
+      "default_platform_targets": [
+        "github_sponsors",
+        "hugging_face",
+        "kaggle"
+      ],
+      "product_line": "dataset_samples",
+      "source_kinds": [
+        "dataset"
+      ],
+      "supported_tiers": [
+        "sample"
+      ],
+      "workflow_roles": [
+        "builder_agent",
+        "documentation_agent",
+        "packaging_agent",
+        "catalog_agent"
+      ]
+    },
+    "dataset_subscriptions": {
+      "artifact_profile": "dataset",
+      "default_platform_targets": [
+        "gumroad",
+        "lemon_squeezy"
+      ],
+      "product_line": "dataset_subscriptions",
+      "source_kinds": [
+        "dataset"
+      ],
+      "supported_tiers": [
+        "standard",
+        "premium",
+        "enterprise"
+      ],
+      "workflow_roles": [
+        "builder_agent",
+        "validator_agent",
+        "documentation_agent",
+        "versioning_agent",
+        "customer_agent",
+        "release_agent"
+      ]
+    },
+    "enterprise_private_delivery": {
+      "artifact_profile": "mixed",
+      "default_platform_targets": [
+        "aws_data_exchange",
+        "google_cloud_marketplace_bigquery",
+        "snowflake_marketplace"
+      ],
+      "product_line": "enterprise_private_delivery",
+      "source_kinds": [
+        "dataset",
+        "mission"
+      ],
+      "supported_tiers": [
+        "premium",
+        "enterprise"
+      ],
+      "workflow_roles": [
+        "lead_agent",
+        "packaging_agent",
+        "compliance_agent",
+        "release_agent",
+        "sales_ops_agent"
+      ]
+    },
+    "research_packs": {
+      "artifact_profile": "research",
+      "default_platform_targets": [
+        "gumroad",
+        "lemon_squeezy"
+      ],
+      "product_line": "research_packs",
+      "source_kinds": [
+        "mission"
+      ],
+      "supported_tiers": [
+        "sample",
+        "standard",
+        "premium"
+      ],
+      "workflow_roles": [
+        "intake_agent",
+        "discovery_agent",
+        "collection_agent",
+        "extraction_agent",
+        "analyst_agent",
+        "qa_agent",
+        "packaging_agent"
+      ]
+    },
+    "research_retainers": {
+      "artifact_profile": "research",
+      "default_platform_targets": [
+        "gumroad",
+        "lemon_squeezy"
+      ],
+      "product_line": "research_retainers",
+      "source_kinds": [
+        "mission"
+      ],
+      "supported_tiers": [
+        "standard",
+        "premium",
+        "enterprise"
+      ],
+      "workflow_roles": [
+        "intake_agent",
+        "discovery_agent",
+        "collection_agent",
+        "analyst_agent",
+        "qa_agent",
+        "packaging_agent",
+        "lead_agent"
+      ]
+    },
+    "research_subscriptions": {
+      "artifact_profile": "research",
+      "default_platform_targets": [
+        "gumroad",
+        "lemon_squeezy"
+      ],
+      "product_line": "research_subscriptions",
+      "source_kinds": [
+        "mission"
+      ],
+      "supported_tiers": [
+        "standard",
+        "premium",
+        "enterprise"
+      ],
+      "workflow_roles": [
+        "discovery_agent",
+        "collection_agent",
+        "analyst_agent",
+        "qa_agent",
+        "packaging_agent",
+        "lead_agent",
+        "sponsor_update_agent"
+      ]
+    },
+    "sponsorship_assets": {
+      "artifact_profile": "research",
+      "default_platform_targets": [
+        "github_sponsors"
+      ],
+      "product_line": "sponsorship_assets",
+      "source_kinds": [
+        "mission"
+      ],
+      "supported_tiers": [
+        "sample",
+        "standard",
+        "premium"
+      ],
+      "workflow_roles": [
+        "lead_agent",
+        "sponsor_update_agent",
+        "packaging_agent"
+      ]
+    }
+  },
+  "tiers": {
+    "enterprise": {
+      "allowed_platform_targets": [
+        "aws_data_exchange",
+        "datarade",
+        "google_cloud_marketplace_bigquery",
+        "github_sponsors",
+        "gumroad",
+        "hugging_face",
+        "kaggle",
+        "lemon_squeezy",
+        "snowflake_marketplace"
+      ],
+      "final_release_gate_required": true,
+      "required_artifact_slots": [
+        "primary_deliverable",
+        "structured_support",
+        "supporting_appendix",
+        "store_copy",
+        "submission_metadata",
+        "delivery_manifest",
+        "private_delivery_note"
+      ],
+      "required_metadata_fields": [
+        "offer_id",
+        "offer_title",
+        "platform_targets",
+        "product_line",
+        "release_status",
+        "source_id",
+        "source_kind",
+        "tier"
+      ],
+      "tier": "enterprise"
+    },
+    "premium": {
+      "allowed_platform_targets": [
+        "aws_data_exchange",
+        "datarade",
+        "google_cloud_marketplace_bigquery",
+        "github_sponsors",
+        "gumroad",
+        "hugging_face",
+        "kaggle",
+        "lemon_squeezy",
+        "snowflake_marketplace"
+      ],
+      "final_release_gate_required": true,
+      "required_artifact_slots": [
+        "primary_deliverable",
+        "structured_support",
+        "supporting_appendix",
+        "store_copy",
+        "submission_metadata"
+      ],
+      "required_metadata_fields": [
+        "offer_id",
+        "offer_title",
+        "platform_targets",
+        "product_line",
+        "release_status",
+        "source_id",
+        "source_kind",
+        "tier"
+      ],
+      "tier": "premium"
+    },
+    "sample": {
+      "allowed_platform_targets": [
+        "datarade",
+        "github_sponsors",
+        "gumroad",
+        "hugging_face",
+        "kaggle",
+        "lemon_squeezy"
+      ],
+      "final_release_gate_required": true,
+      "required_artifact_slots": [
+        "primary_deliverable",
+        "sample_preview",
+        "store_copy"
+      ],
+      "required_metadata_fields": [
+        "offer_id",
+        "offer_title",
+        "platform_targets",
+        "product_line",
+        "release_status",
+        "source_id",
+        "source_kind",
+        "tier"
+      ],
+      "tier": "sample"
+    },
+    "standard": {
+      "allowed_platform_targets": [
+        "datarade",
+        "github_sponsors",
+        "gumroad",
+        "hugging_face",
+        "kaggle",
+        "lemon_squeezy"
+      ],
+      "final_release_gate_required": true,
+      "required_artifact_slots": [
+        "primary_deliverable",
+        "structured_support",
+        "supporting_appendix",
+        "store_copy"
+      ],
+      "required_metadata_fields": [
+        "offer_id",
+        "offer_title",
+        "platform_targets",
+        "product_line",
+        "release_status",
+        "source_id",
+        "source_kind",
+        "tier"
+      ],
+      "tier": "standard"
+    }
+  }
+}

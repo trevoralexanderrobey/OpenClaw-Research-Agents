@@ -19,5 +19,13 @@ workspace/research-output/*
 !workspace/research-output/.gitkeep
 workspace/missions/*
 !workspace/missions/.gitkeep
+workspace/releases/*
+!workspace/releases/.gitkeep
+workspace/datasets/raw/*
+!workspace/datasets/raw/.gitkeep
+workspace/datasets/staged/*
+!workspace/datasets/staged/.gitkeep
+workspace/datasets/index/*
+!workspace/datasets/index/.gitkeep
 state/runtime/state.json
 workspace/memory/research-ingestion.ndjson

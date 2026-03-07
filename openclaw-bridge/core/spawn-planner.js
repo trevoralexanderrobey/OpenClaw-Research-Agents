@@ -1,10 +1,13 @@
 "use strict";
 
 const { canonicalize, safeString } = require("../../workflows/governance-automation/common.js");
+const { TASK_TYPES } = require("./task-definition-schema.js");
 const {
   SPAWN_PLAN_SCHEMA_VERSION,
   validateMissionEnvelope
 } = require("./mission-envelope-schema.js");
+
+const ALLOWED_INPUT_STRATEGIES = Object.freeze(["mission_inputs", "mission_and_dependency_outputs", "dependency_outputs"]);
 
 function createSpawnPlanner(options = {}) {
   const logger = options.logger && typeof options.logger === "object" ? options.logger : { info() {}, warn() {}, error() {} };
@@ -37,6 +40,54 @@ function createSpawnPlanner(options = {}) {
       const error = new Error(`Mission template '${safeString(template.id)}' is not enabled for Phase 18`);
       error.code = "PHASE18_TEMPLATE_CLASS_DENIED";
       throw error;
+    }
+  }
+
+  function validateTemplateStructure(template, declaredRoles) {
+    const steps = Array.isArray(template.steps) ? template.steps : [];
+    const spawnedRoles = Array.isArray(template.spawned_roles) ? template.spawned_roles.map((entry) => safeString(entry)).filter(Boolean) : [];
+    for (const role of spawnedRoles) {
+      if (!declaredRoles.includes(role)) {
+        const error = new Error(`Template role '${role}' is not declared in topology`);
+        error.code = "PHASE18_TEMPLATE_ROLE_UNDECLARED";
+        throw error;
+      }
+    }
+
+    for (const [index, step] of steps.entries()) {
+      const role = safeString(step.role);
+      const actionType = safeString(step.action_type || step.actionType);
+      const taskType = safeString(step.task_type || step.taskType);
+      const inputStrategy = safeString(step.input_strategy || step.inputStrategy) || "mission_inputs";
+      if (!role || !spawnedRoles.includes(role)) {
+        const error = new Error(`Template step ${index + 1} references undeclared role '${role || "(empty)"}'`);
+        error.code = "PHASE18_TEMPLATE_STEP_ROLE_INVALID";
+        throw error;
+      }
+      if (!actionType) {
+        const error = new Error(`Template step ${index + 1} is missing action_type`);
+        error.code = "PHASE18_TEMPLATE_STEP_ACTION_REQUIRED";
+        throw error;
+      }
+      if (!TASK_TYPES.includes(taskType)) {
+        const error = new Error(`Template step ${index + 1} uses unsupported task_type '${taskType || "(empty)"}'`);
+        error.code = "PHASE18_TEMPLATE_STEP_TASK_TYPE_INVALID";
+        throw error;
+      }
+      if (!ALLOWED_INPUT_STRATEGIES.includes(inputStrategy)) {
+        const error = new Error(`Template step ${index + 1} uses unsupported input_strategy '${inputStrategy}'`);
+        error.code = "PHASE18_TEMPLATE_STEP_INPUT_STRATEGY_INVALID";
+        throw error;
+      }
+      const dependsOn = Array.isArray(step.depends_on) ? step.depends_on : [];
+      for (const dependency of dependsOn) {
+        const normalizedDependency = Number(dependency);
+        if (!Number.isInteger(normalizedDependency) || normalizedDependency < 1 || normalizedDependency >= index + 1) {
+          const error = new Error(`Template step ${index + 1} has invalid depends_on reference '${String(dependency)}'`);
+          error.code = "PHASE18_TEMPLATE_STEP_DEPENDENCY_INVALID";
+          throw error;
+        }
+      }
     }
   }
 
@@ -239,13 +290,7 @@ function createSpawnPlanner(options = {}) {
     assertTemplateEnabled(template);
 
     const declaredRoles = Array.isArray(agentTopology.roles) ? agentTopology.roles.map((entry) => safeString(entry)).filter(Boolean) : [];
-    for (const role of Array.isArray(template.spawned_roles) ? template.spawned_roles : []) {
-      if (!declaredRoles.includes(safeString(role))) {
-        const error = new Error(`Template role '${safeString(role)}' is not declared in topology`);
-        error.code = "PHASE18_TEMPLATE_ROLE_UNDECLARED";
-        throw error;
-      }
-    }
+    validateTemplateStructure(template, declaredRoles);
 
     const skills = skillProvider.resolveSkills(missionEnvelope, context);
     const runtimeConfig = resolveRuntimeConfig(missionEnvelope, template);
@@ -283,5 +328,6 @@ function createSpawnPlanner(options = {}) {
 }
 
 module.exports = {
+  ALLOWED_INPUT_STRATEGIES,
   createSpawnPlanner
 };

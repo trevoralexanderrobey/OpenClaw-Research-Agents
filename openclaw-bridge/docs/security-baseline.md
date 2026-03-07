@@ -84,3 +84,8 @@
 ## Spawner & Orchestrator Boundary (Phase 18)
 - Generated/spawned agents cannot independently escape their restricted sandbox loop to invoke actual MCP integrations, external tool bindings, or system shells. Only safe stubs (`research_only`, `draft_artifact`) are permitted live.
 - All live side effects must route strictly through existing bounded worker execution paths (`role-router` -> `agent-engine`).
+
+## Dataset & Monetization Boundary (Phase 19)
+- Phase 19 release bundles act strictly as packaging artifacts and must never execute automated deployment over external web/provider portals.
+- Final release approval is always a gated, manual, human-only checkpoint.
+- External publishing, target upload procedures, submission pack delivery routing, web portal login automation, and customer interfacing remain unconditionally manual-only.
