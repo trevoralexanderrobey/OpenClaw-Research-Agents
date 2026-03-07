@@ -24,6 +24,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ripgrep
+      - name: Install dependencies
+        run: npm ci --offline --ignore-scripts --cache ./.ci/npm-cache
       - name: Run policy and test gates
         run: npm run phase2:gates
 
