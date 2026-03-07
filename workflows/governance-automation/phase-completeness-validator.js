@@ -7,7 +7,8 @@ const {
   findLineNumber,
   readTextIfExists,
   safeString,
-  stableSortStrings
+  stableSortStrings,
+  PHASE2_GATE_MANIFEST
 } = require("./common.js");
 
 const PHASE2_REQUIRED = Object.freeze([
@@ -452,7 +453,7 @@ function createPhaseCompletenessValidator(options = {}) {
     const phase18Missing = missingFromSet(rootDir, PHASE18_REQUIRED);
     const clineMissing = missingFromSet(rootDir, CLINE_REQUIRED);
 
-    const workflowText = readTextIfExists(path.join(rootDir, ".github/workflows/phase2-security.yml"));
+    const workflowText = readTextIfExists(path.join(rootDir, PHASE2_GATE_MANIFEST));
     const buildVerifyText = readTextIfExists(path.join(rootDir, "scripts/build-verify.sh"));
     const packageText = readTextIfExists(path.join(rootDir, "package.json"));
 
@@ -475,7 +476,7 @@ function createPhaseCompletenessValidator(options = {}) {
     if (workflowText.includes("if [[ -f scripts/verify-phase")) {
       contradictions.push(canonicalize({
         id: "policy-gate-silent-skip",
-        file: ".github/workflows/phase2-security.yml",
+        file: PHASE2_GATE_MANIFEST,
         line: findLineNumber(workflowText, "if [[ -f scripts/verify-phase"),
         message: "Conditional skip logic for policy gates is not allowed"
       }));
@@ -498,7 +499,7 @@ function createPhaseCompletenessValidator(options = {}) {
       if (!workflowText.includes(marker)) {
         contradictions.push(canonicalize({
           id: "policy-gate-not-blocking-workflow",
-          file: ".github/workflows/phase2-security.yml",
+          file: PHASE2_GATE_MANIFEST,
           line: findLineNumber(workflowText, "phase2-gates"),
           message: `Missing blocking workflow gate marker: ${marker}`
         }));

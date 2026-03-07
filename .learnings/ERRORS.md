@@ -241,3 +241,34 @@ Wrap logical expression before nullish coalescing, e.g. `String((policy && polic
 ### Resolution
 - **Resolved**: 2026-03-04T13:08:00-08:00
 - **Notes**: Corrected operator precedence and revalidated module load.
+
+## [ERR-20260307-009] cline policy gate and README contract drift
+
+**Logged**: 2026-03-07T00:03:05-08:00
+**Priority**: low
+**Status**: resolved
+**Area**: docs
+
+### Summary
+The local Cline supervisor policy gate failed because `README.md` did not contain the required `## Supervisor Model (Cline)` section expected by the repository policy script.
+
+### Error
+```
+ERROR: README missing Supervisor Model (Cline) section
+```
+
+### Context
+- Command: `bash scripts/verify-cline-supervisor-policy.sh`
+- Trigger: validation rerun after moving GitHub workflow manifests out of `.github/workflows`
+- Root cause: repository docs had drifted from the shell policy contract, even though the gate script and tests expected the section to exist.
+
+### Suggested Fix
+Keep README policy headings aligned with shell gate assertions whenever governance documentation is edited.
+
+### Metadata
+- Reproducible: yes
+- Related Files: README.md, scripts/verify-cline-supervisor-policy.sh
+
+### Resolution
+- **Resolved**: 2026-03-07T00:03:05-08:00
+- **Notes**: Added the missing README section and reran the affected policy/test suite successfully.

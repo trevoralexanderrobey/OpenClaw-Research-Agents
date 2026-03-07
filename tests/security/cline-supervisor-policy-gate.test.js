@@ -26,7 +26,7 @@ const REQUIRED_FIXTURE_FILES = [
   "openclaw-bridge/mcp/mcp-service.js",
   "scripts/build-verify.sh",
   "package.json",
-  ".github/workflows/phase2-security.yml"
+  ".github/archived-workflows/phase2-security.yml.disabled"
 ];
 
 async function createFixture() {

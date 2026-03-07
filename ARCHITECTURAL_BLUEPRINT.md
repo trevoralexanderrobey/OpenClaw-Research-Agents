@@ -27,6 +27,7 @@ Core outcomes:
 - Live LLM & MCP Verification tools execute continuous endpoint probing and track live operational states in deterministic audit maps.
 - Agent Spawner & Mission Orchestrator (Phase 18) introduces dynamic mission planning, spawn orchestration, and localized blackboard management while strictly isolating capabilities away from live autonomous execution.
 - Deterministic Dataset Foundation & Monetization Packaging (Phase 19) structures raw inputs into staged dataset builds and local deterministically-packaged release bundles ensuring compliant preparation offline.
+- GitHub Actions disabled and workflows archived to definitively isolate test verification and governance execution exclusively to local-only runner contexts.
 - Audit, threat-model, and governance documentation scaffolded for formal review.
 
 See:

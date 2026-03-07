@@ -20,6 +20,11 @@ Governed, local-first research, dataset, and release-packaging system built on O
 - External publishing, uploads, marketplace submissions, customer delivery, login automation, and browser automation remain manual-only.
 - Phase 19 release bundles are packaging artifacts, not proof of publication.
 
+## Supervisor Model (Cline)
+- Cline is the supervisor interface for governed local operations in this repository.
+- Supervisor activity is orchestration and approval facing only; protected mutations still require explicit operator approval.
+- External submission and platform interaction remain manual-only.
+
 ## Key Paths
 - `workspace/research-output/` research task outputs and manifests
 - `workspace/missions/` mission-local orchestration state
@@ -191,6 +196,7 @@ Phase 19 monetization runtime:
 
 ## Validation Commands
 ```bash
+npm run phase2:gates
 bash scripts/verify-phase18-policy.sh
 bash scripts/verify-monetization-policy.sh
 bash scripts/verify-phase19-policy.sh
@@ -199,6 +205,8 @@ npm run phase19:verify
 node --test tests/**/*.test.js
 npm run build:verify
 ```
+
+GitHub Actions workflows are archived under `.github/archived-workflows/` so validation stays local-only and uses the script/package command chain instead of cloud runners.
 
 ## Phase Status
 

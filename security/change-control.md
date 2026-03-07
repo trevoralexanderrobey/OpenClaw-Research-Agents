@@ -7,7 +7,7 @@
 4. Lockfile and npm cache checksum changes require explicit review documentation.
 
 ## PR governance
-1. CODEOWNERS approval is required for `security/*`, `.github/workflows/*`, `openclaw-bridge/execution/*`, and lock files.
+1. CODEOWNERS approval is required for `security/*`, `.github/workflows/*`, `.github/archived-workflows/*`, `openclaw-bridge/execution/*`, and lock files.
 2. `security/dependency-review.md` must be updated when `package-lock.json` changes.
 3. `security/dependency-review.md` must include cache rebuild rationale when `security/npm-cache.lock.json` changes.
 

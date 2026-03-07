@@ -89,3 +89,7 @@
 - Phase 19 release bundles act strictly as packaging artifacts and must never execute automated deployment over external web/provider portals.
 - Final release approval is always a gated, manual, human-only checkpoint.
 - External publishing, target upload procedures, submission pack delivery routing, web portal login automation, and customer interfacing remain unconditionally manual-only.
+
+## Local-Only Build & Verification Boundary
+- Cloud-hosted continuous integration execution (like GitHub Actions) is prohibited.
+- All workflows and tests are archived to enforce validation execution strictly within deterministic, local-only runner scopes (`npm run build:verify`).

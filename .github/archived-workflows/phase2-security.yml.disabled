@@ -1,11 +1,8 @@
+# Archived to keep validation local-only. Run `npm run phase2:gates` or `npm run build:verify` instead.
 name: phase2-security
 
 on:
-  pull_request:
-  push:
-    branches:
-      - main
-      - master
+  workflow_dispatch:
 
 jobs:
   phase2-gates:

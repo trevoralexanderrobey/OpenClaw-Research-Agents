@@ -6,3 +6,4 @@
 /openclaw-bridge/execution/* @trevoralexanderrobey
 /openclaw-bridge/src/core/* @trevoralexanderrobey
 /.github/workflows/* @trevoralexanderrobey
+/.github/archived-workflows/* @trevoralexanderrobey

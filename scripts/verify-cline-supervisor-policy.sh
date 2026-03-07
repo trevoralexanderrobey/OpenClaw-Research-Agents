@@ -68,7 +68,7 @@ REQUIRED_FILES=(
   "openclaw-bridge/mcp/mcp-service.js"
   "scripts/build-verify.sh"
   "package.json"
-  ".github/workflows/phase2-security.yml"
+  ".github/archived-workflows/phase2-security.yml.disabled"
 )
 
 for rel in "${REQUIRED_FILES[@]}"; do
@@ -173,7 +173,7 @@ contains_fixed "verify-cline-supervisor-policy.sh" "$ROOT/scripts/build-verify.s
 contains_fixed "verify:cline-supervisor" "$ROOT/package.json" || fail "package.json missing verify:cline-supervisor script"
 contains_fixed "verify-cline-supervisor-policy.sh" "$ROOT/package.json" || fail "package.json script chain missing cline supervisor policy invocation"
 
-WF="$ROOT/.github/workflows/phase2-security.yml"
+WF="$ROOT/.github/archived-workflows/phase2-security.yml.disabled"
 contains_fixed "Verify required policy scripts exist" "$WF" || fail "workflow missing required policy script pre-check step"
 contains_fixed "ERROR: required script missing:" "$WF" || fail "workflow missing clear hard error for missing scripts"
 contains_fixed "bash scripts/verify-cline-supervisor-policy.sh" "$WF" || fail "workflow missing cline supervisor policy verification step"

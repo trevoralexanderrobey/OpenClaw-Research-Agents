@@ -19,7 +19,8 @@ const {
   readTextIfExists,
   safeString,
   sortViolations,
-  stableSortStrings
+  stableSortStrings,
+  PHASE2_GATE_MANIFEST
 } = require("./common.js");
 
 const PHASE8_HASH_TARGETS = Object.freeze([
@@ -261,7 +262,7 @@ function createComplianceMonitor(options = {}) {
       }
     }
 
-    const workflowText = readTextIfExists(path.join(rootDir, ".github/workflows/phase2-security.yml"));
+    const workflowText = readTextIfExists(path.join(rootDir, PHASE2_GATE_MANIFEST));
     const buildVerifyText = readTextIfExists(path.join(rootDir, "scripts/build-verify.sh"));
     const packageText = readTextIfExists(path.join(rootDir, "package.json"));
 
@@ -275,7 +276,7 @@ function createComplianceMonitor(options = {}) {
         pushViolation(violations, {
           id: "policy-gate-missing-workflow",
           severity: "critical",
-          file: ".github/workflows/phase2-security.yml",
+          file: PHASE2_GATE_MANIFEST,
           line: findLineNumber(workflowText, "phase2-gates"),
           clause: "Policy gates must be blocking",
           message: `Missing blocking gate marker in workflow: ${marker}`,
@@ -310,7 +311,7 @@ function createComplianceMonitor(options = {}) {
       pushViolation(violations, {
         id: "policy-gate-skip-logic-detected",
         severity: "critical",
-        file: ".github/workflows/phase2-security.yml",
+        file: PHASE2_GATE_MANIFEST,
         line: findLineNumber(workflowText, "if [[ -f scripts/verify-phase"),
         clause: "No silent gate skipping",
         message: "Conditional skip logic detected for policy gates",
