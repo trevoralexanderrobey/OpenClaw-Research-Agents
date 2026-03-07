@@ -210,7 +210,27 @@ node --test tests/**/*.test.js
 npm run build:verify
 ```
 
-GitHub cloud workflows are removed from `.github/workflows/`, so validation stays local-only through the script/package command chain.
+## CI Enforcement (Primary)
+GitHub Actions is the primary enforcement path for this public repository, using standard GitHub-hosted runners.
+
+Workflow:
+- `OpenClaw-Research-Agents-CI` (`.github/workflows/ci-enforcement.yml`)
+
+Recommended branch ruleset:
+- `ORA Branch Protection` on `main` with pull request required and minimum 1 approval.
+
+Required status check names for branch protection/rulesets:
+- `OpenClaw-Research-Agents-CI / policy-and-tests`
+- `OpenClaw-Research-Agents-CI / deterministic-build-verify`
+
+Local hooks are optional developer convenience only and are not the canonical enforcement boundary.
+
+### Optional Local Hook Cleanup
+If this clone still points `core.hooksPath` at repo-managed hooks, inspect or unset it locally:
+```bash
+git config --local --get core.hooksPath
+git config --local --unset core.hooksPath
+```
 
 ## Phase Status
 

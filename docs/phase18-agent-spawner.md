@@ -53,3 +53,4 @@ Phase 18 adds mission orchestration on top of the validated Phase 14-17 baseline
 - Phase 18 runtime authority remains in-repo (`supervisor-authority` + governance path).
 - Cline is a recommended outer operator shell for planning/review and approved implementation work.
 - The mission runtime remains tool-agnostic and does not depend on Cline programmatically.
+- GitHub Actions is the primary enforcement path for policy/test gates in this public repo.

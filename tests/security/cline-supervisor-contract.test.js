@@ -25,12 +25,20 @@ test("README and policy docs include supervisor model and failure-mode markers",
   const readme = read("README.md");
   const attackSurface = read("docs/attack-surface.md");
   const failureModes = read("docs/failure-modes.md");
+  const workflow = read(".github/workflows/ci-enforcement.yml");
 
   assert.match(readme, /## Outer Operator Workflow \(Cline-compatible\)/);
+  assert.match(readme, /GitHub Actions is the primary enforcement path for this public repository/);
   assert.match(readme, /manual-only/);
 
   assert.match(attackSurface, /## Outer Cline workflow boundary/);
   assert.match(attackSurface, /No new egress domains or dynamic endpoint expansion/);
+
+  assert.match(workflow, /name:\s*OpenClaw-Research-Agents-CI/);
+  assert.match(workflow, /policy-and-tests:/);
+  assert.match(workflow, /deterministic-build-verify:/);
+  assert.match(workflow, /npm run phase2:gates/);
+  assert.match(workflow, /npm run build:verify/);
 
   assert.match(failureModes, /## Cline supervisor policy gate failure/);
   assert.match(failureModes, /runbook/i);

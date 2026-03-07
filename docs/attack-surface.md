@@ -21,6 +21,7 @@ Mitigation:
 - The repository remains tool-agnostic and local-first.
 - Internal artifact preparation may be autonomous, but protected mutations remain operator-gated.
 - External submission/publication remains manual-only.
+- GitHub Actions is the primary shared enforcement path; local git hooks are optional developer convenience only.
 
 ## Outbound Read Surface
 - Static read hosts:

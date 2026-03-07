@@ -16,6 +16,7 @@ const REQUIRED_FIXTURE_FILES = [
   "docs/attack-surface.md",
   "docs/failure-modes.md",
   "docs/supervisor-architecture.md",
+  ".github/workflows/ci-enforcement.yml",
   "security/mutation-control.js",
   "security/operator-authorization.js",
   "openclaw-bridge/src/core/execution-router.ts",

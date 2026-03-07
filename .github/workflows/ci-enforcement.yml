@@ -1,0 +1,39 @@
+name: OpenClaw-Research-Agents-CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  policy-and-tests:
+    name: policy-and-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js 22.13.1
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.1
+      - name: Run policy and test gates
+        run: npm run phase2:gates
+
+  deterministic-build-verify:
+    name: deterministic-build-verify
+    runs-on: ubuntu-latest
+    needs:
+      - policy-and-tests
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js 22.13.1
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.1
+      - name: Run deterministic build verification
+        run: npm run build:verify

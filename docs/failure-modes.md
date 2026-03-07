@@ -371,10 +371,11 @@ Handling:
 
 ## Cline supervisor policy gate failure
 Detection:
-- Required Cline supervisor contract markers are missing from docs/rules/workflow gates.
+- Required Cline supervisor contract markers are missing from docs/policy/workflow gates.
+- Required CI workflow contract markers are missing for `OpenClaw-Research-Agents-CI`.
 
 Handling:
-- Fail closed in CI and local policy verification.
+- Fail closed in CI policy verification.
 - Follow the runbook guidance in `docs/supervisor-architecture.md` to restore required contract language and blocking gate markers.
 - Require explicit operator review and approved correction.
 
@@ -391,7 +392,7 @@ Handling:
 
 ## Cline supervisor policy gate failure
 Detection:
-- `scripts/verify-cline-supervisor-policy.sh` fails due to missing/contradictory Cline supervisor contract markers or missing config artifacts.
+- `scripts/verify-cline-supervisor-policy.sh` fails due to missing/contradictory Cline supervisor contract markers or missing CI workflow markers.
 
 Handling:
 - Fail closed in CI and local build verification.
@@ -400,11 +401,12 @@ Handling:
 
 ## Cline config missing/misconfigured in developer workspace
 Detection:
-- Missing `.vscode/extensions.json`, `.vscode/settings.json`, `.clinerules`, or `security/cline-extension-allowlist.json`.
-- Cline-related extension recommendation not in explicit allowlist.
+- Optional Cline workspace artifacts are present but invalid:
+  - `.vscode/settings.json` exists without `.vscode/extensions.json`
+  - Cline-related extension recommendation is not in explicit allowlist
 
 Handling (runbook):
-- Restore required files with approved content.
+- Remove invalid optional files or restore them with approved content.
 - Verify allowlist consistency (`officialIds + approvedAliasIds == allowedIds`).
 - Run `bash scripts/verify-cline-supervisor-policy.sh`.
 - Run `npm run build:verify` before merge.

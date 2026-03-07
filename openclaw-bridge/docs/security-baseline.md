@@ -90,9 +90,10 @@
 - Final release approval is always a gated, manual, human-only checkpoint.
 - External publishing, target upload procedures, submission pack delivery routing, web portal login automation, and customer interfacing remain unconditionally manual-only.
 
-## Local-Only Build & Verification Boundary
-- Cloud-hosted continuous integration execution (like GitHub Actions) is prohibited.
-- All workflows and tests are archived to enforce validation execution strictly within deterministic, local-only runner scopes (`npm run build:verify`).
+## GitHub Actions CI Verification
+- Cloud-hosted continuous integration (GitHub Actions) serves as the primary verification boundary for branch protection.
+- The workflow enforces that policy gates (`npm run phase2:gates`) and deterministic builds (`npm run build:verify`) pass before merging.
+- Local githooks are not part of the required repository boundary and may be skipped or unset by developers.
 
 ## Outer Operator Workflow Boundary (Cline-compatible)
 - External operational tools (e.g., Cline via Plan/Act mode) are recommended for repo modifications but maintain no direct internal runtime permissions or hooks.

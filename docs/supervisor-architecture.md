@@ -4,6 +4,7 @@
 - Cline (Plan/Act) is a recommended outer operator workflow for this repository.
 - The canonical runtime supervisor/governance authority remains in-repo.
 - No runtime dependency on Cline is required.
+- GitHub Actions is the primary enforcement path for policy/test gates; local git hooks are optional convenience only.
 - Supervisor is orchestration/approval-facing only and is not a privileged mutation executor.
 - Supervisor direct tool execution remains blocked.
 - Supervisor cannot bypass operator authorization, approval token scopes, governance transaction controls, or kill-switch protections.
