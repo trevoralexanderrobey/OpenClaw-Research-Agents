@@ -99,6 +99,9 @@ search_quiet 'executeOrchestratedTask' "$ROOT/openclaw-bridge/core/agent-engine.
 search_quiet 'roleRouter\.dispatch' "$ROOT/openclaw-bridge/core/spawn-orchestrator.js" || fail "spawn-orchestrator must route work through role-router"
 search_quiet 'Promise\.race' "$ROOT/openclaw-bridge/core/spawn-orchestrator.js" || fail "spawn-orchestrator must provide bounded concurrent dispatch scheduling"
 search_quiet 'laneInflight' "$ROOT/openclaw-bridge/core/spawn-orchestrator.js" || fail "spawn-orchestrator must track lane bounded concurrency"
+search_quiet 'PHASE18_MISSION_TIMEOUT' "$ROOT/openclaw-bridge/core/spawn-orchestrator.js" || fail "spawn-orchestrator must enforce mission runtime timeout guard"
+search_quiet 'PHASE18_MISSION_STALLED' "$ROOT/openclaw-bridge/core/spawn-orchestrator.js" || fail "spawn-orchestrator must enforce mission stall detection guard"
+search_quiet 'checkpoint_artifacts' "$ROOT/openclaw-bridge/core/spawn-orchestrator.js" || fail "spawn-orchestrator must emit checkpoint artifact metadata"
 search_quiet 'agentSpawner\.spawnMission' "$ROOT/scripts/run-research-task.js" || fail "run-research-task missing mission spawn path"
 search_quiet 'resumeMission\(' "$ROOT/scripts/run-research-task.js" || fail "run-research-task missing mission resume path"
 search_quiet 'supervisor_approved' "$ROOT/openclaw-bridge/core/agent-spawner.js" || fail "agent-spawner must persist supervisor_approved mission status"
@@ -132,6 +135,21 @@ if (spawnerConfig.runtimeStatePath !== "state/runtime/state.json") {
 }
 if (spawnerConfig.finalSynthesisMode !== "orchestrator_aggregation") {
   fail("Phase 18 final synthesis ownership must remain orchestrator_aggregation");
+}
+if (!spawnerConfig.missionExecution || typeof spawnerConfig.missionExecution !== "object") {
+  fail("Phase 18 missionExecution config must exist");
+}
+if (!spawnerConfig.checkpointing || typeof spawnerConfig.checkpointing !== "object") {
+  fail("Phase 18 checkpointing config must exist");
+}
+if (!spawnerConfig.laneScaling || typeof spawnerConfig.laneScaling !== "object") {
+  fail("Phase 18 laneScaling config must exist");
+}
+for (const key of ["maxRuntimeMs", "defaultSubtaskTimeoutMs", "stallIntervalMs", "schedulerTickMs"]) {
+  const value = Number(spawnerConfig.missionExecution[key]);
+  if (!Number.isFinite(value) || value < 0) {
+    fail(`Phase 18 missionExecution.${key} must be a non-negative number`);
+  }
 }
 if (!spawnerConfig.skillConfig || spawnerConfig.skillConfig.hostedSkillsEnabled !== false) {
   fail("Hosted skill refs must remain disabled by default in config/agent-spawner.json");

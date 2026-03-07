@@ -4,11 +4,33 @@
   "requireLiveVerificationEvidence": true,
   "plannerVersion": "phase18-planner-v1",
   "finalSynthesisMode": "orchestrator_aggregation",
+  "missionExecution": {
+    "maxRuntimeMs": 1800000,
+    "defaultSubtaskTimeoutMs": 300000,
+    "stallIntervalMs": 120000,
+    "schedulerTickMs": 250
+  },
+  "checkpointing": {
+    "enabled": true,
+    "completedSubtaskThreshold": 4,
+    "stageBoundaries": true
+  },
+  "laneScaling": {
+    "enabled": true,
+    "scaleStep": 1
+  },
+  "defaultLaneMinInflight": 1,
   "defaultLaneMaxInflight": 1,
   "laneDefaults": {
-    "perRole": {
+    "perRoleMin": {
       "scout": 1,
       "analyst": 1,
+      "synthesizer": 1,
+      "operator": 1
+    },
+    "perRoleMax": {
+      "scout": 2,
+      "analyst": 2,
       "synthesizer": 1,
       "operator": 1
     }

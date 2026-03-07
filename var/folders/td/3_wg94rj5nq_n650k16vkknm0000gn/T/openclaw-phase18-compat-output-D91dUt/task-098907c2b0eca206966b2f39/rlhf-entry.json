@@ -1,0 +1,18 @@
+{
+  "entry": {
+    "created_at": "1970-01-01T00:00:00.000Z",
+    "duration_ms": 0,
+    "model": "mock-v1",
+    "prompt_hash": "b2f1fb5dbe8f377ea053024d16c441d6e95138a5afec7fd6ccb97b818092172e",
+    "provider": "mock",
+    "response_hash": "bd6c959daa8093efdecad6d64a4c5a67b47287dd71b32a0a2116799c785c9d69",
+    "source": "phase14-task-execution",
+    "task_id": "task-098907c2b0eca206966b2f39",
+    "token_count": 15
+  },
+  "global_record": {
+    "content_hash": "7d016cb616cf4b6321a2ec44e80d99dbad2cebeaa11a7015b55f56b0e2b6e71b",
+    "draft_sequence": 2,
+    "queue_sequence": 2
+  }
+}

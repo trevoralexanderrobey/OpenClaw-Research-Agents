@@ -44,12 +44,124 @@ function createSpawnPlanner(options = {}) {
     const templateLane = template && template.lane_max_inflight && typeof template.lane_max_inflight === "object"
       ? Number(template.lane_max_inflight[role] || 0)
       : 0;
-    const roleDefault = config && config.laneDefaults && config.laneDefaults.perRole && typeof config.laneDefaults.perRole === "object"
+    const roleDefaultMax = config && config.laneDefaults && config.laneDefaults.perRoleMax && typeof config.laneDefaults.perRoleMax === "object"
+      ? Number(config.laneDefaults.perRoleMax[role] || 0)
+      : 0;
+    const roleDefaultLegacy = config && config.laneDefaults && config.laneDefaults.perRole && typeof config.laneDefaults.perRole === "object"
       ? Number(config.laneDefaults.perRole[role] || 0)
       : 0;
     const globalDefault = Number(config && config.defaultLaneMaxInflight || 0);
-    const maxInflight = templateLane || roleDefault || globalDefault || 1;
+    const maxInflight = templateLane || roleDefaultMax || roleDefaultLegacy || globalDefault || 1;
     return Math.max(1, maxInflight);
+  }
+
+  function laneMinInflightForRole(template, role) {
+    const templateLane = template && template.lane_min_inflight && typeof template.lane_min_inflight === "object"
+      ? Number(template.lane_min_inflight[role] || 0)
+      : 0;
+    const roleDefaultMin = config && config.laneDefaults && config.laneDefaults.perRoleMin && typeof config.laneDefaults.perRoleMin === "object"
+      ? Number(config.laneDefaults.perRoleMin[role] || 0)
+      : 0;
+    const globalDefault = Number(config && config.defaultLaneMinInflight || 0);
+    const minInflight = templateLane || roleDefaultMin || globalDefault || 1;
+    return Math.max(1, minInflight);
+  }
+
+  function normalizeNonNegativeInteger(value, fallback = 0) {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      return Math.max(0, Math.floor(Number(fallback) || 0));
+    }
+    return Math.max(0, Math.floor(parsed));
+  }
+
+  function normalizePositiveInteger(value, fallback = 1) {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed < 1) {
+      return Math.max(1, Math.floor(Number(fallback) || 1));
+    }
+    return Math.max(1, Math.floor(parsed));
+  }
+
+  function normalizeBoolean(value, fallback = false) {
+    if (typeof value === "boolean") {
+      return value;
+    }
+    const text = safeString(value).toLowerCase();
+    if (text === "true") {
+      return true;
+    }
+    if (text === "false") {
+      return false;
+    }
+    return Boolean(fallback);
+  }
+
+  function resolveRuntimeConfig(missionEnvelope, template) {
+    const constraints = missionEnvelope && missionEnvelope.constraints && typeof missionEnvelope.constraints === "object"
+      ? missionEnvelope.constraints
+      : {};
+    const missionExecutionConfig = config && config.missionExecution && typeof config.missionExecution === "object"
+      ? config.missionExecution
+      : {};
+    const checkpointConfig = config && config.checkpointing && typeof config.checkpointing === "object"
+      ? config.checkpointing
+      : {};
+    const laneScalingConfig = config && config.laneScaling && typeof config.laneScaling === "object"
+      ? config.laneScaling
+      : {};
+    const templateRuntime = template && template.runtime && typeof template.runtime === "object"
+      ? template.runtime
+      : {};
+    const templateCheckpoint = template && template.checkpointing && typeof template.checkpointing === "object"
+      ? template.checkpointing
+      : {};
+    const templateScaling = template && template.lane_scaling && typeof template.lane_scaling === "object"
+      ? template.lane_scaling
+      : {};
+
+    return canonicalize({
+      mission_max_runtime_ms: normalizeNonNegativeInteger(
+        constraints.mission_max_runtime_ms,
+        templateRuntime.mission_max_runtime_ms ?? missionExecutionConfig.maxRuntimeMs ?? 0
+      ),
+      default_subtask_timeout_ms: normalizeNonNegativeInteger(
+        constraints.default_subtask_timeout_ms,
+        templateRuntime.default_subtask_timeout_ms ?? missionExecutionConfig.defaultSubtaskTimeoutMs ?? 0
+      ),
+      stall_interval_ms: normalizeNonNegativeInteger(
+        constraints.stall_interval_ms,
+        templateRuntime.stall_interval_ms ?? missionExecutionConfig.stallIntervalMs ?? 0
+      ),
+      scheduler_tick_ms: normalizePositiveInteger(
+        constraints.scheduler_tick_ms,
+        templateRuntime.scheduler_tick_ms ?? missionExecutionConfig.schedulerTickMs ?? 50
+      ),
+      checkpointing: canonicalize({
+        enabled: normalizeBoolean(
+          constraints.checkpointing_enabled,
+          templateCheckpoint.enabled ?? checkpointConfig.enabled ?? true
+        ),
+        completed_subtask_threshold: normalizeNonNegativeInteger(
+          constraints.checkpoint_completed_subtask_threshold,
+          templateCheckpoint.completed_subtask_threshold ?? checkpointConfig.completedSubtaskThreshold ?? 0
+        ),
+        stage_boundaries: normalizeBoolean(
+          constraints.checkpoint_stage_boundaries,
+          templateCheckpoint.stage_boundaries ?? checkpointConfig.stageBoundaries ?? true
+        )
+      }),
+      lane_scaling: canonicalize({
+        enabled: normalizeBoolean(
+          constraints.lane_scaling_enabled,
+          templateScaling.enabled ?? laneScalingConfig.enabled ?? true
+        ),
+        scale_step: normalizePositiveInteger(
+          constraints.lane_scale_step,
+          templateScaling.scale_step ?? laneScalingConfig.scaleStep ?? 1
+        )
+      })
+    });
   }
 
   function buildDeterministicAgents(missionEnvelope, template) {
@@ -65,17 +177,26 @@ function createSpawnPlanner(options = {}) {
 
   function buildDeterministicLanes(missionEnvelope, template, agents) {
     const lanes = agents.map((agent, index) => canonicalize({
+      lane_id: `${missionEnvelope.mission_id}:lane:${index + 1}`,
       lane_key: safeString(agent.lane_key),
       mission_id: missionEnvelope.mission_id,
       role: safeString(agent.role),
       order: index + 1,
       concurrency_key: `${missionEnvelope.mission_id}:${safeString(agent.role)}`,
-      max_inflight: laneMaxInflightForRole(template, safeString(agent.role))
+      min_inflight: laneMinInflightForRole(template, safeString(agent.role)),
+      max_inflight: laneMaxInflightForRole(template, safeString(agent.role)),
+      initial_inflight: laneMinInflightForRole(template, safeString(agent.role))
     }));
+    for (const lane of lanes) {
+      if (Number(lane.max_inflight) < Number(lane.min_inflight)) {
+        lane.max_inflight = lane.min_inflight;
+      }
+      lane.initial_inflight = Math.min(Number(lane.max_inflight), Math.max(Number(lane.min_inflight), Number(lane.initial_inflight)));
+    }
     return canonicalize(lanes);
   }
 
-  function buildSubtasks(missionEnvelope, template, agents) {
+  function buildSubtasks(missionEnvelope, template, agents, runtimeConfig) {
     const steps = Array.isArray(template.steps) ? template.steps.slice() : [];
     return canonicalize(steps.map((step, index) => {
       const role = safeString(step.role);
@@ -83,6 +204,10 @@ function createSpawnPlanner(options = {}) {
       const dependsOn = Array.isArray(step.depends_on)
         ? step.depends_on.map((value) => Number(value)).filter((value) => Number.isInteger(value) && value > 0).sort((left, right) => left - right)
         : [];
+      const timeoutMs = normalizeNonNegativeInteger(
+        step.timeout_ms || step.timeoutMs,
+        runtimeConfig.default_subtask_timeout_ms
+      );
       return canonicalize({
         subtask_id: `${missionEnvelope.mission_id}:subtask:${index + 1}`,
         mission_id: missionEnvelope.mission_id,
@@ -97,6 +222,7 @@ function createSpawnPlanner(options = {}) {
         output_format: safeString(step.output_format || step.outputFormat) || "markdown",
         input_strategy: safeString(step.input_strategy || step.inputStrategy) || "mission_inputs",
         depends_on: dependsOn.map((value) => `${missionEnvelope.mission_id}:subtask:${value}`),
+        timeout_ms: timeoutMs,
         status: "queued",
         constraints: canonicalize({
           mission_id: missionEnvelope.mission_id,
@@ -122,9 +248,10 @@ function createSpawnPlanner(options = {}) {
     }
 
     const skills = skillProvider.resolveSkills(missionEnvelope, context);
+    const runtimeConfig = resolveRuntimeConfig(missionEnvelope, template);
     const agents = buildDeterministicAgents(missionEnvelope, template);
     const lanes = buildDeterministicLanes(missionEnvelope, template, agents);
-    const subtasks = buildSubtasks(missionEnvelope, template, agents);
+    const subtasks = buildSubtasks(missionEnvelope, template, agents, runtimeConfig);
     const synthesis = canonicalize({
       final_subtask_id: subtasks.length > 0 ? subtasks[subtasks.length - 1].subtask_id : "",
       output_artifact: "artifacts/final-output.json"
@@ -142,6 +269,7 @@ function createSpawnPlanner(options = {}) {
       lanes,
       skills,
       subtasks,
+      runtime: runtimeConfig,
       synthesis
     });
 

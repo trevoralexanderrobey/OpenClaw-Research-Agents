@@ -45,6 +45,7 @@ function createAgentSpawner(options = {}) {
   const missionBasePath = path.resolve(safeString(config.missionWorkspaceDir) || path.join(process.cwd(), "workspace", "missions"));
   const validMissionStatuses = new Set(MISSION_STATUSES.map((status) => safeString(status)).filter(Boolean));
   const rejectionCodes = new Set(["SUPERVISOR_APPROVAL_REQUIRED", "PHASE18_GOVERNANCE_REQUIRED"]);
+  const pausedExecutionCodes = new Set(["PHASE18_MISSION_TIMEOUT", "PHASE18_MISSION_STALLED", "PHASE18_SUBTASK_TIMEOUT"]);
 
   if (!spawnPlanner || typeof spawnPlanner.buildPlan !== "function") {
     throw new Error("spawnPlanner.buildPlan is required");
@@ -199,15 +200,23 @@ function createAgentSpawner(options = {}) {
       await writeMissionStatus(spawnPlan.mission.mission_id, {
         status: "synthesizing",
         output_path: safeString(result.output_path),
-        synthesis_mode: safeString(result.synthesis_mode)
+        synthesis_mode: safeString(result.synthesis_mode),
+        lane_scaling_events: Array.isArray(result.lane_scaling_events) ? result.lane_scaling_events : [],
+        checkpoint_artifacts: Array.isArray(result.checkpoint_artifacts) ? result.checkpoint_artifacts : []
       });
       return result;
     } catch (error) {
+      const errorCode = safeString(error && error.code);
+      const statusHint = safeString(error && error.status_hint);
+      const status = pausedExecutionCodes.has(errorCode) || statusHint === "paused" ? "paused" : "failed";
       await writeMissionStatus(spawnPlan.mission.mission_id, {
-        status: "failed",
-        error_code: safeString(error && error.code) || "PHASE18_MISSION_EXECUTION_FAILED",
+        status,
+        error_code: errorCode || "PHASE18_MISSION_EXECUTION_FAILED",
         error_message: safeString(error && error.message) || "Mission execution failed",
-        subtask_results: Array.isArray(error && error.subtask_results) ? error.subtask_results : []
+        subtask_results: Array.isArray(error && error.subtask_results) ? error.subtask_results : [],
+        lane_scaling_events: Array.isArray(error && error.lane_scaling_events) ? error.lane_scaling_events : [],
+        checkpoint_artifacts: Array.isArray(error && error.checkpoint_artifacts) ? error.checkpoint_artifacts : [],
+        resume_ready: status === "paused"
       });
       throw error;
     }
@@ -223,7 +232,9 @@ function createAgentSpawner(options = {}) {
       metadata_path: safeString(results.metadata_path),
       manifest_path: safeString(results.manifest_path),
       synthesis_mode: safeString(results.synthesis_mode) || "orchestrator_aggregation",
-      subtask_results: Array.isArray(results.results) ? results.results : []
+      subtask_results: Array.isArray(results.results) ? results.results : [],
+      lane_scaling_events: Array.isArray(results.lane_scaling_events) ? results.lane_scaling_events : [],
+      checkpoint_artifacts: Array.isArray(results.checkpoint_artifacts) ? results.checkpoint_artifacts : []
     });
     writeJson(path.join(resolveMissionPaths(missionBasePath, missionId).artifactsPath, "mission-summary.json"), summary);
     await writeMissionStatus(missionId, summary);
@@ -278,11 +289,21 @@ function createAgentSpawner(options = {}) {
       }
 
       await writeMissionStatus(missionId, {
-        status: rejectionCodes.has(safeString(error && error.code)) ? "rejected" : "failed",
+        status: rejectionCodes.has(safeString(error && error.code))
+          ? "rejected"
+          : pausedExecutionCodes.has(safeString(error && error.code)) || safeString(error && error.status_hint) === "paused"
+            ? "paused"
+            : "failed",
         error_code: safeString(error && error.code) || "PHASE18_MISSION_FAILED",
-        error_message: safeString(error && error.message) || "Mission failed"
+        error_message: safeString(error && error.message) || "Mission failed",
+        resume_ready: pausedExecutionCodes.has(safeString(error && error.code)) || safeString(error && error.status_hint) === "paused"
       });
-      if (spawnPlan && agentRegistry && typeof agentRegistry.teardownMissionAgents === "function") {
+      if (
+        spawnPlan
+        && agentRegistry
+        && typeof agentRegistry.teardownMissionAgents === "function"
+        && !(pausedExecutionCodes.has(safeString(error && error.code)) || safeString(error && error.status_hint) === "paused")
+      ) {
         agentRegistry.teardownMissionAgents(missionId);
       }
       throw error;

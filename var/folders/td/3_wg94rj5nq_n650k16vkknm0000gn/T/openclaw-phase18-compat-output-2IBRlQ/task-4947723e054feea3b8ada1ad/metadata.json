@@ -1,0 +1,40 @@
+{
+  "agent_id": "",
+  "completed_at": "1970-01-01T00:00:00.000Z",
+  "duration_ms": 0,
+  "error_code": "",
+  "error_message": "",
+  "mission_id": "",
+  "model": "mock-v1",
+  "output_format": "markdown",
+  "provider": "mock",
+  "provider_info": {
+    "configured": true,
+    "model": "mock-v1",
+    "provider": "mock",
+    "skill_attachment_mode": "modeled_noop_until_verified"
+  },
+  "rlhf_local_mirror_path": "/Users/trevorrobey/OpenClaw-Research-Agents/var/folders/td/3_wg94rj5nq_n650k16vkknm0000gn/T/openclaw-phase18-compat-output-2IBRlQ/task-4947723e054feea3b8ada1ad/rlhf-entry.json",
+  "started_at": "1970-01-01T00:00:00.000Z",
+  "status": "completed",
+  "subtask_id": "",
+  "task_definition": {
+    "constraints": {},
+    "created_at": "2026-03-05T00:00:00.000Z",
+    "description": "Legacy task path still works",
+    "inputs": [
+      {
+        "path": "/var/folders/td/3_wg94rj5nq_n650k16vkknm0000gn/T/openclaw-phase18-compat-input-Ap1TW7",
+        "type": "path"
+      }
+    ],
+    "inputs_hash": "4d28f675e9fda1f5f2ea30c71096be12b320b8721be64014e87c47ef69f1ed74",
+    "output_format": "markdown",
+    "schema_version": "phase14-task-definition-v1",
+    "task_id": "task-4947723e054feea3b8ada1ad",
+    "type": "summarize"
+  },
+  "task_id": "task-4947723e054feea3b8ada1ad",
+  "token_count": 15,
+  "type": "summarize"
+}

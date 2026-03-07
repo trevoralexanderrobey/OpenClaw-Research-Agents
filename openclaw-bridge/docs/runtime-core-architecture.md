@@ -71,3 +71,4 @@
 ## Mission Orchestration (Phase 18)
 - Coordinates multiple spawn lifecycles mapped under a unified blackboard with dependency-aware, deterministic scheduling.
 - Routes deterministic agent configurations and registers dynamically generated local dependencies using bounded concurrency limits.
+- Incorporates mission execution timeout flags, stall guards, and optional artifact checkpoint synthesis from completed subtask aggregates.

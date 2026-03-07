@@ -87,6 +87,21 @@ function resolveSpawnerConfig(rootDir, overrides = {}) {
     requireLiveVerificationEvidence: true,
     plannerVersion: "phase18-planner-v1",
     finalSynthesisMode: "orchestrator_aggregation",
+    missionExecution: {
+      maxRuntimeMs: 0,
+      defaultSubtaskTimeoutMs: 0,
+      stallIntervalMs: 0,
+      schedulerTickMs: 50
+    },
+    checkpointing: {
+      enabled: true,
+      completedSubtaskThreshold: 0,
+      stageBoundaries: true
+    },
+    laneScaling: {
+      enabled: true,
+      scaleStep: 1
+    },
     missionWorkspaceDir: path.join(rootDir, "workspace", "missions"),
     runtimeStatePath: path.join(rootDir, "state", "runtime", "state.json"),
     skillConfig: {
@@ -101,6 +116,18 @@ function resolveSpawnerConfig(rootDir, overrides = {}) {
   return canonicalize({
     ...base,
     ...overrides,
+    missionExecution: canonicalize({
+      ...(base.missionExecution || {}),
+      ...(overrides.missionExecution || {})
+    }),
+    checkpointing: canonicalize({
+      ...(base.checkpointing || {}),
+      ...(overrides.checkpointing || {})
+    }),
+    laneScaling: canonicalize({
+      ...(base.laneScaling || {}),
+      ...(overrides.laneScaling || {})
+    }),
     skillConfig: canonicalize({
       ...(base.skillConfig || {}),
       ...(overrides.skillConfig || {}),
@@ -284,6 +311,9 @@ async function buildResearchRuntime(options = {}) {
     roleRouter,
     outputManager,
     synthesisMode: safeString(spawnerConfig.finalSynthesisMode) || "orchestrator_aggregation",
+    missionRuntimeConfig: spawnerConfig.missionExecution || {},
+    checkpointConfig: spawnerConfig.checkpointing || {},
+    laneScalingConfig: spawnerConfig.laneScaling || {},
     timeProvider: options.timeProvider,
     missionBasePath: spawnerConfig.missionWorkspaceDir,
     runtimeStatePath: spawnerConfig.runtimeStatePath
