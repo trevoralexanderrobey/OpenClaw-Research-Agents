@@ -39,6 +39,10 @@ function asStringArray(value) {
     : [];
 }
 
+function asBoolean(value) {
+  return value === true;
+}
+
 function normalizeIso(value) {
   const text = safeString(value);
   return text && Number.isFinite(Date.parse(text)) ? text : "1970-01-01T00:00:00.000Z";
@@ -62,8 +66,10 @@ function createOfferBuilder(options = {}) {
   const platformTargets = validatePlatformTargets(options.platformTargets || {});
   const datasetOutputManager = options.datasetOutputManager;
 
-  if (!datasetOutputManager || typeof datasetOutputManager.resolveLatestSuccessfulBuild !== "function") {
-    throw new Error("datasetOutputManager.resolveLatestSuccessfulBuild is required");
+  if (!datasetOutputManager
+    || typeof datasetOutputManager.resolveLatestCommercializationReadyBuild !== "function"
+    || typeof datasetOutputManager.getBuild !== "function") {
+    throw new Error("datasetOutputManager with resolveLatestCommercializationReadyBuild/getBuild is required");
   }
 
   function resolveMissionSource(sourceId) {
@@ -136,24 +142,68 @@ function createOfferBuilder(options = {}) {
       error.code = "PHASE19_DATASET_SOURCE_ID_INVALID";
       throw error;
     }
-    const build = buildId
+    const explicitBuildSelected = Boolean(safeString(buildId));
+    const build = explicitBuildSelected
       ? datasetOutputManager.getBuild(datasetId, buildId)
-      : datasetOutputManager.resolveLatestSuccessfulBuild(datasetId);
+      : datasetOutputManager.resolveLatestCommercializationReadyBuild(datasetId);
     if (!build) {
-      const error = new Error(`Dataset source '${datasetId}'${buildId ? ` build '${buildId}'` : ""} not found in dataset index`);
-      error.code = "PHASE19_DATASET_BUILD_NOT_FOUND";
+      const error = new Error(explicitBuildSelected
+        ? `Dataset source '${datasetId}' build '${buildId}' not found in dataset index`
+        : `Dataset source '${datasetId}' does not have a commercialization-ready build in the dataset index`);
+      error.code = explicitBuildSelected
+        ? "PHASE19_DATASET_BUILD_NOT_FOUND"
+        : "PHASE20_DATASET_BUILD_NOT_COMMERCIALIZATION_READY";
       throw error;
     }
     const metadata = asPlainObject(build.metadata);
+    const phase20Status = canonicalize({
+      commercialization_ready: asBoolean(metadata.commercialization_ready),
+      license_state: safeString(metadata.license_state) || "blocked",
+      quality_status: safeString(metadata.quality_status) || "failed",
+      validation_status: safeString(metadata.validation_status) || "failed"
+    });
     if (safeString(metadata.status) && safeString(metadata.status) !== "completed") {
       const error = new Error(`Dataset build '${safeString(build.build_id)}' must be completed before offer generation`);
       error.code = "PHASE19_DATASET_BUILD_INCOMPLETE";
+      throw error;
+    }
+    if (phase20Status.validation_status !== "passed") {
+      const error = new Error(`Dataset build '${safeString(build.build_id)}' failed validation and cannot be packaged`);
+      error.code = "PHASE20_DATASET_BUILD_VALIDATION_FAILED";
+      throw error;
+    }
+    if (phase20Status.quality_status !== "passed") {
+      const error = new Error(`Dataset build '${safeString(build.build_id)}' failed quality thresholds and cannot be packaged`);
+      error.code = "PHASE20_DATASET_BUILD_QUALITY_FAILED";
+      throw error;
+    }
+    if (!phase20Status.license_state || phase20Status.license_state === "blocked") {
+      const error = new Error(`Dataset build '${safeString(build.build_id)}' is blocked by license review`);
+      error.code = "PHASE20_DATASET_BUILD_LICENSE_BLOCKED";
+      throw error;
+    }
+    if (phase20Status.license_state === "review_required" && !explicitBuildSelected) {
+      const error = new Error(`Dataset build '${safeString(build.build_id)}' requires explicit --build-id selection because it is review_required`);
+      error.code = "PHASE20_DATASET_BUILD_REVIEW_REQUIRED_EXPLICIT";
+      throw error;
+    }
+    if (phase20Status.commercialization_ready !== true && phase20Status.license_state !== "review_required") {
+      const error = new Error(`Dataset build '${safeString(build.build_id)}' is not commercialization-ready`);
+      error.code = "PHASE20_DATASET_BUILD_NOT_COMMERCIALIZATION_READY";
       throw error;
     }
 
     const datasetPath = path.join(datasetOutputManager.baseDir, safeString(build.dataset_path));
     const schemaPath = path.join(datasetOutputManager.baseDir, safeString(build.schema_path));
     const buildReportPath = path.join(datasetOutputManager.baseDir, safeString(build.build_report_path));
+    const validationReportPath = path.join(datasetOutputManager.baseDir, safeString(build.validation_report_path));
+    const dedupeReportPath = path.join(datasetOutputManager.baseDir, safeString(build.dedupe_report_path));
+    const provenancePath = path.join(datasetOutputManager.baseDir, safeString(build.provenance_path));
+    const qualityReportPath = path.join(datasetOutputManager.baseDir, safeString(build.quality_report_path));
+    const licenseReportPath = path.join(datasetOutputManager.baseDir, safeString(build.license_report_path));
+    const warnings = phase20Status.license_state === "review_required"
+      ? [`Dataset build ${safeString(build.build_id)} is review_required and must remain manually reviewed before any submission.`]
+      : [];
     return canonicalize({
       source_kind: "dataset",
       source_id: datasetId,
@@ -165,9 +215,17 @@ function createOfferBuilder(options = {}) {
       source_manifest_hash: sha256(JSON.stringify(canonicalize(build.manifest || {}))),
       build,
       metadata,
+      dedupe_report_path: dedupeReportPath,
       dataset_path: datasetPath,
       schema_path: schemaPath,
-      build_report_path: buildReportPath
+      build_report_path: buildReportPath,
+      explicit_build_selected: explicitBuildSelected,
+      license_report_path: licenseReportPath,
+      phase20_status: phase20Status,
+      provenance_path: provenancePath,
+      quality_report_path: qualityReportPath,
+      validation_report_path: validationReportPath,
+      warnings
     });
   }
 
@@ -264,7 +322,14 @@ function createOfferBuilder(options = {}) {
       platform_targets: effectiveTargets,
       release_status: "packaged",
       artifact_slots: asStringArray(tier.required_artifact_slots),
+      commercialization_ready: sourceContext.source_kind === "dataset" ? sourceContext.phase20_status.commercialization_ready === true : false,
+      explicit_build_selected: sourceContext.explicit_build_selected === true,
+      license_state: sourceContext.source_kind === "dataset" ? safeString(sourceContext.phase20_status.license_state) : "",
+      quality_status: sourceContext.source_kind === "dataset" ? safeString(sourceContext.phase20_status.quality_status) : "",
       required_metadata_fields: asStringArray(tier.required_metadata_fields),
+      source_status: sourceContext.source_kind === "dataset" ? canonicalize(sourceContext.phase20_status) : {},
+      validation_status: sourceContext.source_kind === "dataset" ? safeString(sourceContext.phase20_status.validation_status) : "",
+      warnings: asStringArray(sourceContext.warnings),
       workflow_roles: asStringArray(productLine.workflow_roles),
       source_manifest_hash: safeString(sourceContext.source_manifest_hash),
       artifact_refs: {}

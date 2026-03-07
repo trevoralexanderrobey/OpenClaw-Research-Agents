@@ -20,6 +20,7 @@
 8. No nondeterministic policy checks.
 9. CI policy gates are release-blocking.
 10. Backward compatibility of existing phase controls is preserved.
+11. Phase 20 dataset commercialization gates are fail-closed.
 
 ## Protected Mutation Contract
 - Protected mutations require operator role, scoped approval token, governance transaction wrapper, and kill-switch-open state.
@@ -29,6 +30,12 @@
 ## Manual-Only Boundary
 - External submission, platform login, attestation, and final submission actions are manual-only.
 - Cline supervision may prepare artifacts, but final external actions remain human-operated.
+
+## Phase 20 Dataset Gate
+- Phase 20 dataset commercialization gates are fail-closed.
+- A dataset build is commercialization-ready only when validation passes, quality passes, provenance is present, and license review resolves to `allowed`.
+- `review_required` dataset builds remain explicit-selection/manual-review artifacts only.
+- Unknown rights state is blocked and cannot silently pass into packaging defaults.
 
 ## Trust Boundaries
 - Supervisor boundary: Cline orchestrates and requests approvals but does not obtain privileged mutation authority.

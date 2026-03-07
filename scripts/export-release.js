@@ -145,7 +145,13 @@ async function main() {
       fs.rmSync(targetDir, { recursive: true, force: true });
     }
     copyDir(bundleDir, targetDir);
-    process.stdout.write(`${JSON.stringify({ ok: true, offer_id: args.offerId, export_path: targetDir, format: "folder" }, null, 2)}\n`);
+    process.stdout.write(`${JSON.stringify({
+      ok: true,
+      offer_id: args.offerId,
+      export_path: targetDir,
+      format: "folder",
+      dataset_phase20_status: validated.dataset_phase20_status || {}
+    }, null, 2)}\n`);
     return;
   }
 
@@ -154,7 +160,13 @@ async function main() {
     fs.rmSync(zipPath, { force: true });
   }
   buildDeterministicZip(bundleDir, zipPath);
-  process.stdout.write(`${JSON.stringify({ ok: true, offer_id: args.offerId, export_path: zipPath, format: "zip" }, null, 2)}\n`);
+  process.stdout.write(`${JSON.stringify({
+    ok: true,
+    offer_id: args.offerId,
+    export_path: zipPath,
+    format: "zip",
+    dataset_phase20_status: validated.dataset_phase20_status || {}
+  }, null, 2)}\n`);
 }
 
 main().catch((error) => {

@@ -3,6 +3,11 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
+const { createDatasetDeduper } = require("./dataset-deduper.js");
+const { createDatasetScorer } = require("./dataset-scorer.js");
+const { createDatasetValidator } = require("./dataset-validator.js");
+const { createLicenseReview } = require("./license-review.js");
+const { createProvenanceTracker } = require("./provenance-tracker.js");
 const { canonicalize, safeString, sha256 } = require("../../workflows/governance-automation/common.js");
 
 function readJson(filePath) {
@@ -44,6 +49,31 @@ function splitIntoBlocks(text) {
     .filter(Boolean);
 }
 
+function relativeFromRoot(rootDir, filePath) {
+  const rawPath = safeString(filePath);
+  if (!rawPath) {
+    return "";
+  }
+  const resolvedRoot = path.resolve(rootDir);
+  const resolvedFile = path.resolve(rawPath);
+  if (!resolvedFile.startsWith(resolvedRoot)) {
+    return rawPath;
+  }
+  return path.relative(resolvedRoot, resolvedFile).split(path.sep).join("/");
+}
+
+function stableReasonCodes(groups = []) {
+  return Array.from(new Set((Array.isArray(groups) ? groups : [])
+    .flatMap((group) => Array.isArray(group) ? group : [group])
+    .map((entry) => {
+      if (typeof entry === "string") {
+        return safeString(entry);
+      }
+      return safeString(entry && (entry.code || entry.reason_code));
+    })
+    .filter(Boolean))).sort((left, right) => left.localeCompare(right));
+}
+
 function parseTaskIdFromOutputPath(filePath) {
   if (!safeString(filePath)) {
     return "";
@@ -73,6 +103,23 @@ function createDatasetBuilder(options = {}) {
   const rootDir = path.resolve(safeString(options.rootDir) || process.cwd());
   const schemaEngine = options.schemaEngine;
   const outputManager = options.outputManager;
+  const validator = options.validator || createDatasetValidator({
+    rootDir,
+    schemaEngine
+  });
+  const deduper = options.deduper || createDatasetDeduper({
+    rootDir
+  });
+  const provenanceTracker = options.provenanceTracker || createProvenanceTracker({
+    rootDir
+  });
+  const scorer = options.scorer || createDatasetScorer({
+    rootDir,
+    schemaEngine
+  });
+  const licenseReview = options.licenseReview || createLicenseReview({
+    rootDir
+  });
   const timeProvider = options.timeProvider && typeof options.timeProvider.nowIso === "function"
     ? options.timeProvider
     : { nowIso: () => "1970-01-01T00:00:00.000Z" };
@@ -82,6 +129,21 @@ function createDatasetBuilder(options = {}) {
   }
   if (!outputManager || typeof outputManager.saveBuild !== "function") {
     throw new Error("outputManager.saveBuild is required");
+  }
+  if (!validator || typeof validator.validateBuild !== "function") {
+    throw new Error("validator.validateBuild is required");
+  }
+  if (!deduper || typeof deduper.dedupeRows !== "function") {
+    throw new Error("deduper.dedupeRows is required");
+  }
+  if (!provenanceTracker || typeof provenanceTracker.trackBuild !== "function") {
+    throw new Error("provenanceTracker.trackBuild is required");
+  }
+  if (!scorer || typeof scorer.scoreBuild !== "function") {
+    throw new Error("scorer.scoreBuild is required");
+  }
+  if (!licenseReview || typeof licenseReview.classifyBuild !== "function") {
+    throw new Error("licenseReview.classifyBuild is required");
   }
 
   function resolveTaskSource(taskId) {
@@ -245,7 +307,28 @@ function createDatasetBuilder(options = {}) {
         source_task_ids: sourceTaskIds,
         source_mission_ids: missionId ? [missionId] : []
       });
-    const configSnapshotHash = schemaEngine.getConfigSnapshotHash(datasetType);
+    const validatorConfigHash = typeof validator.getConfigSnapshotHash === "function"
+      ? validator.getConfigSnapshotHash(datasetType)
+      : "";
+    const qualityRulesSnapshot = typeof validator.getQualityRules === "function"
+      ? validator.getQualityRules(datasetType)
+      : {};
+    const configSnapshotHash = sha256(JSON.stringify(canonicalize({
+      base_schema: schemaEngine.getConfigSnapshotHash(datasetType),
+      dedupe: typeof deduper.getConfigSnapshotHash === "function"
+        ? deduper.getConfigSnapshotHash(qualityRulesSnapshot && qualityRulesSnapshot.dedupe)
+        : "",
+      license: typeof licenseReview.getConfigSnapshotHash === "function"
+        ? licenseReview.getConfigSnapshotHash()
+        : "",
+      provenance: typeof provenanceTracker.getConfigSnapshotHash === "function"
+        ? provenanceTracker.getConfigSnapshotHash()
+        : "",
+      scorer: typeof scorer.getConfigSnapshotHash === "function"
+        ? scorer.getConfigSnapshotHash(datasetType)
+        : "",
+      validator: validatorConfigHash
+    })));
     const sourceHashes = taskArtifacts.map((artifact) => sha256(`${artifact.task_id}|${artifact.content}`)).sort();
     const buildId = safeString(input.build_id || input.buildId) || computeBuildId({
       dataset_id: datasetId,
@@ -259,7 +342,84 @@ function createDatasetBuilder(options = {}) {
     });
     const segments = buildSegmentsFromArtifacts(taskArtifacts);
     const rawRows = mapSegmentsToRows(datasetType, segments);
-    const validation = schemaEngine.validateRows(datasetType, rawRows);
+    const validationMetadata = canonicalize({
+      build_id: buildId,
+      dataset_id: datasetId,
+      dataset_type: datasetType,
+      quality_threshold: Math.max(0, Number.parseInt(String(input.quality_threshold || input.qualityThreshold || 0), 10) || 0),
+      source_mission_ids: missionId ? [missionId] : [],
+      source_task_ids: sourceTaskIds,
+      target_schema: targetSchema
+    });
+    const validation = validator.validateBuild({
+      dataset_type: datasetType,
+      metadata: validationMetadata,
+      rows: rawRows
+    });
+    const candidateRows = validation.row_results
+      .filter((entry) => entry.ok === true)
+      .map((entry) => {
+        const segment = segments[Math.max(0, Number(entry.row_number || 1) - 1)] || {};
+        return canonicalize({
+          block_index: Number(segment.block_index || 0),
+          label: safeString(segment.label),
+          row: canonicalize(entry.normalized_row),
+          row_hash: safeString(entry.row_hash),
+          row_number: Number(entry.row_number || 0),
+          task_id: safeString(segment.task_id)
+        });
+      });
+    const dedupe = deduper.dedupeRows({
+      dedupe: validation.quality_rules && validation.quality_rules.dedupe,
+      rows: candidateRows
+    });
+    const provenance = provenanceTracker.trackBuild({
+      dedupe_result: dedupe.ok ? dedupe : { rows: [] },
+      source_artifacts: taskArtifacts.map((artifact) => canonicalize({
+        metadata: canonicalize(artifact.metadata || {}),
+        output_path: safeString(artifact.output_path),
+        task_id: safeString(artifact.task_id)
+      })),
+      source_mission_ids: missionId ? [missionId] : [],
+      transformation_steps: [
+        "resolve_sources",
+        "segment_source_artifacts",
+        "map_segments_to_rows",
+        "validate_rows",
+        "dedupe_rows",
+        "attach_provenance"
+      ]
+    });
+    const score = scorer.scoreBuild({
+      dataset_type: datasetType,
+      dedupe_result: dedupe.ok ? dedupe : { rows: [] },
+      metadata: validationMetadata,
+      provenance_result: provenance,
+      validation_result: validation
+    });
+    const license = licenseReview.classifyBuild({
+      provenance_result: provenance,
+      source_artifacts: taskArtifacts.map((artifact) => canonicalize({
+        metadata: canonicalize(artifact.metadata || {}),
+        output_path: safeString(artifact.output_path),
+        task_id: safeString(artifact.task_id)
+      }))
+    });
+    const finalRows = dedupe.ok
+      ? dedupe.rows.map((entry) => canonicalize(entry.row))
+      : [];
+    const pipelineCompleted = validation.ok === true
+      && dedupe.ok === true
+      && provenance.ok === true
+      && score.ok === true
+      && license.ok === true;
+    const validationStatus = safeString(validation.validation_status) || "failed";
+    const qualityStatus = safeString(score.quality_status) || "failed";
+    const licenseState = safeString(license.license_state) || "blocked";
+    const commercializationReady = pipelineCompleted
+      && validationStatus === "passed"
+      && qualityStatus === "passed"
+      && licenseState === "allowed";
     const nowIso = normalizeIso(timeProvider.nowIso());
     const saved = outputManager.saveBuild({
       dataset_id: datasetId,
@@ -271,20 +431,50 @@ function createDatasetBuilder(options = {}) {
       packaging_formats: Array.isArray(input.packaging_formats || input.packagingFormats)
         ? (input.packaging_formats || input.packagingFormats)
         : ["jsonl"],
-      status: validation.ok ? "completed" : "failed",
-      rows: validation.rows,
+      commercialization_ready: commercializationReady,
+      dedupe_report: dedupe.report,
+      license_report: license.license_report,
+      license_state: licenseState,
+      provenance: provenance.provenance,
+      quality_report: score.quality_report,
+      quality_status: qualityStatus,
+      rows: finalRows,
       schema: validation.schema,
+      status: pipelineCompleted ? "completed" : "failed",
+      validation_report: validation.report,
+      validation_status: validationStatus,
       build_report: {
-        ok: validation.ok,
+        build_stage_status: pipelineCompleted ? "completed" : "failed",
+        commercialization_ready: commercializationReady,
+        dedupe_summary: canonicalize(dedupe.report && dedupe.report.build_summary ? dedupe.report.build_summary : {}),
         dataset_id: datasetId,
         build_id: buildId,
         dataset_type: datasetType,
+        license_state: licenseState,
+        license_summary: canonicalize(license.license_report && license.license_report.build_summary ? license.license_report.build_summary : {}),
         target_schema: targetSchema,
-        row_count: validation.row_count,
+        quality_status: qualityStatus,
+        quality_summary: canonicalize(score.quality_report && score.quality_report.build_summary ? score.quality_report.build_summary : {}),
+        reason_codes: stableReasonCodes([
+          validation.report && validation.report.build_summary ? validation.report.build_summary.reason_codes : [],
+          dedupe.collision_report,
+          Array.isArray(provenance.invalid_rows)
+            ? provenance.invalid_rows.flatMap((entry) => Array.isArray(entry.reason_codes) ? entry.reason_codes : [])
+            : [],
+          score.quality_report && score.quality_report.build_summary ? score.quality_report.build_summary.reason_codes : [],
+          license.license_report && license.license_report.build_summary
+            ? [
+              ...(license.license_report.build_summary.blocked_reason_codes || []),
+              ...(license.license_report.build_summary.review_required_reason_codes || [])
+            ]
+            : []
+        ]),
+        row_count: finalRows.length,
         source_task_ids: sourceTaskIds,
         source_mission_ids: missionId ? [missionId] : [],
         config_snapshot_hash: configSnapshotHash,
-        violations: validation.violations
+        validation_status: validationStatus,
+        validation_summary: canonicalize(validation.report && validation.report.build_summary ? validation.report.build_summary : {})
       },
       raw_snapshot: {
         dataset_id: datasetId,
@@ -293,11 +483,17 @@ function createDatasetBuilder(options = {}) {
         source_task_ids: sourceTaskIds,
         source_mission_ids: missionId ? [missionId] : [],
         source_artifacts: taskArtifacts.map((artifact) => canonicalize({
+          output_ref: relativeFromRoot(rootDir, safeString(artifact.output_path)),
           task_id: safeString(artifact.task_id),
           output_path: safeString(artifact.output_path),
           metadata: canonicalize(artifact.metadata || {})
         })),
-        segments
+        segments,
+        validation_candidates: validation.row_results.map((entry) => canonicalize({
+          ok: entry.ok === true,
+          row_hash: safeString(entry.row_hash),
+          row_number: Number(entry.row_number || 0)
+        }))
       },
       source_task_ids: sourceTaskIds,
       source_mission_ids: missionId ? [missionId] : [],
@@ -306,21 +502,29 @@ function createDatasetBuilder(options = {}) {
     });
 
     return canonicalize({
-      ok: validation.ok,
+      commercialization_ready: commercializationReady,
       dataset_id: datasetId,
       build_id: buildId,
       dataset_type: datasetType,
+      license_state: licenseState,
+      ok: pipelineCompleted,
+      quality_status: qualityStatus,
       target_schema: targetSchema,
-      row_count: validation.row_count,
+      row_count: finalRows.length,
       source_task_ids: sourceTaskIds,
       source_mission_ids: missionId ? [missionId] : [],
-      violations: validation.violations,
+      validation_status: validationStatus,
       dataset_path: saved.dataset_path,
       metadata_path: saved.metadata_path,
       manifest_path: saved.manifest_path,
       schema_path: saved.schema_path,
       build_report_path: saved.build_report_path,
-      raw_snapshot_path: saved.raw_snapshot_path
+      dedupe_report_path: saved.dedupe_report_path,
+      license_report_path: saved.license_report_path,
+      provenance_path: saved.provenance_path,
+      quality_report_path: saved.quality_report_path,
+      raw_snapshot_path: saved.raw_snapshot_path,
+      validation_report_path: saved.validation_report_path
     });
   }
 

@@ -22,6 +22,10 @@ function relativeFrom(baseDir, filePath) {
   return path.relative(baseDir, filePath).split(path.sep).join("/");
 }
 
+function asPlainObject(value) {
+  return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+}
+
 function collectBundleFiles(bundleDir) {
   const files = [];
   const stack = [bundleDir];
@@ -50,6 +54,53 @@ function collectBundleFiles(bundleDir) {
 function computeBundleHash(bundleDir) {
   const files = collectBundleFiles(bundleDir);
   return sha256(`phase19-release-bundle-v1|${JSON.stringify(canonicalize(files))}`);
+}
+
+function validateDatasetPhase20State(offer = {}) {
+  const sourceStatus = asPlainObject(offer.source_status);
+  const validationStatus = safeString(sourceStatus.validation_status || offer.validation_status) || "failed";
+  const qualityStatus = safeString(sourceStatus.quality_status || offer.quality_status) || "failed";
+  const licenseState = safeString(sourceStatus.license_state || offer.license_state) || "blocked";
+  const commercializationReady = sourceStatus.commercialization_ready === true || offer.commercialization_ready === true;
+  if (safeString(offer.source_kind) !== "dataset") {
+    return canonicalize({
+      commercialization_ready: commercializationReady,
+      license_state: licenseState,
+      quality_status: qualityStatus,
+      validation_status: validationStatus
+    });
+  }
+  if (validationStatus !== "passed") {
+    const error = new Error("Dataset bundle cannot be approved because validation_status is not passed");
+    error.code = "PHASE20_RELEASE_DATASET_VALIDATION_FAILED";
+    throw error;
+  }
+  if (qualityStatus !== "passed") {
+    const error = new Error("Dataset bundle cannot be approved because quality_status is not passed");
+    error.code = "PHASE20_RELEASE_DATASET_QUALITY_FAILED";
+    throw error;
+  }
+  if (!licenseState || licenseState === "blocked") {
+    const error = new Error("Dataset bundle cannot be approved because license review is blocked");
+    error.code = "PHASE20_RELEASE_DATASET_LICENSE_BLOCKED";
+    throw error;
+  }
+  if (licenseState === "review_required" && offer.explicit_build_selected !== true) {
+    const error = new Error("Dataset bundle requires explicit build selection for review_required datasets");
+    error.code = "PHASE20_RELEASE_DATASET_REVIEW_REQUIRED_EXPLICIT";
+    throw error;
+  }
+  if (commercializationReady !== true && licenseState !== "review_required") {
+    const error = new Error("Dataset bundle is not commercialization-ready");
+    error.code = "PHASE20_RELEASE_DATASET_NOT_COMMERCIALIZATION_READY";
+    throw error;
+  }
+  return canonicalize({
+    commercialization_ready: commercializationReady,
+    license_state: licenseState,
+    quality_status: qualityStatus,
+    validation_status: validationStatus
+  });
 }
 
 function validateManifest(bundleDir) {
@@ -91,6 +142,7 @@ function createReleaseApprovalManager(options = {}) {
     }
     const offer = readJson(offerPath);
     validateManifest(bundleDir);
+    const datasetPhase20Status = validateDatasetPhase20State(offer);
     const bundleHash = computeBundleHash(bundleDir);
     const approvedTargets = Array.isArray(input.approved_platform_targets || input.approvedPlatformTargets)
       ? (input.approved_platform_targets || input.approvedPlatformTargets).map((entry) => safeString(entry)).filter(Boolean).sort()
@@ -106,7 +158,8 @@ function createReleaseApprovalManager(options = {}) {
       approved_at: safeString(timeProvider.nowIso()),
       approver,
       hash_of_release_bundle: bundleHash,
-      approved_platform_targets: approvedTargets
+      approved_platform_targets: approvedTargets,
+      dataset_phase20_status: safeString(offer.source_kind) === "dataset" ? datasetPhase20Status : {}
     });
     writeJson(path.join(bundleDir, "release-approval.json"), approval);
     return approval;
@@ -124,6 +177,7 @@ function createReleaseApprovalManager(options = {}) {
     const approval = readJson(approvalPath);
     const offer = readJson(offerPath);
     validateManifest(bundleDir);
+    const datasetPhase20Status = validateDatasetPhase20State(offer);
     const expectedHash = computeBundleHash(bundleDir);
     if (safeString(approval.hash_of_release_bundle) !== expectedHash) {
       const error = new Error("Release approval hash does not match current bundle");
@@ -141,7 +195,8 @@ function createReleaseApprovalManager(options = {}) {
       ok: true,
       offer_id: safeString(approval.offer_id),
       bundle_dir: bundleDir,
-      approval
+      approval,
+      dataset_phase20_status: safeString(offer.source_kind) === "dataset" ? datasetPhase20Status : {}
     });
   }
 

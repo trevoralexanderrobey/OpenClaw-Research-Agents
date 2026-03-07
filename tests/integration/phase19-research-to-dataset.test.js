@@ -11,30 +11,25 @@ const root = path.resolve(__dirname, "../..");
 const { createSchemaEngine } = require(path.join(root, "openclaw-bridge", "dataset", "schema-engine.js"));
 const { createDatasetBuilder } = require(path.join(root, "openclaw-bridge", "dataset", "dataset-builder.js"));
 const { createDatasetOutputManager } = require(path.join(root, "openclaw-bridge", "dataset", "dataset-output-manager.js"));
-
-function writeJson(filePath, value) {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
-}
-
-function writeTaskOutput(rootDir, taskId, fixtureName) {
-  const taskDir = path.join(rootDir, "workspace", "research-output", taskId);
-  fs.mkdirSync(taskDir, { recursive: true });
-  fs.writeFileSync(
-    path.join(taskDir, "output.md"),
-    fs.readFileSync(path.join(root, "tests", "fixtures", "phase19", fixtureName), "utf8"),
-    "utf8"
-  );
-  writeJson(path.join(taskDir, "metadata.json"), { task_id: taskId, status: "completed" });
-  writeJson(path.join(taskDir, "manifest.json"), { task_id: taskId, files: [] });
-  return path.join(taskDir, "output.md");
-}
+const {
+  copyDatasetConfigs,
+  writeJson,
+  writeTaskOutput
+} = require(path.join(root, "tests", "helpers", "phase20-fixtures.js"));
 
 test("phase19 research mission outputs can be transformed into a staged dataset build", async () => {
   const tmp = await fsp.mkdtemp(path.join(os.tmpdir(), "openclaw-phase19-research-to-dataset-"));
+  await copyDatasetConfigs(tmp);
   const missionId = "mission-research-to-dataset-demo";
-  const firstOutput = writeTaskOutput(tmp, "task-research-to-dataset-1", "sample-research-output.md");
-  const secondOutput = writeTaskOutput(tmp, "task-research-to-dataset-2", "sample-research-output-2.md");
+  const sharedRights = {
+    rights: {
+      commercial_use_allowed: true,
+      redistribution_allowed: true
+    },
+    source_domain: "approved.example"
+  };
+  const firstOutput = writeTaskOutput(tmp, "task-research-to-dataset-1", "sample-research-output.md", sharedRights);
+  const secondOutput = writeTaskOutput(tmp, "task-research-to-dataset-2", "sample-research-output-2.md", sharedRights);
 
   const missionRoot = path.join(tmp, "workspace", "missions", missionId);
   fs.mkdirSync(path.join(missionRoot, "artifacts"), { recursive: true });
@@ -54,7 +49,7 @@ test("phase19 research mission outputs can be transformed into a staged dataset 
   const outputManager = createDatasetOutputManager({ rootDir: tmp });
   const builder = createDatasetBuilder({
     rootDir: tmp,
-    schemaEngine: createSchemaEngine({ rootDir: root }),
+    schemaEngine: createSchemaEngine({ rootDir: tmp }),
     outputManager,
     timeProvider: { nowIso: () => "2026-03-06T00:00:00.000Z" }
   });
@@ -65,11 +60,13 @@ test("phase19 research mission outputs can be transformed into a staged dataset 
   });
 
   assert.equal(result.ok, true);
+  assert.equal(result.commercialization_ready, true);
   assert.equal(result.dataset_id, "dataset-research-to-dataset-demo");
   assert.ok(result.row_count > 0);
   assert.ok(fs.existsSync(result.dataset_path));
 
   const latest = outputManager.resolveLatestSuccessfulBuild(result.dataset_id);
   assert.equal(latest.build_id, result.build_id);
+  const latestReady = outputManager.resolveLatestCommercializationReadyBuild(result.dataset_id);
+  assert.equal(latestReady.build_id, result.build_id);
 });
-

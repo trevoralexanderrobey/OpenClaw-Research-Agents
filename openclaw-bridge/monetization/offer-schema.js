@@ -157,6 +157,7 @@ function validateOfferDefinition(offer = {}) {
     platform_targets: asStringArray(source.platform_targets),
     artifact_slots: asStringArray(source.artifact_slots),
     required_metadata_fields: asStringArray(source.required_metadata_fields),
+    warnings: asStringArray(source.warnings),
     workflow_roles: asStringArray(source.workflow_roles)
   });
   for (const field of ["offer_id", "offer_title", "product_line", "tier", "source_kind", "source_id", "release_status"]) {

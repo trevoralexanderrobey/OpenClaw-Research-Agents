@@ -1,0 +1,46 @@
+{
+  "default_unknown_state": "blocked",
+  "domain_rules": {
+    "approved.example": {
+      "reason_code": "PHASE20_LICENSE_DOMAIN_ALLOWED",
+      "state": "allowed"
+    },
+    "blocked.example": {
+      "reason_code": "PHASE20_LICENSE_DOMAIN_BLOCKED",
+      "state": "blocked"
+    },
+    "restricted.example": {
+      "reason_code": "PHASE20_LICENSE_DOMAIN_REVIEW_REQUIRED",
+      "state": "review_required"
+    }
+  },
+  "license_rules": {
+    "all-rights-reserved": {
+      "reason_code": "PHASE20_LICENSE_IDENTIFIER_BLOCKED",
+      "state": "blocked"
+    },
+    "cc-by-4.0": {
+      "reason_code": "PHASE20_LICENSE_IDENTIFIER_ALLOWED",
+      "state": "allowed"
+    },
+    "cc0-1.0": {
+      "reason_code": "PHASE20_LICENSE_IDENTIFIER_ALLOWED",
+      "state": "allowed"
+    },
+    "custom-review": {
+      "reason_code": "PHASE20_LICENSE_IDENTIFIER_REVIEW_REQUIRED",
+      "state": "review_required"
+    }
+  },
+  "reason_codes": {
+    "default_unknown": "PHASE20_LICENSE_UNKNOWN_BLOCKED",
+    "explicit_allowed": "PHASE20_LICENSE_METADATA_ALLOWED",
+    "explicit_blocked": "PHASE20_LICENSE_METADATA_BLOCKED",
+    "explicit_review_required": "PHASE20_LICENSE_METADATA_REVIEW_REQUIRED",
+    "rights_allowed": "PHASE20_LICENSE_RIGHTS_ALLOWED",
+    "rights_blocked": "PHASE20_LICENSE_RIGHTS_BLOCKED",
+    "source_override": "PHASE20_LICENSE_SOURCE_OVERRIDE"
+  },
+  "schema_version": "phase20-dataset-license-rules-v1",
+  "source_overrides": {}
+}

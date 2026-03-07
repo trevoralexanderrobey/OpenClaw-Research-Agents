@@ -10,6 +10,7 @@ const { spawnSync } = require("node:child_process");
 
 const root = path.resolve(__dirname, "../..");
 const { createDatasetOutputManager } = require(path.join(root, "openclaw-bridge", "dataset", "dataset-output-manager.js"));
+const { createDatasetBuildInput } = require(path.join(root, "tests", "helpers", "phase20-fixtures.js"));
 
 async function createRepoFixture() {
   const tmp = await fsp.mkdtemp(path.join(os.tmpdir(), "openclaw-phase19-dataset-offer-"));
@@ -32,25 +33,21 @@ function runNode(scriptRelPath, args, cwd) {
 test("phase19 dataset release flow generates, approves, and exports a deterministic bundle", async () => {
   const fixtureRoot = await createRepoFixture();
   const outputManager = createDatasetOutputManager({ rootDir: fixtureRoot });
-  outputManager.saveBuild({
+  outputManager.saveBuild(createDatasetBuildInput({
     dataset_id: "dataset-offer-export-demo",
     build_id: "build-0001",
-    dataset_type: "instruction_qa",
-    target_schema: "phase19-dataset-schema-v1",
     rows: [
       {
         instruction: "Explain the market shift",
         context: "A sample context",
-        answer: "A sample answer",
+        answer: "A sample answer with enough length.",
         row_hash: "fixed-row-hash"
       }
     ],
-    schema: { schema_version: "phase19-dataset-schema-v1" },
-    build_report: { ok: true },
     source_task_ids: ["task-1"],
     build_started_at: "2026-03-06T00:00:00.000Z",
     build_completed_at: "2026-03-06T00:00:00.000Z"
-  });
+  }));
 
   const generated = runNode("scripts/generate-offer.js", [
     "--source", "dataset-offer-export-demo",
@@ -62,6 +59,8 @@ test("phase19 dataset release flow generates, approves, and exports a determinis
   assert.equal(generated.status, 0, generated.stderr || generated.stdout);
   const generatedBody = JSON.parse(generated.stdout);
   assert.equal(generatedBody.ok, true);
+  assert.equal(generatedBody.source_status.commercialization_ready, true);
+  assert.equal(generatedBody.source_status.license_state, "allowed");
 
   const approved = runNode("scripts/approve-release.js", [
     "--offer-id", generatedBody.offer_id,
@@ -78,5 +77,6 @@ test("phase19 dataset release flow generates, approves, and exports a determinis
   const exportBody = JSON.parse(exported.stdout);
   assert.equal(exportBody.format, "zip");
   assert.ok(fs.existsSync(exportBody.export_path));
+  assert.equal(exportBody.dataset_phase20_status.commercialization_ready, true);
+  assert.equal(exportBody.dataset_phase20_status.license_state, "allowed");
 });
-

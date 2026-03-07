@@ -87,8 +87,8 @@
     "nextEvidenceBundleSequence": 0,
     "nextReleaseGateSequence": 0,
     "operationalDecisionLedger": {
-      "chainHead": "4b295ac06502e64318a0565490ceb441b94852d52d50726adcb316c3d4beab18",
-      "nextSequence": 10,
+      "chainHead": "f70f8ae497be33cb8c91f2a28469481c3db51810283a1f09ea024e9d612179ca",
+      "nextSequence": 12,
       "records": [
         {
           "action": "approve_task",
@@ -264,6 +264,41 @@
           "scope": "phase14.research.task",
           "sequence": 10,
           "timestamp": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "action": "approve_task",
+          "actor": "operator-test",
+          "chain_hash": "fb9e93cf3795ee804ad8070b9f36581358ca0029971eca6b44d4dc20b657146c",
+          "decision_id": "opd-11",
+          "details": {
+            "decision_id": "sup-1",
+            "reason": "supervisor_approved",
+            "task_id": "task-22ec7ce1d27ffe494f0fdcca"
+          },
+          "entry_hash": "41939e13e7d5cb1320206617160672cae9f4c42e92c945e787c228142766aadd",
+          "event_type": "phase14.supervisor.decision",
+          "prev_chain_hash": "4b295ac06502e64318a0565490ceb441b94852d52d50726adcb316c3d4beab18",
+          "result": "allow",
+          "scope": "phase14.research.task",
+          "sequence": 11,
+          "timestamp": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "action": "execute_task",
+          "actor": "operator-test",
+          "chain_hash": "f70f8ae497be33cb8c91f2a28469481c3db51810283a1f09ea024e9d612179ca",
+          "decision_id": "opd-12",
+          "details": {
+            "status": "completed",
+            "task_id": "task-22ec7ce1d27ffe494f0fdcca"
+          },
+          "entry_hash": "43d1e9d1ba2a4a28502ca7cfcf6e57a7a2e36bf63f635ee75e07b8604b792b17",
+          "event_type": "phase14.task.execution",
+          "prev_chain_hash": "fb9e93cf3795ee804ad8070b9f36581358ca0029971eca6b44d4dc20b657146c",
+          "result": "completed",
+          "scope": "phase14.research.task",
+          "sequence": 12,
+          "timestamp": "1970-01-01T00:00:00.000Z"
         }
       ]
     },
@@ -305,7 +340,7 @@
     "rolloutDecisions": []
   },
   "hydrationTimestamp": "1970-01-01T00:00:00.000Z",
-  "lastDeterministicReplayAt": "2026-03-07T22:28:24.598Z",
+  "lastDeterministicReplayAt": "2026-03-07T23:59:21.943Z",
   "openLoops": [],
   "outboundMutation": {
     "committedPublications": [],
@@ -426,12 +461,29 @@
         "sourceHash": "c4a133261bb469fde294444e2581a503abe187596f8a8d9f7769740a0d8fcee3",
         "sourcePaperId": "task:task-5f1e2fca418293f9b121ee86",
         "status": "draft"
+      },
+      {
+        "aiAssisted": true,
+        "complexityScore": 50,
+        "contentHash": "bc592ae9c828e5fcd82140e81c33cf0720cda4fd77d65f61bda3143d920caa19",
+        "domainTag": "research-task",
+        "generatedAt": "1970-01-01T00:00:00.000Z",
+        "generatorVersion": "phase14-task-v1",
+        "manualSubmissionRequired": true,
+        "monetizationScore": 0,
+        "notes": "Generated from task execution task-22ec7ce1d27ffe494f0fdcca",
+        "reviewedAt": null,
+        "reviewedBy": null,
+        "sequence": 6,
+        "sourceHash": "dfc4d20b746e679ab95fa88aaa55433596f9fc53e11d094e6f50463c4b4ad600",
+        "sourcePaperId": "task:task-22ec7ce1d27ffe494f0fdcca",
+        "status": "draft"
       }
     ],
     "generatorVersion": "v1",
     "lastAutomationRunAt": "1970-01-01T00:00:00.000Z",
-    "nextDraftSequence": 5,
-    "nextQueueSequence": 5,
+    "nextDraftSequence": 6,
+    "nextQueueSequence": 6,
     "reviewQueue": [
       {
         "draftSequence": 1,
@@ -470,6 +522,14 @@
         "enqueuedAt": "1970-01-01T00:00:00.000Z",
         "notes": "phase14_auto_ingest:task-5f1e2fca418293f9b121ee86",
         "queueSequence": 5,
+        "status": "pending_review",
+        "updatedAt": "1970-01-01T00:00:00.000Z"
+      },
+      {
+        "draftSequence": 6,
+        "enqueuedAt": "1970-01-01T00:00:00.000Z",
+        "notes": "phase14_auto_ingest:task-22ec7ce1d27ffe494f0fdcca",
+        "queueSequence": 6,
         "status": "pending_review",
         "updatedAt": "1970-01-01T00:00:00.000Z"
       }

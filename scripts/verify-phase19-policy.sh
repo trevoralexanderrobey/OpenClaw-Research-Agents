@@ -97,7 +97,7 @@ fi
 search_quiet 'datasets-index\.json' "$ROOT/openclaw-bridge/dataset/dataset-output-manager.js" || fail "Dataset index must be stored at workspace/datasets/index/datasets-index.json"
 search_quiet 'latest_successful_build_id' "$ROOT/openclaw-bridge/dataset/dataset-output-manager.js" || fail "Dataset index must track latest_successful_build_id"
 search_quiet 'resolveLatestSuccessfulBuild' "$ROOT/openclaw-bridge/dataset/dataset-output-manager.js" || fail "Dataset output manager must provide resolveLatestSuccessfulBuild"
-search_quiet 'resolveLatestSuccessfulBuild' "$ROOT/openclaw-bridge/monetization/offer-builder.js" || fail "Dataset-backed offers must resolve latest builds from the dataset index"
+search_quiet 'resolveLatest(Successful|CommercializationReady)Build' "$ROOT/openclaw-bridge/monetization/offer-builder.js" || fail "Dataset-backed offers must resolve latest builds from the dataset index"
 search_quiet 'mission_type' "$ROOT/openclaw-bridge/core/mission-envelope-schema.js" || fail "Mission envelope must include mission_type"
 search_quiet 'dataset_type' "$ROOT/openclaw-bridge/core/mission-envelope-schema.js" || fail "Mission envelope must include dataset_type"
 search_quiet 'dataset_id' "$ROOT/openclaw-bridge/core/mission-envelope-schema.js" || fail "Mission envelope must include dataset_id"

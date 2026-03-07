@@ -11,29 +11,23 @@ const root = path.resolve(__dirname, "../..");
 const { createSchemaEngine } = require(path.join(root, "openclaw-bridge", "dataset", "schema-engine.js"));
 const { createDatasetOutputManager } = require(path.join(root, "openclaw-bridge", "dataset", "dataset-output-manager.js"));
 const { createDatasetBuilder } = require(path.join(root, "openclaw-bridge", "dataset", "dataset-builder.js"));
-
-function writeJson(filePath, value) {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
-}
-
-function writeTask(rootDir, taskId) {
-  const taskDir = path.join(rootDir, "workspace", "research-output", taskId);
-  fs.mkdirSync(taskDir, { recursive: true });
-  fs.writeFileSync(
-    path.join(taskDir, "output.md"),
-    fs.readFileSync(path.join(root, "tests", "fixtures", "phase19", "sample-research-output.md"), "utf8"),
-    "utf8"
-  );
-  writeJson(path.join(taskDir, "metadata.json"), { task_id: taskId, status: "completed" });
-  writeJson(path.join(taskDir, "manifest.json"), { task_id: taskId, files: [] });
-}
+const {
+  copyDatasetConfigs,
+  writeTaskOutput
+} = require(path.join(root, "tests", "helpers", "phase20-fixtures.js"));
 
 test("phase19 dataset builder produces deterministic dataset_id and build_id from task outputs", async () => {
   const tmp = await fsp.mkdtemp(path.join(os.tmpdir(), "openclaw-phase19-dataset-builder-"));
-  writeTask(tmp, "task-dataset-builder-1");
+  await copyDatasetConfigs(tmp);
+  writeTaskOutput(tmp, "task-dataset-builder-1", "sample-research-output.md", {
+    rights: {
+      commercial_use_allowed: true,
+      redistribution_allowed: true
+    },
+    source_domain: "approved.example"
+  });
 
-  const schemaEngine = createSchemaEngine({ rootDir: root });
+  const schemaEngine = createSchemaEngine({ rootDir: tmp });
   const outputManager = createDatasetOutputManager({ rootDir: tmp });
   const builder = createDatasetBuilder({
     rootDir: tmp,
@@ -56,5 +50,13 @@ test("phase19 dataset builder produces deterministic dataset_id and build_id fro
   const metadata = JSON.parse(fs.readFileSync(first.metadata_path, "utf8"));
   assert.equal(metadata.dataset_id, first.dataset_id);
   assert.equal(metadata.build_id, first.build_id);
+  assert.equal(metadata.validation_status, "passed");
+  assert.equal(metadata.quality_status, "passed");
+  assert.equal(metadata.license_state, "allowed");
+  assert.equal(metadata.commercialization_ready, true);
+  assert.ok(fs.existsSync(first.validation_report_path));
+  assert.ok(fs.existsSync(first.dedupe_report_path));
+  assert.ok(fs.existsSync(first.provenance_path));
+  assert.ok(fs.existsSync(first.quality_report_path));
+  assert.ok(fs.existsSync(first.license_report_path));
 });
-

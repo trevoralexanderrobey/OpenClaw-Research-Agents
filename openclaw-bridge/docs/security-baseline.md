@@ -90,6 +90,11 @@
 - Final release approval is always a gated, manual, human-only checkpoint.
 - External publishing, target upload procedures, submission pack delivery routing, web portal login automation, and customer interfacing remain unconditionally manual-only.
 
+## Commercialization & Licensing Boundary (Phase 20)
+- Provenance tracking maps ensure all data ingested is internally verified for commercial release thresholds.
+- Unknown or mismatched upstream license rights are explicitly fail-closed and prohibited from commercial dataset staging.
+- Automated QA (deduplication, scoring) operates on internal datasets only and cannot modify or contact external upstream source repositories directly.
+
 ## GitHub Actions CI Verification
 - Cloud-hosted continuous integration (GitHub Actions) serves as the primary verification boundary for branch protection.
 - The workflow enforces that policy gates (`npm run phase2:gates`) and deterministic builds (`npm run build:verify`) pass before merging.

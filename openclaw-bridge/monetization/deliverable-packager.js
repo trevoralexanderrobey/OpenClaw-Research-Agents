@@ -46,6 +46,15 @@ function asStringArray(value) {
     : [];
 }
 
+function copyIfExists(sourcePath, targetPath) {
+  if (!safeString(sourcePath) || !fs.existsSync(sourcePath)) {
+    return false;
+  }
+  ensureDir(path.dirname(targetPath));
+  fs.copyFileSync(sourcePath, targetPath);
+  return true;
+}
+
 function createDeliverablePackager(options = {}) {
   const rootDir = path.resolve(safeString(options.rootDir) || process.cwd());
   const releasesDir = path.resolve(safeString(options.releasesDir) || path.join(rootDir, "workspace", "releases"));
@@ -57,8 +66,10 @@ function createDeliverablePackager(options = {}) {
       `Product line: ${safeString(offer.product_line)}`,
       `Tier: ${safeString(offer.tier)}`,
       `Source: ${safeString(sourceContext.source_kind)} ${safeString(sourceContext.source_id)}`,
+      ...(sourceContext.source_kind === "dataset" ? [`Commercialization ready: ${sourceContext.phase20_status && sourceContext.phase20_status.commercialization_ready === true ? "yes" : "no"}`] : []),
       "",
       "This release bundle is a packaging artifact prepared for manual review and manual submission only.",
+      ...(Array.isArray(sourceContext.warnings) && sourceContext.warnings.length > 0 ? ["", "Warnings:", ...sourceContext.warnings.map((entry) => `- ${entry}`)] : []),
       "",
       "## Description",
       safeString(sourceContext.description) || safeString(offer.offer_title),
@@ -105,6 +116,8 @@ function createDeliverablePackager(options = {}) {
   }
 
   function renderDatasetCard(offer, sourceContext) {
+    const phase20 = sourceContext.phase20_status || {};
+    const warnings = Array.isArray(sourceContext.warnings) ? sourceContext.warnings : [];
     return [
       `# ${safeString(offer.offer_title)}`,
       "",
@@ -114,6 +127,25 @@ function createDeliverablePackager(options = {}) {
       `Build ID: ${safeString(sourceContext.build_id)}`,
       `Dataset Type: ${safeString(sourceContext.metadata.dataset_type)}`,
       `Rows: ${String(sourceContext.metadata.row_count || 0)}`,
+      `Validation status: ${safeString(phase20.validation_status) || "failed"}`,
+      `Quality status: ${safeString(phase20.quality_status) || "failed"}`,
+      `License state: ${safeString(phase20.license_state) || "blocked"}`,
+      `Commercialization ready: ${phase20.commercialization_ready === true ? "true" : "false"}`,
+      "",
+      "## Intended Use",
+      "Prepared for deterministic local packaging and manual review before any external submission.",
+      "",
+      "## Limitations",
+      phase20.license_state === "review_required"
+        ? "This build requires manual legal/commercial review before any external listing or distribution."
+        : "External publication and submission remain manual-only.",
+      "",
+      "## Provenance",
+      "Row-level provenance is included in the packaged provenance artifact.",
+      "",
+      "## Licensing",
+      `Current deterministic license review state: ${safeString(phase20.license_state) || "blocked"}.`,
+      ...(warnings.length > 0 ? ["", "## Warnings", ...warnings.map((entry) => `- ${entry}`)] : []),
       ""
     ].join("\n");
   }
@@ -166,11 +198,21 @@ function createDeliverablePackager(options = {}) {
       const datasetPath = path.join(deliverablesDir, "dataset.jsonl");
       const schemaPath = path.join(deliverablesDir, "schema.json");
       const buildReportPath = path.join(deliverablesDir, "build-report.json");
+      const validationReportPath = path.join(deliverablesDir, "validation-report.json");
+      const dedupeReportPath = path.join(deliverablesDir, "dedupe-report.json");
+      const provenancePath = path.join(deliverablesDir, "provenance.json");
+      const qualityReportPath = path.join(deliverablesDir, "quality-report.json");
+      const licenseReportPath = path.join(deliverablesDir, "license-report.json");
       const cardPath = path.join(deliverablesDir, "dataset-card.md");
       const previewPath = path.join(deliverablesDir, "sample-preview.jsonl");
       fs.copyFileSync(sourceContext.dataset_path, datasetPath);
       fs.copyFileSync(sourceContext.schema_path, schemaPath);
       fs.copyFileSync(sourceContext.build_report_path, buildReportPath);
+      copyIfExists(sourceContext.validation_report_path, validationReportPath);
+      copyIfExists(sourceContext.dedupe_report_path, dedupeReportPath);
+      copyIfExists(sourceContext.provenance_path, provenancePath);
+      copyIfExists(sourceContext.quality_report_path, qualityReportPath);
+      copyIfExists(sourceContext.license_report_path, licenseReportPath);
       writeText(cardPath, renderDatasetCard(offer, sourceContext));
       const previewLines = fs.readFileSync(sourceContext.dataset_path, "utf8").split("\n").filter(Boolean).slice(0, 5).join("\n");
       writeText(previewPath, previewLines ? `${previewLines}\n` : "");
@@ -179,6 +221,21 @@ function createDeliverablePackager(options = {}) {
       artifactRefs.supporting_appendix = relativeFrom(bundleDir, cardPath);
       artifactRefs.sample_preview = relativeFrom(bundleDir, previewPath);
       artifactRefs.build_report = relativeFrom(bundleDir, buildReportPath);
+      if (fs.existsSync(validationReportPath)) {
+        artifactRefs.validation_report = relativeFrom(bundleDir, validationReportPath);
+      }
+      if (fs.existsSync(dedupeReportPath)) {
+        artifactRefs.dedupe_report = relativeFrom(bundleDir, dedupeReportPath);
+      }
+      if (fs.existsSync(provenancePath)) {
+        artifactRefs.provenance = relativeFrom(bundleDir, provenancePath);
+      }
+      if (fs.existsSync(qualityReportPath)) {
+        artifactRefs.quality_report = relativeFrom(bundleDir, qualityReportPath);
+      }
+      if (fs.existsSync(licenseReportPath)) {
+        artifactRefs.license_report = relativeFrom(bundleDir, licenseReportPath);
+      }
     }
 
     const storeCopyPath = path.join(deliverablesDir, "store-copy.md");
@@ -194,6 +251,12 @@ function createDeliverablePackager(options = {}) {
       source_kind: safeString(sourceContext.source_kind),
       source_id: safeString(sourceContext.source_id),
       build_id: safeString(sourceContext.build_id),
+      commercialization_ready: sourceContext.source_kind === "dataset" && sourceContext.phase20_status
+        ? sourceContext.phase20_status.commercialization_ready === true
+        : false,
+      license_state: sourceContext.source_kind === "dataset" && sourceContext.phase20_status
+        ? safeString(sourceContext.phase20_status.license_state)
+        : "",
       platform_targets: Array.isArray(offer.platform_targets) ? offer.platform_targets : []
     }));
     writeJson(deliveryManifestPath, canonicalize({
@@ -203,7 +266,8 @@ function createDeliverablePackager(options = {}) {
       source_kind: safeString(sourceContext.source_kind),
       source_id: safeString(sourceContext.source_id),
       build_id: safeString(sourceContext.build_id),
-      manual_only: true
+      manual_only: true,
+      source_status: sourceContext.source_kind === "dataset" ? canonicalize(sourceContext.phase20_status || {}) : {}
     }));
     writeText(privateDeliveryNotePath, renderPrivateDeliveryNote(offer));
     artifactRefs.store_copy = relativeFrom(bundleDir, storeCopyPath);
@@ -245,7 +309,9 @@ function createDeliverablePackager(options = {}) {
       release_status: safeString(offer.release_status) || "packaged",
       packaging_artifact: true,
       publication_state: "not_published",
-      manual_submission_only: true
+      manual_submission_only: true,
+      source_status: sourceContext.source_kind === "dataset" ? canonicalize(sourceContext.phase20_status || {}) : {},
+      warnings: Array.isArray(sourceContext.warnings) ? sourceContext.warnings : []
     }));
     writeText(releaseNotesPath, [
       `# Release Notes: ${safeString(offer.offer_id)}`,
@@ -256,6 +322,8 @@ function createDeliverablePackager(options = {}) {
       `Tier: ${safeString(offer.tier)}`,
       `Source: ${safeString(sourceContext.source_kind)} ${safeString(sourceContext.source_id)}`,
       `Targets: ${(Array.isArray(offer.platform_targets) ? offer.platform_targets : []).join(", ")}`,
+      ...(sourceContext.source_kind === "dataset" ? [`License state: ${safeString(sourceContext.phase20_status && sourceContext.phase20_status.license_state) || "blocked"}`] : []),
+      ...(Array.isArray(sourceContext.warnings) && sourceContext.warnings.length > 0 ? sourceContext.warnings.map((entry) => `Warning: ${entry}`) : []),
       ""
     ].join("\n"));
   }

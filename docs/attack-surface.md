@@ -252,7 +252,19 @@ Mitigation:
 - Dataset builds are derived from existing local research outputs or mission artifacts.
 - Latest-build lookup is index-based, not filesystem timestamp-based.
 - Dataset generation remains local-only and does not add outbound publish, upload, or marketplace submission paths.
-- Phase 19 does not add full provenance, licensing review, dataset scoring, dedupe, or publisher adapters.
+
+## Phase 20 commercialization gate surface
+- Phase 20 commercialization gate surface is local-only and deterministic:
+  - `openclaw-bridge/dataset/dataset-validator.js`
+  - `openclaw-bridge/dataset/dataset-deduper.js`
+  - `openclaw-bridge/dataset/provenance-tracker.js`
+  - `openclaw-bridge/dataset/dataset-scorer.js`
+  - `openclaw-bridge/dataset/license-review.js`
+- Dataset validation, dedupe, provenance, scoring, and license review do not add new outbound hosts or browser/login automation.
+- Unknown license or rights state is blocked fail-closed and does not silently pass to `allowed`.
+- Commercialization-ready resolution remains index-based through `workspace/datasets/index/datasets-index.json`.
+- Review-required dataset builds may still be packaged for manual review only when explicitly selected; they are not the default latest commercializable build.
+- External publication/submission remains manual-only.
 
 ## Phase 19 Monetization and Release Packaging Surface
 - New local packaging surface:

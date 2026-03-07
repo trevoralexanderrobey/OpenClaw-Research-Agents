@@ -69,7 +69,9 @@ async function main() {
     bundle_dir: bundleDir,
     manifest_path: finalized.manifest_path.replace(tempBundleDir, bundleDir),
     checksums_path: finalized.checksums_path.replace(tempBundleDir, bundleDir),
-    platform_targets: built.offer.platform_targets
+    platform_targets: built.offer.platform_targets,
+    source_status: built.offer.source_status || {},
+    warnings: Array.isArray(built.offer.warnings) ? built.offer.warnings : []
   }, null, 2)}\n`);
 }
 

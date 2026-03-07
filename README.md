@@ -13,9 +13,15 @@ Governed, local-first research, dataset, and release-packaging system built on O
 - Phase 19 adds:
   - deterministic dataset foundation under `workspace/datasets/`
   - deterministic monetization and release packaging under `workspace/releases/`
+- Phase 20 adds deterministic dataset commercialization gates:
+  - row validation and minimum completeness enforcement
+  - exact dedupe with stable near-duplicate hook points
+  - row-level and build-level provenance artifacts
+  - deterministic quality scoring and threshold evaluation
+  - fail-closed licensing classification with commercialization gating
 
 ## Governance Boundary
-- Internal generation may be autonomous for research synthesis, dataset builds, packaging, store copy, and submission-pack preparation.
+- Internal generation may be autonomous for research synthesis, dataset builds, Phase 20 validation/dedupe/provenance/scoring/license classification, packaging, store copy, and submission-pack preparation.
 - Final release approval remains human-only.
 - External publishing, uploads, marketplace submissions, customer delivery, login automation, and browser automation remain manual-only.
 - Phase 19 release bundles are packaging artifacts, not proof of publication.
@@ -113,7 +119,7 @@ node scripts/export-release.js \
   --confirm
 ```
 
-## Dataset Foundation
+## Dataset Foundation and Commercialization Gates
 
 Supported Phase 19 dataset types:
 - `instruction_qa`
@@ -128,8 +134,30 @@ Dataset builds write deterministic artifacts:
 - `manifest.json`
 - `schema.json`
 - `build-report.json`
+- `validation-report.json`
+- `dedupe-report.json`
+- `provenance.json`
+- `quality-report.json`
+- `license-report.json`
 
-Phase 19 does not yet implement full provenance, licensing review, dataset scoring, dedupe, or publisher adapters.
+Dataset index records now distinguish:
+- `latest_build_id`
+- `latest_validated_build_id`
+- `latest_commercialization_ready_build_id`
+- `latest_review_required_build_id`
+
+Deterministic dataset states:
+- `allowed`
+- `review_required`
+- `blocked`
+
+A dataset build is commercialization-ready only when:
+- row validation passes
+- build-quality thresholds pass
+- provenance is present for produced rows
+- license review resolves to `allowed`
+
+Unknown rights state is fail-closed and never treated as `allowed`.
 
 ## Monetization and Release Packaging
 
@@ -160,6 +188,12 @@ Release bundles write deterministic local artifacts:
 - `submission/<platform>/`
 - `release-approval.json` only after manual approval
 
+Dataset-backed offer behavior:
+- default dataset resolution uses the latest commercialization-ready build from `workspace/datasets/index/datasets-index.json`
+- `review_required` builds require explicit `--build-id` selection and remain warning-bearing/manual-review artifacts
+- `blocked` builds do not flow into normal dataset packaging
+- external publication/submission remains manual-only even when a build is commercialization-ready
+
 Supported platform submission packs remain manual-only:
 - `hugging_face`
 - `kaggle`
@@ -183,10 +217,15 @@ Core research runtime:
 - `openclaw-bridge/core/spawn-planner.js`
 - `openclaw-bridge/core/spawn-orchestrator.js`
 
-Phase 19 dataset runtime:
+Phase 19/20 dataset runtime:
 - `openclaw-bridge/dataset/schema-engine.js`
 - `openclaw-bridge/dataset/dataset-builder.js`
 - `openclaw-bridge/dataset/dataset-output-manager.js`
+- `openclaw-bridge/dataset/provenance-tracker.js`
+- `openclaw-bridge/dataset/dataset-validator.js`
+- `openclaw-bridge/dataset/dataset-deduper.js`
+- `openclaw-bridge/dataset/dataset-scorer.js`
+- `openclaw-bridge/dataset/license-review.js`
 - `scripts/build-dataset-from-task.js`
 - `scripts/run-dataset-mission.js`
 
@@ -204,8 +243,10 @@ npm run phase2:gates
 bash scripts/verify-phase18-policy.sh
 bash scripts/verify-monetization-policy.sh
 bash scripts/verify-phase19-policy.sh
+bash scripts/verify-phase20-policy.sh
 npm run monetization:verify
 npm run phase19:verify
+npm run phase20:verify
 node --test tests/**/*.test.js
 npm run build:verify
 ```
@@ -244,3 +285,4 @@ git config --local --unset core.hooksPath
 | 18 | Mission orchestration | Implemented |
 | 19A | Monetization and release packaging | Implemented |
 | 19B | Dataset foundation | Implemented |
+| 20 | Quality, provenance, and licensing commercialization gates | Implemented |
