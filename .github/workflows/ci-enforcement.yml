@@ -20,6 +20,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22.13.1
+      - name: Install policy tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep
       - name: Run policy and test gates
         run: npm run phase2:gates
 
@@ -35,5 +39,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22.13.1
+      - name: Install policy tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep
       - name: Run deterministic build verification
         run: npm run build:verify
