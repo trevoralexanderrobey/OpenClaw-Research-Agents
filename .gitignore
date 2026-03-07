@@ -29,5 +29,4 @@ workspace/datasets/index/*
 !workspace/datasets/index/.gitkeep
 state/runtime/state.json
 workspace/memory/research-ingestion.ndjson
-workspace/runtime/state.json
 var/
