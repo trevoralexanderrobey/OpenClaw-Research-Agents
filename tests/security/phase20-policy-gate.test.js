@@ -13,6 +13,10 @@ const scriptPath = path.join(root, "scripts", "verify-phase20-policy.sh");
 const { copyRepoFiles } = require(path.join(root, "tests", "helpers", "phase20-fixtures.js"));
 
 const REQUIRED_FIXTURE_FILES = [
+  ".npmrc",
+  ".nvmrc",
+  ".node-version",
+  ".github/workflows/ci-enforcement.yml",
   "config/dataset-schemas.json",
   "config/dataset-quality-rules.json",
   "config/dataset-license-rules.json",
@@ -33,6 +37,7 @@ const REQUIRED_FIXTURE_FILES = [
   "scripts/generate-offer.js",
   "scripts/approve-release.js",
   "scripts/export-release.js",
+  "scripts/verify-node-runtime.js",
   "scripts/verify-phase20-policy.sh",
   "package.json"
 ];
@@ -71,6 +76,20 @@ test("phase20 policy gate fails when unknown license state is no longer fail-clo
   const run = runPolicy(fixture, { PHASE20_POLICY_FORCE_NO_RG: "1" });
   assert.notEqual(run.status, 0);
   assert.match(run.stderr, /default_unknown_state=blocked|default_unknown_state/);
+});
+
+test("phase20 policy gate fails when Node runtime enforcement is removed", async () => {
+  const fixture = await createFixture();
+  const file = path.join(fixture, ".npmrc");
+  const next = fs.readFileSync(file, "utf8")
+    .split(/\r?\n/)
+    .filter((line) => line.trim() !== "engine-strict=true")
+    .join("\n");
+  fs.writeFileSync(file, next ? `${next}\n` : "", "utf8");
+
+  const run = runPolicy(fixture, { PHASE20_POLICY_FORCE_NO_RG: "1" });
+  assert.notEqual(run.status, 0);
+  assert.match(run.stderr, /engine-strict=true/);
 });
 
 test("phase20 policy gate fails when unsafe network logic is introduced into dataset commercialization modules", async () => {
