@@ -1,0 +1,13 @@
+version: 2
+exit_zero: false
+verbose: false
+instance: https://dashboard.gitguardian.com
+max_commits_for_hook: 50
+insecure: false
+
+secret:
+  ignored_paths:
+    - ".ci/npm-cache/**"
+    - "audit/evidence/**"
+  show_secrets: false
+  ignore_known_secrets: false
