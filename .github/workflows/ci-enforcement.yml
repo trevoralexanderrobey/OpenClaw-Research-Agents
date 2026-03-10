@@ -19,15 +19,25 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup Node.js 22.13.1
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22.13.1
+          node-version-file: .nvmrc
       - name: Install policy tooling
         run: |
           sudo apt-get update
           sudo apt-get install -y ripgrep
       - name: Install dependencies
-        run: npm ci --offline --ignore-scripts --cache ./.ci/npm-cache
+        run: npm ci --ignore-scripts
+      - name: Run secret scan
+        env:
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+          GITGUARDIAN_DONT_LOAD_ENV: "1"
+          VERIFY_SECRETS_REQUIRE_GGSHIELD: ${{ secrets.GITGUARDIAN_API_KEY != '' && '1' || '0' }}
+        run: npm run secrets:verify
+      - name: Run Phase 20 verification
+        run: npm run phase20:verify
+      - name: Run monetization verification
+        run: npm run monetization:verify
       - name: Run policy and test gates
         run: npm run phase2:gates
 
@@ -42,12 +52,14 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup Node.js 22.13.1
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22.13.1
+          node-version-file: .nvmrc
       - name: Install policy tooling
         run: |
           sudo apt-get update
           sudo apt-get install -y ripgrep
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
       - name: Run deterministic build verification
         run: npm run build:verify

@@ -51,6 +51,10 @@ search_lines() {
 }
 
 REQUIRED_FILES=(
+  "$ROOT/.npmrc"
+  "$ROOT/.nvmrc"
+  "$ROOT/.node-version"
+  "$ROOT/.github/workflows/ci-enforcement.yml"
   "$ROOT/config/dataset-schemas.json"
   "$ROOT/config/dataset-quality-rules.json"
   "$ROOT/config/dataset-license-rules.json"
@@ -71,6 +75,7 @@ REQUIRED_FILES=(
   "$ROOT/scripts/generate-offer.js"
   "$ROOT/scripts/approve-release.js"
   "$ROOT/scripts/export-release.js"
+  "$ROOT/scripts/verify-node-runtime.js"
   "$ROOT/scripts/verify-phase20-policy.sh"
   "$ROOT/package.json"
 )
@@ -118,6 +123,16 @@ search_quiet 'commercialization-ready' "$ROOT/README.md" || fail "README must do
 search_quiet 'Phase 20 commercialization gate surface' "$ROOT/docs/attack-surface.md" || fail "attack-surface doc must cover the Phase 20 commercialization gate surface"
 search_quiet 'Phase 20 dataset commercialization gates are fail-closed' "$ROOT/docs/supervisor-architecture.md" || fail "supervisor architecture must describe fail-closed Phase 20 dataset commercialization gates"
 search_quiet 'verify-phase20-policy\.sh' "$ROOT/scripts/build-verify.sh" || fail "build-verify.sh must include verify-phase20-policy.sh"
+search_quiet 'verify-node-runtime\.js' "$ROOT/scripts/build-verify.sh" || fail "build-verify.sh must enforce the declared Node runtime"
+search_quiet '^engine-strict=true$' "$ROOT/.npmrc" || fail ".npmrc must enable engine-strict=true"
+search_quiet '^22\.13\.1$' "$ROOT/.nvmrc" || fail ".nvmrc must pin Node 22.13.1 exactly"
+search_quiet '^22\.13\.1$' "$ROOT/.node-version" || fail ".node-version must pin Node 22.13.1 exactly"
+search_quiet 'actions/setup-node@v6' "$ROOT/.github/workflows/ci-enforcement.yml" || fail "CI must use actions/setup-node@v6"
+search_quiet 'node-version-file:\s*\.nvmrc|node-version:\s*22\.13\.1' "$ROOT/.github/workflows/ci-enforcement.yml" || fail "CI must pin Node 22.13.1 explicitly"
+search_quiet 'npm ci' "$ROOT/.github/workflows/ci-enforcement.yml" || fail "CI must run npm ci"
+search_quiet 'npm run phase20:verify' "$ROOT/.github/workflows/ci-enforcement.yml" || fail "CI must run npm run phase20:verify"
+search_quiet 'npm run monetization:verify' "$ROOT/.github/workflows/ci-enforcement.yml" || fail "CI must run npm run monetization:verify"
+search_quiet 'npm run build:verify' "$ROOT/.github/workflows/ci-enforcement.yml" || fail "CI must run npm run build:verify"
 
 ROOT_DIR="$ROOT" node <<'NODE'
 const fs = require("node:fs");
@@ -142,10 +157,12 @@ const datasetSchemas = readJson("config/dataset-schemas.json");
 const qualityRules = readJson("config/dataset-quality-rules.json");
 const licenseRules = readJson("config/dataset-license-rules.json");
 const packageJson = readJson("package.json");
+const workflowSource = readText(".github/workflows/ci-enforcement.yml");
 const builderSource = readText("openclaw-bridge/dataset/dataset-builder.js");
 const outputManagerSource = readText("openclaw-bridge/dataset/dataset-output-manager.js");
 const offerBuilderSource = readText("openclaw-bridge/monetization/offer-builder.js");
 const releaseApprovalSource = readText("openclaw-bridge/monetization/release-approval-manager.js");
+const runtimeVerifierSource = readText("scripts/verify-node-runtime.js");
 
 if (datasetSchemas.schema_version !== "phase20-dataset-schemas-v1") {
   fail("dataset-schemas.json must declare phase20-dataset-schemas-v1");
@@ -189,6 +206,12 @@ for (const scriptName of ["phase20:verify", "monetization:verify", "build:verify
     fail(`package.json is missing script '${scriptName}'`);
   }
 }
+if (!packageJson.devEngines || !packageJson.devEngines.runtime || packageJson.devEngines.runtime.name !== "node" || packageJson.devEngines.runtime.version !== "22.13.1" || packageJson.devEngines.runtime.onFail !== "error") {
+  fail("package.json must enforce the declared Node runtime through devEngines.runtime");
+}
+if (!packageJson.devEngines || !packageJson.devEngines.packageManager || packageJson.devEngines.packageManager.name !== "npm" || packageJson.devEngines.packageManager.onFail !== "error") {
+  fail("package.json must enforce npm as the contributor package manager through devEngines.packageManager");
+}
 if (!String(packageJson.scripts["phase20:verify"]).includes("verify-phase20-policy.sh")) {
   fail("phase20:verify must execute verify-phase20-policy.sh");
 }
@@ -197,6 +220,19 @@ if (!String(packageJson.scripts["monetization:verify"]).includes("verify-phase20
 }
 if (!String(packageJson.scripts["phase2:gates"]).includes("verify-phase20-policy.sh")) {
   fail("phase2:gates must include verify-phase20-policy.sh");
+}
+for (const scriptName of ["test", "phase20:verify", "monetization:verify", "phase19:verify", "build:verify", "phase2:gates"]) {
+  if (!String(packageJson.scripts[scriptName] || "").includes("verify-node-runtime.js")) {
+    fail(`package.json script '${scriptName}' must verify the declared Node runtime`);
+  }
+}
+if (!runtimeVerifierSource.includes("packageJson.engines") || !runtimeVerifierSource.includes("process.versions.node")) {
+  fail("verify-node-runtime.js must compare the declared Node engine against the active runtime");
+}
+for (const requiredFragment of ["npm ci", "npm run phase20:verify", "npm run monetization:verify", "npm run build:verify"]) {
+  if (!workflowSource.includes(requiredFragment)) {
+    fail(`ci-enforcement.yml must include '${requiredFragment}'`);
+  }
 }
 
 const requiredCommercializationChecks = [

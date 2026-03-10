@@ -13,6 +13,7 @@ hash_file() {
   shasum -a 256 "$file_path" | awk '{print $1}'
 }
 
+node scripts/verify-node-runtime.js
 npm ci --offline --ignore-scripts --cache ./.ci/npm-cache
 bash scripts/verify-no-lifecycle-hooks.sh
 bash scripts/verify-npm-cache-checksum.sh

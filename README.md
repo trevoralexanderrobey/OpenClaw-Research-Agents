@@ -2,6 +2,31 @@
 
 Governed, local-first research, dataset, and release-packaging system built on OpenClaw patterns.
 
+Runtime requirement:
+- Node `22.13.1` is required and enforced through `engines`, `devEngines`, `.npmrc` `engine-strict=true`, and `scripts/verify-node-runtime.js`.
+
+## Local Setup
+```bash
+nvm install 22.13.1
+nvm use 22.13.1
+node -v
+npm ci
+npm run phase20:verify
+npm run monetization:verify
+npm run build:verify
+```
+
+## Secret Scanning
+```bash
+bash scripts/install-ggshield.sh
+export GITGUARDIAN_API_KEY='<load from your shell secret store>'
+npm run secrets:verify
+```
+
+- `scripts/verify-secrets.sh` prefers authenticated `ggshield` scans and falls back to the legacy regex scan when a token is not configured yet.
+- CI can enforce authenticated scanning by setting the `GITGUARDIAN_API_KEY` repository secret.
+- Do not store GitGuardian API keys in `.gitguardian.yaml`, tracked `.env` files, or workflow YAML.
+
 ## Current Baseline
 - Operator-initiated research tasks run through supervisor and governance approval.
 - Phase 18 mission orchestration is already in place:
