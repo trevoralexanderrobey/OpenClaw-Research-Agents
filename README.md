@@ -13,6 +13,7 @@ node -v
 npm ci
 npm run phase20:verify
 npm run phase21:verify
+npm run phase22:verify
 npm run monetization:verify
 npm run build:verify
 ```
@@ -49,12 +50,18 @@ npm run secrets:verify
   - one adapter registry entry per configured platform target
   - deterministic per-target `adapter-manifest.json` contracts
   - fail-closed approval validation for adapter manifest/snapshot integrity
+- Phase 22 adds deterministic post-export manual submission evidence governance:
+  - authoritative append-only chain-hashed `export-events.json` and `ledger.json`
+  - platform-target eligibility derived from export events (`ready_for_manual_submission` initialization)
+  - operator-only submission outcome recording with idempotency and fail-closed transition validation
+  - derived per-target snapshots and repo index rebuilt only from authoritative stores
 
 ## Governance Boundary
 - Internal generation may be autonomous for research synthesis, dataset builds, Phase 20 validation/dedupe/provenance/scoring/license classification, packaging, store copy, and submission-pack preparation.
 - Final release approval remains human-only.
 - External publishing, uploads, marketplace submissions, customer delivery, login automation, and browser automation remain manual-only.
 - Phase 19 release bundles are packaging artifacts, not proof of publication.
+- Phase 22 evidence verification is separate from release bundle approval/hash validity; it governs post-export integrity only.
 
 ## Outer Operator Workflow (Cline-compatible)
 - Cline (Plan/Act) is a recommended outer human-operated workflow for this repository.
@@ -72,6 +79,7 @@ npm run secrets:verify
 - `workspace/datasets/staged/<datasetId>/<buildId>/` deterministic staged dataset builds
 - `workspace/datasets/index/datasets-index.json` canonical dataset/build index and latest-build lookup
 - `workspace/releases/<offerId>/` deterministic release bundles
+- `workspace/releases/<offerId>/submission-evidence/` authoritative post-export evidence stores
 
 ## Dataset Identity
 - `dataset_id` is the stable dataset identity.
@@ -146,7 +154,27 @@ node scripts/approve-release.js \
 node scripts/export-release.js \
   --offer-id offer-EXAMPLE \
   --format zip \
+  --operator-id operator-cli \
   --confirm
+```
+
+9. Record platform submission outcome evidence (post-export):
+```bash
+node scripts/record-submission-outcome.js \
+  --offer-id offer-EXAMPLE \
+  --platform-target gumroad \
+  --operator-id operator-cli \
+  --outcome-state submitted_pending_review \
+  --idempotency-key phase22-demo-001 \
+  --notes "Submitted manually in seller portal" \
+  --confirm
+```
+
+10. Verify Phase 22 evidence integrity:
+```bash
+node scripts/verify-submission-evidence.js --offer-id offer-EXAMPLE --mode full
+node scripts/verify-submission-evidence.js --offer-id offer-EXAMPLE --mode incremental
+node scripts/verify-submission-evidence.js --mode rebuild
 ```
 
 ## Dataset Foundation and Commercialization Gates
@@ -252,6 +280,44 @@ Supported platform submission packs remain manual-only:
 - `datarade`
 - `github_sponsors`
 
+## Phase 22 Post-Export Manual Submission Evidence Ledger
+
+- Scope is local-only, platform-only, post-export governance.
+- Phase 22 does not add live publishing, browser automation, login automation, or outbound submission.
+- Eligibility to record evidence for `platform_target = X` requires:
+  - `validateApprovedRelease(offerId)` success
+  - authoritative `submission-evidence/export-events.json` has `bundle_exported` covering `X`
+- Authoritative per-offer stores:
+  - `workspace/releases/<offerId>/submission-evidence/export-events.json`
+  - `workspace/releases/<offerId>/submission-evidence/ledger.json`
+- Derived artifacts:
+  - `workspace/releases/<offerId>/submission-evidence/<platform>/submission-evidence.json`
+  - `workspace/releases/index/submission-evidence-index.json`
+- Initial state is derived only from export history:
+  - first qualifying export event for a target initializes `ready_for_manual_submission`
+  - no synthetic evidence event is created for initialization
+- Submission states:
+  - `ready_for_manual_submission`
+  - `submitted_pending_review`
+  - `published_confirmed`
+  - `rejected`
+  - `needs_revision`
+  - `withdrawn`
+- Terminal states:
+  - `published_confirmed`
+  - `withdrawn`
+- Evidence events require non-empty operator payload:
+  - at least one of attachment files, `external_ref`, or `notes`
+- `approved_bundle_hash` is manager-resolved from `release-approval.json.hash_of_release_bundle` and is never operator-supplied.
+- Evidence attachments are constrained by deterministic policy:
+  - allowed extensions `.json,.txt,.md,.csv,.png,.jpg,.jpeg,.webp,.pdf`
+  - max 25 MiB per file
+  - max 20 files per event
+  - deterministic stored names `<sequence>-<ordinal>-<sha16>.<ext>`
+  - refs include `stored_path`, `original_filename`, `sha256`, `byte_size`, `file_type`
+- Authoritative writes are append-only with per-offer file lock and atomic `temp + fsync + rename`.
+- Corrections are new append-only events only; no in-place history rewrites.
+
 ## Architecture
 
 Core research runtime:
@@ -283,6 +349,10 @@ Phase 19 monetization runtime:
 - `openclaw-bridge/monetization/deliverable-packager.js`
 - `openclaw-bridge/monetization/submission-pack-generator.js`
 - `openclaw-bridge/monetization/release-approval-manager.js`
+- `openclaw-bridge/monetization/submission-evidence-schema.js`
+- `openclaw-bridge/monetization/manual-fulfillment-state-machine.js`
+- `openclaw-bridge/monetization/submission-evidence-ledger.js`
+- `openclaw-bridge/monetization/submission-evidence-manager.js`
 
 ## Validation Commands
 ```bash
@@ -291,9 +361,13 @@ bash scripts/verify-phase18-policy.sh
 bash scripts/verify-monetization-policy.sh
 bash scripts/verify-phase19-policy.sh
 bash scripts/verify-phase20-policy.sh
+bash scripts/verify-phase21-policy.sh
+bash scripts/verify-phase22-policy.sh
 npm run monetization:verify
 npm run phase19:verify
 npm run phase20:verify
+npm run phase21:verify
+npm run phase22:verify
 node --test tests/**/*.test.js
 npm run build:verify
 ```
@@ -333,3 +407,5 @@ git config --local --unset core.hooksPath
 | 19A | Monetization and release packaging | Implemented |
 | 19B | Dataset foundation | Implemented |
 | 20 | Quality, provenance, and licensing commercialization gates | Implemented |
+| 21 | Publisher adapter boundaries and release approval/export validation | Implemented |
+| 22 | Post-export manual submission evidence ledger and verification | Implemented |

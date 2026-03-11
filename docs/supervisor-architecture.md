@@ -22,6 +22,7 @@
 10. Backward compatibility of existing phase controls is preserved.
 11. Phase 20 dataset commercialization gates are fail-closed.
 12. Phase 21 publisher adapter contracts and release approvals are fail-closed.
+13. Phase 22 post-export submission evidence ledgers are append-only and fail-closed.
 
 ## Protected Mutation Contract
 - Protected mutations require operator role, scoped approval token, governance transaction wrapper, and kill-switch-open state.
@@ -43,6 +44,19 @@
 - Runtime requires one adapter registration per configured platform target and rejects unknown/missing/duplicate mappings.
 - Adapter outputs are confined to `submission/<platform>/...`, remain `manual_only`, and must satisfy required placeholders.
 - Phase 21 approvals are versioned and validated (`phase21-release-approval-v1`) before export is allowed.
+
+## Phase 22 Submission Evidence Gate
+- Phase 22 evidence capture is local-only post-export governance and does not automate external publishing.
+- Authoritative stores are append-only and chain-hashed:
+  - `submission-evidence/export-events.json`
+  - `submission-evidence/ledger.json`
+- Evidence recording for platform target `X` requires:
+  - validated approved release
+  - export event coverage for `X`
+- Initial state for `X` is derived as `ready_for_manual_submission` from export history; no synthetic evidence initialization event is created.
+- Evidence events enforce fail-closed state transitions, idempotency keys, attachment path confinement, and no-rewrite history policy.
+- Derived snapshots/index are rebuildable convenience views only and are never authoritative.
+- Phase 22 verification integrity status is separate from release approval validity and release bundle hash validity.
 
 ## Trust Boundaries
 - Supervisor boundary: Cline orchestrates and requests approvals but does not obtain privileged mutation authority.

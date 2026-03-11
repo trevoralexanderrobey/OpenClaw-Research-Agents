@@ -21,6 +21,7 @@ function parseArgs(argv) {
   const out = {
     offerId: "",
     format: "folder",
+    operatorId: process.env.OPERATOR_ID || "operator-cli",
     confirm: false,
     unknown: []
   };
@@ -28,6 +29,7 @@ function parseArgs(argv) {
     const token = String(argv[index] || "");
     if (token === "--offer-id") { out.offerId = String(argv[index + 1] || "").trim(); index += 1; continue; }
     if (token === "--format") { out.format = String(argv[index + 1] || "").trim() || "folder"; index += 1; continue; }
+    if (token === "--operator-id") { out.operatorId = String(argv[index + 1] || "").trim() || out.operatorId; index += 1; continue; }
     if (token === "--confirm") { out.confirm = true; continue; }
     out.unknown.push(token);
   }
@@ -128,7 +130,7 @@ function buildDeterministicZip(sourceDir, zipPath) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.unknown.length > 0 || !args.offerId || !["folder", "zip"].includes(args.format)) {
-    process.stderr.write("Usage: node scripts/export-release.js --offer-id <offer_id> --format zip|folder --confirm\n");
+    process.stderr.write("Usage: node scripts/export-release.js --offer-id <offer_id> --format zip|folder [--operator-id <operator_id>] --confirm\n");
     process.exit(1);
   }
   if (!args.confirm) {
@@ -145,13 +147,26 @@ async function main() {
       fs.rmSync(targetDir, { recursive: true, force: true });
     }
     copyDir(bundleDir, targetDir);
+    const exportArtifactRef = await runtime.submissionEvidenceManager.buildExportArtifactRef({
+      export_path: targetDir
+    });
+    const exportEvent = await runtime.submissionEvidenceManager.recordExportEvent({
+      offer_id: args.offerId,
+      operator_id: args.operatorId,
+      export_format: "folder",
+      exported_platform_targets: validated.approval && Array.isArray(validated.approval.approved_platform_targets)
+        ? validated.approval.approved_platform_targets
+        : [],
+      export_artifact_refs: [exportArtifactRef]
+    });
     process.stdout.write(`${JSON.stringify({
       ok: true,
       offer_id: args.offerId,
       export_path: targetDir,
       format: "folder",
       dataset_phase20_status: validated.dataset_phase20_status || {},
-      publisher_adapter_status: validated.publisher_adapter_status || {}
+      publisher_adapter_status: validated.publisher_adapter_status || {},
+      submission_evidence_export_event: exportEvent.event
     }, null, 2)}\n`);
     return;
   }
@@ -161,13 +176,26 @@ async function main() {
     fs.rmSync(zipPath, { force: true });
   }
   buildDeterministicZip(bundleDir, zipPath);
+  const exportArtifactRef = await runtime.submissionEvidenceManager.buildExportArtifactRef({
+    export_path: zipPath
+  });
+  const exportEvent = await runtime.submissionEvidenceManager.recordExportEvent({
+    offer_id: args.offerId,
+    operator_id: args.operatorId,
+    export_format: "zip",
+    exported_platform_targets: validated.approval && Array.isArray(validated.approval.approved_platform_targets)
+      ? validated.approval.approved_platform_targets
+      : [],
+    export_artifact_refs: [exportArtifactRef]
+  });
   process.stdout.write(`${JSON.stringify({
     ok: true,
     offer_id: args.offerId,
     export_path: zipPath,
     format: "zip",
     dataset_phase20_status: validated.dataset_phase20_status || {},
-    publisher_adapter_status: validated.publisher_adapter_status || {}
+    publisher_adapter_status: validated.publisher_adapter_status || {},
+    submission_evidence_export_event: exportEvent.event
   }, null, 2)}\n`);
 }
 
