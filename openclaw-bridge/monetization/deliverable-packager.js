@@ -5,6 +5,8 @@ const os = require("node:os");
 const path = require("node:path");
 
 const { canonicalize, canonicalJson, safeString, sha256 } = require("../../workflows/governance-automation/common.js");
+const { PHASE21_RELEASE_METADATA_SCHEMA } = require("./publisher-adapter-contract.js");
+const { validatePublisherAdapterSnapshot } = require("./publisher-adapter-snapshot-validator.js");
 
 function ensureDir(dirPath) {
   fs.mkdirSync(dirPath, { recursive: true });
@@ -285,10 +287,14 @@ function createDeliverablePackager(options = {}) {
     return canonicalize(artifactRefs);
   }
 
-  function writeBundleRoot(bundleDir, offer, sourceContext, artifactRefs, submissionRefs = {}) {
+  function writeBundleRoot(bundleDir, offer, sourceContext, artifactRefs, submissionRefs = {}, publisherAdapterSnapshot = {}) {
     const offerPath = path.join(bundleDir, "offer.json");
     const metadataPath = path.join(bundleDir, "metadata.json");
     const releaseNotesPath = path.join(bundleDir, "release-notes.md");
+    const expectedTargets = Array.isArray(offer.platform_targets) ? offer.platform_targets.slice().sort((left, right) => left.localeCompare(right)) : [];
+    const validatedAdapterSnapshot = validatePublisherAdapterSnapshot(publisherAdapterSnapshot, {
+      expected_targets: expectedTargets
+    });
     writeJson(offerPath, canonicalize({
       ...offer,
       artifact_refs: canonicalize({
@@ -297,6 +303,7 @@ function createDeliverablePackager(options = {}) {
       })
     }));
     writeJson(metadataPath, canonicalize({
+      schema_version: PHASE21_RELEASE_METADATA_SCHEMA,
       offer_id: safeString(offer.offer_id),
       offer_title: safeString(offer.offer_title),
       product_line: safeString(offer.product_line),
@@ -310,6 +317,9 @@ function createDeliverablePackager(options = {}) {
       packaging_artifact: true,
       publication_state: "not_published",
       manual_submission_only: true,
+      publisher_adapter_required: true,
+      publisher_adapter_snapshot_hash: safeString(validatedAdapterSnapshot.publisher_adapter_snapshot_hash),
+      publisher_adapter_snapshot: validatedAdapterSnapshot,
       source_status: sourceContext.source_kind === "dataset" ? canonicalize(sourceContext.phase20_status || {}) : {},
       warnings: Array.isArray(sourceContext.warnings) ? sourceContext.warnings : []
     }));

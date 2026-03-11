@@ -4,6 +4,18 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const { canonicalize, canonicalJson, safeString, sha256 } = require("../../workflows/governance-automation/common.js");
+const {
+  PHASE21_PUBLISHER_ADAPTER_SNAPSHOT_SCHEMA,
+  PHASE21_RELEASE_METADATA_SCHEMA,
+  buildPublisherAdapterSnapshotHash,
+  normalizeRelativePath
+} = require("./publisher-adapter-contract.js");
+const { validatePublisherAdapterManifest } = require("./publisher-adapter-manifest-validator.js");
+const { validatePublisherAdapterSnapshot } = require("./publisher-adapter-snapshot-validator.js");
+const {
+  PHASE21_PUBLISHER_ADAPTER_STATUS_SCHEMA,
+  validatePhase21ReleaseApproval
+} = require("./phase21-release-approval-validator.js");
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
@@ -24,6 +36,12 @@ function relativeFrom(baseDir, filePath) {
 
 function asPlainObject(value) {
   return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+}
+
+function asStringArray(value) {
+  return Array.isArray(value)
+    ? value.map((entry) => safeString(entry)).filter(Boolean).sort((left, right) => left.localeCompare(right))
+    : [];
 }
 
 function collectBundleFiles(bundleDir) {
@@ -119,8 +137,112 @@ function validateManifest(bundleDir) {
   return expected;
 }
 
+function isPhase21Bundle(metadata = {}) {
+  const normalized = asPlainObject(metadata);
+  return safeString(normalized.schema_version) === PHASE21_RELEASE_METADATA_SCHEMA
+    || normalized.publisher_adapter_required === true;
+}
+
+function buildValidatedAdapterStatus(bundleDir, offer, metadata, platformTargets) {
+  const offerTargets = asStringArray(offer.platform_targets);
+  const snapshot = validatePublisherAdapterSnapshot(asPlainObject(metadata.publisher_adapter_snapshot), {
+    expected_targets: offerTargets
+  });
+  const metadataSnapshotHash = safeString(metadata.publisher_adapter_snapshot_hash);
+  if (metadataSnapshotHash && metadataSnapshotHash !== safeString(snapshot.publisher_adapter_snapshot_hash)) {
+    const error = new Error("metadata publisher_adapter_snapshot_hash does not match publisher_adapter_snapshot");
+    error.code = "PHASE21_RELEASE_ADAPTER_SNAPSHOT_METADATA_HASH_MISMATCH";
+    throw error;
+  }
+
+  const platformConfig = asPlainObject(asPlainObject(platformTargets).platform_targets);
+  const recomputedTargets = [];
+  for (const targetName of offerTargets) {
+    const summary = snapshot.targets.find((entry) => safeString(entry.platform_target) === targetName);
+    if (!summary) {
+      const error = new Error(`publisher adapter snapshot is missing target '${targetName}'`);
+      error.code = "PHASE21_RELEASE_ADAPTER_TARGET_SUMMARY_MISSING";
+      throw error;
+    }
+    const manifestPath = path.join(bundleDir, normalizeRelativePath(summary.adapter_manifest).split("/").join(path.sep));
+    if (!fs.existsSync(manifestPath)) {
+      const error = new Error(`publisher adapter manifest missing for target '${targetName}'`);
+      error.code = "PHASE21_RELEASE_ADAPTER_MANIFEST_MISSING";
+      throw error;
+    }
+    const manifest = validatePublisherAdapterManifest(readJson(manifestPath), {
+      platform_target: targetName
+    });
+    if (safeString(summary.adapter_id) !== safeString(manifest.adapter_id)
+      || safeString(summary.adapter_version) !== safeString(manifest.adapter_version)
+      || safeString(summary.input_snapshot_hash) !== safeString(manifest.input_snapshot_hash)) {
+      const error = new Error(`publisher adapter summary mismatch for target '${targetName}'`);
+      error.code = "PHASE21_RELEASE_ADAPTER_SUMMARY_MISMATCH";
+      throw error;
+    }
+
+    for (const fileHash of manifest.generated_files_sha256) {
+      const filePath = path.join(bundleDir, normalizeRelativePath(fileHash.file).split("/").join(path.sep));
+      if (!fs.existsSync(filePath)) {
+        const error = new Error(`publisher adapter generated file missing for target '${targetName}': ${fileHash.file}`);
+        error.code = "PHASE21_RELEASE_ADAPTER_GENERATED_FILE_MISSING";
+        throw error;
+      }
+      const actualSha = hashFile(filePath);
+      if (actualSha !== safeString(fileHash.sha256)) {
+        const error = new Error(`publisher adapter generated file hash mismatch for target '${targetName}': ${fileHash.file}`);
+        error.code = "PHASE21_RELEASE_ADAPTER_GENERATED_FILE_HASH_MISMATCH";
+        throw error;
+      }
+    }
+    if (safeString(summary.manifest_sha256) !== hashFile(manifestPath)) {
+      const error = new Error(`publisher adapter manifest hash mismatch for target '${targetName}'`);
+      error.code = "PHASE21_RELEASE_ADAPTER_MANIFEST_HASH_MISMATCH";
+      throw error;
+    }
+    const requiredPlaceholders = asStringArray(asPlainObject(platformConfig[targetName]).required_artifact_placeholders);
+    for (const placeholder of requiredPlaceholders) {
+      const expectedPath = normalizeRelativePath(`submission/${targetName}/${placeholder}`);
+      if (!manifest.generated_files.includes(expectedPath)) {
+        const error = new Error(`publisher adapter output for '${targetName}' is missing required placeholder '${placeholder}'`);
+        error.code = "PHASE21_RELEASE_ADAPTER_PLACEHOLDER_MISSING";
+        throw error;
+      }
+    }
+
+    recomputedTargets.push(canonicalize({
+      adapter_id: manifest.adapter_id,
+      adapter_manifest: normalizeRelativePath(summary.adapter_manifest),
+      adapter_version: manifest.adapter_version,
+      generated_files_sha256: manifest.generated_files_sha256,
+      input_snapshot_hash: manifest.input_snapshot_hash,
+      manifest_sha256: hashFile(manifestPath),
+      manual_only: true,
+      platform_target: targetName
+    }));
+  }
+
+  const snapshotBase = canonicalize({
+    schema_version: PHASE21_PUBLISHER_ADAPTER_SNAPSHOT_SCHEMA,
+    targets: recomputedTargets.sort((left, right) => left.platform_target.localeCompare(right.platform_target))
+  });
+  const recomputedSnapshotHash = buildPublisherAdapterSnapshotHash(snapshotBase);
+  if (safeString(snapshot.publisher_adapter_snapshot_hash) !== recomputedSnapshotHash) {
+    const error = new Error("publisher adapter snapshot hash mismatch");
+    error.code = "PHASE21_RELEASE_ADAPTER_SNAPSHOT_HASH_MISMATCH";
+    throw error;
+  }
+  return canonicalize({
+    publisher_adapter_snapshot_hash: recomputedSnapshotHash,
+    schema_version: PHASE21_PUBLISHER_ADAPTER_STATUS_SCHEMA,
+    validated_targets: offerTargets,
+    validation_result: "passed"
+  });
+}
+
 function createReleaseApprovalManager(options = {}) {
   const releasesDir = path.resolve(safeString(options.releasesDir) || path.join(process.cwd(), "workspace", "releases"));
+  const platformTargets = asPlainObject(options.platformTargets);
   const timeProvider = options.timeProvider && typeof options.timeProvider.nowIso === "function"
     ? options.timeProvider
     : { nowIso: () => "1970-01-01T00:00:00.000Z" };
@@ -135,12 +257,14 @@ function createReleaseApprovalManager(options = {}) {
     const bundleDir = getBundleDir(offerId);
     const offerPath = path.join(bundleDir, "offer.json");
     const manifestPath = path.join(bundleDir, "manifest.json");
-    if (!offerId || !fs.existsSync(offerPath) || !fs.existsSync(manifestPath)) {
+    const metadataPath = path.join(bundleDir, "metadata.json");
+    if (!offerId || !fs.existsSync(offerPath) || !fs.existsSync(manifestPath) || !fs.existsSync(metadataPath)) {
       const error = new Error(`Release bundle '${offerId}' not found`);
       error.code = "PHASE19_RELEASE_BUNDLE_NOT_FOUND";
       throw error;
     }
     const offer = readJson(offerPath);
+    const metadata = readJson(metadataPath);
     validateManifest(bundleDir);
     const datasetPhase20Status = validateDatasetPhase20State(offer);
     const bundleHash = computeBundleHash(bundleDir);
@@ -153,7 +277,7 @@ function createReleaseApprovalManager(options = {}) {
       error.code = "PHASE19_RELEASE_TARGETS_MISMATCH";
       throw error;
     }
-    const approval = canonicalize({
+    let approval = canonicalize({
       offer_id: offerId,
       approved_at: safeString(timeProvider.nowIso()),
       approver,
@@ -161,6 +285,16 @@ function createReleaseApprovalManager(options = {}) {
       approved_platform_targets: approvedTargets,
       dataset_phase20_status: safeString(offer.source_kind) === "dataset" ? datasetPhase20Status : {}
     });
+    if (isPhase21Bundle(metadata)) {
+      const publisherAdapterStatus = buildValidatedAdapterStatus(bundleDir, offer, metadata, platformTargets);
+      approval = validatePhase21ReleaseApproval({
+        ...approval,
+        schema_version: "phase21-release-approval-v1",
+        publisher_adapter_status: publisherAdapterStatus
+      }, {
+        expected_targets: approvedTargets
+      });
+    }
     writeJson(path.join(bundleDir, "release-approval.json"), approval);
     return approval;
   }
@@ -169,6 +303,7 @@ function createReleaseApprovalManager(options = {}) {
     const bundleDir = getBundleDir(offerId);
     const approvalPath = path.join(bundleDir, "release-approval.json");
     const offerPath = path.join(bundleDir, "offer.json");
+    const metadataPath = path.join(bundleDir, "metadata.json");
     if (!fs.existsSync(approvalPath)) {
       const error = new Error(`Release approval missing for '${offerId}'`);
       error.code = "PHASE19_RELEASE_APPROVAL_REQUIRED";
@@ -176,6 +311,7 @@ function createReleaseApprovalManager(options = {}) {
     }
     const approval = readJson(approvalPath);
     const offer = readJson(offerPath);
+    const metadata = fs.existsSync(metadataPath) ? readJson(metadataPath) : {};
     validateManifest(bundleDir);
     const datasetPhase20Status = validateDatasetPhase20State(offer);
     const expectedHash = computeBundleHash(bundleDir);
@@ -191,12 +327,28 @@ function createReleaseApprovalManager(options = {}) {
       error.code = "PHASE19_RELEASE_APPROVAL_TARGETS_MISMATCH";
       throw error;
     }
+
+    let publisherAdapterStatus = {};
+    if (isPhase21Bundle(metadata)) {
+      publisherAdapterStatus = buildValidatedAdapterStatus(bundleDir, offer, metadata, platformTargets);
+      const validatedApproval = validatePhase21ReleaseApproval(approval, {
+        expected_targets: offerTargets
+      });
+      if (safeString(validatedApproval.publisher_adapter_status.publisher_adapter_snapshot_hash)
+        !== safeString(publisherAdapterStatus.publisher_adapter_snapshot_hash)) {
+        const error = new Error("Release approval adapter snapshot hash does not match current bundle");
+        error.code = "PHASE21_RELEASE_APPROVAL_ADAPTER_HASH_MISMATCH";
+        throw error;
+      }
+    }
+
     return canonicalize({
       ok: true,
       offer_id: safeString(approval.offer_id),
       bundle_dir: bundleDir,
       approval,
-      dataset_phase20_status: safeString(offer.source_kind) === "dataset" ? datasetPhase20Status : {}
+      dataset_phase20_status: safeString(offer.source_kind) === "dataset" ? datasetPhase20Status : {},
+      publisher_adapter_status: publisherAdapterStatus
     });
   }
 

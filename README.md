@@ -12,6 +12,7 @@ nvm use 22.13.1
 node -v
 npm ci
 npm run phase20:verify
+npm run phase21:verify
 npm run monetization:verify
 npm run build:verify
 ```
@@ -44,6 +45,10 @@ npm run secrets:verify
   - row-level and build-level provenance artifacts
   - deterministic quality scoring and threshold evaluation
   - fail-closed licensing classification with commercialization gating
+- Phase 21 adds deterministic publisher adapter boundaries for submission-pack generation and release approval:
+  - one adapter registry entry per configured platform target
+  - deterministic per-target `adapter-manifest.json` contracts
+  - fail-closed approval validation for adapter manifest/snapshot integrity
 
 ## Governance Boundary
 - Internal generation may be autonomous for research synthesis, dataset builds, Phase 20 validation/dedupe/provenance/scoring/license classification, packaging, store copy, and submission-pack preparation.
@@ -211,6 +216,7 @@ Release bundles write deterministic local artifacts:
 - `release-notes.md`
 - `deliverables/`
 - `submission/<platform>/`
+- `submission/<platform>/adapter-manifest.json`
 - `release-approval.json` only after manual approval
 
 Dataset-backed offer behavior:
@@ -218,6 +224,22 @@ Dataset-backed offer behavior:
 - `review_required` builds require explicit `--build-id` selection and remain warning-bearing/manual-review artifacts
 - `blocked` builds do not flow into normal dataset packaging
 - external publication/submission remains manual-only even when a build is commercialization-ready
+
+## Phase 21 Publisher Adapter Boundary
+
+- Submission pack generation is adapter-driven with deterministic manifests:
+  - `schema_version: phase21-publisher-adapter-manifest-v1`
+  - `adapter_id` / `adapter_version`
+  - `input_snapshot_hash`
+  - `generated_files`
+  - `generated_files_sha256`
+  - `manual_only: true`
+- Adapters are local artifact generators only:
+  - no network calls
+  - no login or browser automation
+  - writes confined to `submission/<platform>/...`
+- Runtime fails closed if adapter registry coverage does not match configured `platform_targets`.
+- Phase 21 approvals are versioned (`phase21-release-approval-v1`) and validate adapter contracts before export.
 
 Supported platform submission packs remain manual-only:
 - `hugging_face`

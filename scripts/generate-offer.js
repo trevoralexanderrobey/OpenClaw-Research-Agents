@@ -58,8 +58,15 @@ async function main() {
 
   const tempBundleDir = runtime.deliverablePackager.createBundleWorkspace(built.offer.offer_id);
   const artifactRefs = runtime.deliverablePackager.writeDeliverables(tempBundleDir, built.offer, built.source_context);
-  const submissionRefs = runtime.submissionPackGenerator.generateSubmissionPacks(tempBundleDir, built.offer, built.source_context);
-  runtime.deliverablePackager.writeBundleRoot(tempBundleDir, built.offer, built.source_context, artifactRefs, submissionRefs);
+  const generatedSubmission = runtime.submissionPackGenerator.generateSubmissionPacks(tempBundleDir, built.offer, built.source_context);
+  runtime.deliverablePackager.writeBundleRoot(
+    tempBundleDir,
+    built.offer,
+    built.source_context,
+    artifactRefs,
+    generatedSubmission.submission_refs,
+    generatedSubmission.publisher_adapter_snapshot
+  );
   const finalized = runtime.deliverablePackager.finalizeBundle(tempBundleDir);
   const bundleDir = runtime.deliverablePackager.commitBundle(tempBundleDir, built.offer.offer_id);
 
