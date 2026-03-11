@@ -150,7 +150,8 @@ async function main() {
       offer_id: args.offerId,
       export_path: targetDir,
       format: "folder",
-      dataset_phase20_status: validated.dataset_phase20_status || {}
+      dataset_phase20_status: validated.dataset_phase20_status || {},
+      publisher_adapter_status: validated.publisher_adapter_status || {}
     }, null, 2)}\n`);
     return;
   }
@@ -165,7 +166,8 @@ async function main() {
     offer_id: args.offerId,
     export_path: zipPath,
     format: "zip",
-    dataset_phase20_status: validated.dataset_phase20_status || {}
+    dataset_phase20_status: validated.dataset_phase20_status || {},
+    publisher_adapter_status: validated.publisher_adapter_status || {}
   }, null, 2)}\n`);
 }
 

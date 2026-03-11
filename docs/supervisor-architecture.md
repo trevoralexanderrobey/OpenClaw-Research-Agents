@@ -21,6 +21,7 @@
 9. CI policy gates are release-blocking.
 10. Backward compatibility of existing phase controls is preserved.
 11. Phase 20 dataset commercialization gates are fail-closed.
+12. Phase 21 publisher adapter contracts and release approvals are fail-closed.
 
 ## Protected Mutation Contract
 - Protected mutations require operator role, scoped approval token, governance transaction wrapper, and kill-switch-open state.
@@ -36,6 +37,12 @@
 - A dataset build is commercialization-ready only when validation passes, quality passes, provenance is present, and license review resolves to `allowed`.
 - `review_required` dataset builds remain explicit-selection/manual-review artifacts only.
 - Unknown rights state is blocked and cannot silently pass into packaging defaults.
+
+## Phase 21 Publisher Adapter Gate
+- Phase 21 publisher adapter contracts are fail-closed for runtime construction and release approval.
+- Runtime requires one adapter registration per configured platform target and rejects unknown/missing/duplicate mappings.
+- Adapter outputs are confined to `submission/<platform>/...`, remain `manual_only`, and must satisfy required placeholders.
+- Phase 21 approvals are versioned and validated (`phase21-release-approval-v1`) before export is allowed.
 
 ## Trust Boundaries
 - Supervisor boundary: Cline orchestrates and requests approvals but does not obtain privileged mutation authority.

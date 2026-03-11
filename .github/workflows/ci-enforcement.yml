@@ -36,6 +36,8 @@ jobs:
         run: npm run secrets:verify
       - name: Run Phase 20 verification
         run: npm run phase20:verify
+      - name: Run Phase 21 verification
+        run: npm run phase21:verify
       - name: Run monetization verification
         run: npm run monetization:verify
       - name: Run policy and test gates

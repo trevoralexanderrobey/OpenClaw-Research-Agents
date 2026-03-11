@@ -266,6 +266,19 @@ Mitigation:
 - Review-required dataset builds may still be packaged for manual review only when explicitly selected; they are not the default latest commercializable build.
 - External publication/submission remains manual-only.
 
+## Phase 21 publisher adapter surface
+- Phase 21 publisher adapter surface is local-only and deterministic:
+  - `openclaw-bridge/monetization/publisher-adapter-contract.js`
+  - `openclaw-bridge/monetization/publisher-adapter-registry.js`
+  - `openclaw-bridge/monetization/adapters/*-manual-adapter.js`
+  - `openclaw-bridge/monetization/publisher-adapter-manifest-validator.js`
+  - `openclaw-bridge/monetization/publisher-adapter-snapshot-validator.js`
+  - `openclaw-bridge/monetization/phase21-release-approval-validator.js`
+- Runtime enforces exactly one registered adapter per configured `platform_targets` entry and fails closed on mismatches.
+- Adapter writes are confined to `submission/<platform>/...`; undeclared outputs and path escapes are denied.
+- Adapter manifests are deterministic (`phase21-publisher-adapter-manifest-v1`) and include `generated_files_sha256`.
+- Phase 21 release approval validates adapter manifests/snapshots before export; external publication/submission remains manual-only.
+
 ## Phase 19 Monetization and Release Packaging Surface
 - New local packaging surface:
   - `workspace/releases/<offerId>/`
