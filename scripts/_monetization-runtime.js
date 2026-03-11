@@ -9,6 +9,7 @@ const { createDeliverablePackager } = require("../openclaw-bridge/monetization/d
 const { createSubmissionPackGenerator } = require("../openclaw-bridge/monetization/submission-pack-generator.js");
 const { createReleaseApprovalManager } = require("../openclaw-bridge/monetization/release-approval-manager.js");
 const { createDefaultPublisherAdapterRegistry } = require("../openclaw-bridge/monetization/publisher-adapter-registry.js");
+const { createSubmissionEvidenceManager } = require("../openclaw-bridge/monetization/submission-evidence-manager.js");
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
@@ -78,6 +79,11 @@ function buildMonetizationRuntime(options = {}) {
     platformTargets,
     releasesDir: path.join(rootDir, "workspace", "releases")
   });
+  const submissionEvidenceManager = createSubmissionEvidenceManager({
+    rootDir,
+    releasesDir: path.join(rootDir, "workspace", "releases"),
+    releaseApprovalManager
+  });
 
   return {
     rootDir,
@@ -88,7 +94,8 @@ function buildMonetizationRuntime(options = {}) {
     offerBuilder,
     deliverablePackager,
     submissionPackGenerator,
-    releaseApprovalManager
+    releaseApprovalManager,
+    submissionEvidenceManager
   };
 }
 

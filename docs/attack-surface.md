@@ -279,6 +279,31 @@ Mitigation:
 - Adapter manifests are deterministic (`phase21-publisher-adapter-manifest-v1`) and include `generated_files_sha256`.
 - Phase 21 release approval validates adapter manifests/snapshots before export; external publication/submission remains manual-only.
 
+## Phase 22 manual submission evidence surface
+- Phase 22 adds deterministic local-only post-export evidence governance:
+  - `openclaw-bridge/monetization/submission-evidence-schema.js`
+  - `openclaw-bridge/monetization/manual-fulfillment-state-machine.js`
+  - `openclaw-bridge/monetization/submission-evidence-ledger.js`
+  - `openclaw-bridge/monetization/submission-evidence-manager.js`
+  - `scripts/record-submission-outcome.js`
+  - `scripts/verify-submission-evidence.js`
+- Authoritative append-only stores:
+  - `workspace/releases/<offerId>/submission-evidence/export-events.json`
+  - `workspace/releases/<offerId>/submission-evidence/ledger.json`
+- Eligibility for evidence write is fail-closed and target-specific:
+  - release approval must validate
+  - export-events must include `bundle_exported` covering that same platform target
+- Initial platform state is derived from export coverage:
+  - first qualifying export event initializes `ready_for_manual_submission`
+  - no synthetic evidence event is created
+- Evidence recording remains operator-supplied local input only and does not automate:
+  - external submission/publication
+  - login/browser automation
+  - remote evidence fetching or marketplace scraping
+- Attachment refs are deterministic and path-confined under `submission-evidence/<platform>/evidence/`.
+- Derived snapshots/index are non-authoritative and rebuildable only from authoritative stores.
+- Phase 22 verification is separate from release approval validity and does not alter release bundle hash semantics.
+
 ## Phase 19 Monetization and Release Packaging Surface
 - New local packaging surface:
   - `workspace/releases/<offerId>/`

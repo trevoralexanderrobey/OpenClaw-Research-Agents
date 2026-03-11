@@ -42,6 +42,7 @@ bash scripts/verify-monetization-policy.sh
 bash scripts/verify-phase19-policy.sh
 bash scripts/verify-phase20-policy.sh
 bash scripts/verify-phase21-policy.sh
+bash scripts/verify-phase22-policy.sh
 
 FIRST_HASH="$(hash_file package-lock.json)"
 npm ci --offline --ignore-scripts --cache ./.ci/npm-cache

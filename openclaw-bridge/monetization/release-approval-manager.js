@@ -57,7 +57,7 @@ function collectBundleFiles(bundleDir) {
         continue;
       }
       const rel = relativeFrom(bundleDir, fullPath);
-      if (["manifest.json", "checksums.txt", "release-approval.json"].includes(rel)) {
+      if (["manifest.json", "checksums.txt", "release-approval.json"].includes(rel) || rel.startsWith("submission-evidence/")) {
         continue;
       }
       files.push(canonicalize({
