@@ -1,7 +1,7 @@
 # Phase 2 Security Checklist
 
 - [ ] Purge validation passes (`scripts/cleanroom-purge-validate.sh`)
-- [ ] Secret scan passes (`scripts/verify-secrets.sh`)
+- [ ] Secret scan passes (`scripts/verify-secrets.sh`, `ggshield` primary with regex fallback)
 - [ ] Lifecycle scripts prohibited (`scripts/verify-no-lifecycle-hooks.sh`)
 - [ ] Offline install enforced (`npm ci --offline --ignore-scripts`)
 - [ ] npm cache checksum lock verified (`scripts/verify-npm-cache-checksum.sh`)

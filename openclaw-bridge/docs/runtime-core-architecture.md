@@ -77,3 +77,7 @@
 - Orchestrates reproducible offline conversion from distinct research missions into deterministic staged dataset builds mapping defined metadata, manifests, and strict typing.
 - Enforces dataset QA mechanisms including computational deduplication, license review restrictions, and deterministic quality scoring metrics prior to staging.
 - Packagers compile internal content logic, bundles, deliverables, provenance trackers, and release-ready staging items under deterministic checksum definitions without autonomously invoking marketplace web interfaces.
+
+## Publisher Integration & Evidence Governance (Phase 21-22)
+- Implements deterministic Publisher Adapters (Phase 21) ensuring release packs generate solely as local offline assets securely tailored for explicitly authorized downstream target platforms.
+- Authoritative execution of submission transactions maps exclusively to the Manual Evidence Ledger (Phase 22), relying solely on operator-provided append-only transaction verifications without relying on direct third-party deployments.

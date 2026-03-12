@@ -95,6 +95,15 @@
 - Unknown or mismatched upstream license rights are explicitly fail-closed and prohibited from commercial dataset staging.
 - Automated QA (deduplication, scoring) operates on internal datasets only and cannot modify or contact external upstream source repositories directly.
 
+## Publisher Adapter Boundary (Phase 21)
+- Platform-specific submission packs are deterministically generated purely as offline artifacts governed by validated adapter manifests.
+- Adapters retain exactly zero network egress rights, prohibiting browser automation, headless login flows, or active submission API usage.
+
+## Manual Submission Evidence Boundary (Phase 22)
+- Post-export deployment governance relies entirely on a deterministic, append-only cryptographic ledger tracking operator actions.
+- Any recording of submission status outcomes (e.g. `manual_submission_complete`) requires explicit, operator-provided transaction updates.
+- External monitoring tools or automated systems are explicitly forbidden from deriving or updating the authoritative ledger state autonomously.
+
 ## GitHub Actions CI Verification
 - Cloud-hosted continuous integration (GitHub Actions) serves as the primary verification boundary for branch protection.
 - The workflow enforces that policy gates (`npm run phase2:gates`) and deterministic builds (`npm run build:verify`) pass before merging.

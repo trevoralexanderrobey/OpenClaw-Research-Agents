@@ -303,3 +303,33 @@ After deleting a dependency path, run a fast symbol check (`rg workflowText`) in
 ### Resolution
 - **Resolved**: 2026-03-07T02:49:46-08:00
 - **Notes**: Removed the stale reference and re-ran the targeted policy tests successfully.
+## [ERR-20260311-001] npm phase22 verify blocked by devEngines runtime
+
+**Logged**: 2026-03-11T10:34:00Z
+**Priority**: medium
+**Status**: pending
+**Area**: tests
+
+### Summary
+`npm run phase22:verify` failed in this session because local Node runtime is `v25.3.0` while repo enforces `22.13.1`.
+
+### Error
+```
+npm error code EBADDEVENGINES
+npm error EBADDEVENGINES Invalid devEngines.runtime
+npm error EBADDEVENGINES Invalid semver version "22.13.1" does not match "v25.3.0" for "runtime"
+```
+
+### Context
+- Command: `npm run phase22:verify`
+- Repo runtime gate is intentionally strict (`devEngines.runtime` + `scripts/verify-node-runtime.js`).
+- Current session runtime cannot satisfy the declared policy.
+
+### Suggested Fix
+Run verification commands under Node `22.13.1` (e.g., `nvm use 22.13.1`) before invoking npm scripts.
+
+### Metadata
+- Reproducible: yes
+- Related Files: package.json, scripts/verify-node-runtime.js
+
+---

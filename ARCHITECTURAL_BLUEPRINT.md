@@ -1,6 +1,6 @@
 # Architectural Blueprint (Implemented Scaffold)
 
-This repository now contains the full 20-Phase architecture scaffold for Openclaw Research Agents.
+This repository now contains the full 22-Phase architecture scaffold for Openclaw Research Agents.
 
 Core outcomes:
 - Clean-room derivative controls recorded.
@@ -28,6 +28,8 @@ Core outcomes:
 - Agent Spawner & Mission Orchestrator (Phase 18) introduces dynamic mission planning, spawn orchestration, and localized blackboard management while strictly isolating capabilities away from live autonomous execution.
 - Deterministic Dataset Foundation & Monetization Packaging (Phase 19) structures raw inputs into staged dataset builds and local deterministically-packaged release bundles ensuring compliant preparation offline.
 - Commercialization Gatekeeping & Dataset Provenance (Phase 20) evaluates license compatibility, enforces dataset quality scoring, purges duplicates, and constructs verifiable provenance trackers ahead of monetization packaging.
+- Deterministic Publisher Adapter Boundary (Phase 21) manages deterministic offline generation of final platform-specific submission packs through validated schemas avoiding live network submission.
+- Post-Export Manual Evidence Ledger (Phase 22) enforces an authoritative append-only cryptographic ledger and strict operator outcome recording for external deployments.
 - GitHub Actions CI enforcement integrates test verification and governance execution directly into pull requests on the main branch.
 - Audit, threat-model, and governance documentation scaffolded for formal review.
 

@@ -87,8 +87,8 @@
     "nextEvidenceBundleSequence": 0,
     "nextReleaseGateSequence": 0,
     "operationalDecisionLedger": {
-      "chainHead": "f70f8ae497be33cb8c91f2a28469481c3db51810283a1f09ea024e9d612179ca",
-      "nextSequence": 12,
+      "chainHead": "0fe0eac5e3b940d6f5c85dbf54334aeebfbeb797fe89b8c53e5f6b7f9db0ea0e",
+      "nextSequence": 16,
       "records": [
         {
           "action": "approve_task",
@@ -299,6 +299,76 @@
           "scope": "phase14.research.task",
           "sequence": 12,
           "timestamp": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "action": "approve_task",
+          "actor": "operator-test",
+          "chain_hash": "3bb0587b7731f4215ca4848fdc76cf439174de4568826132ee6e403efce78613",
+          "decision_id": "opd-13",
+          "details": {
+            "decision_id": "sup-1",
+            "reason": "supervisor_approved",
+            "task_id": "task-554390ebf8c61a5cb756db77"
+          },
+          "entry_hash": "f6277e5586c9b4bc4f938f286e032d500fd804a7951b32985b22ecaaa1ddfe5d",
+          "event_type": "phase14.supervisor.decision",
+          "prev_chain_hash": "f70f8ae497be33cb8c91f2a28469481c3db51810283a1f09ea024e9d612179ca",
+          "result": "allow",
+          "scope": "phase14.research.task",
+          "sequence": 13,
+          "timestamp": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "action": "execute_task",
+          "actor": "operator-test",
+          "chain_hash": "153dcfd7a6ae49530f41f665fb3a78ed30904c202f2a45ee7b5ad93b0da2254f",
+          "decision_id": "opd-14",
+          "details": {
+            "status": "completed",
+            "task_id": "task-554390ebf8c61a5cb756db77"
+          },
+          "entry_hash": "bec35ca0a71e2c8c8c6117c05b18a301714ae9019a792bd5f2c4100202d88620",
+          "event_type": "phase14.task.execution",
+          "prev_chain_hash": "3bb0587b7731f4215ca4848fdc76cf439174de4568826132ee6e403efce78613",
+          "result": "completed",
+          "scope": "phase14.research.task",
+          "sequence": 14,
+          "timestamp": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "action": "approve_task",
+          "actor": "operator-test",
+          "chain_hash": "b4df9a113beca5de6cf3859c5fb106e09144dec54a91c2137ee70a1ec5349ea2",
+          "decision_id": "opd-15",
+          "details": {
+            "decision_id": "sup-1",
+            "reason": "supervisor_approved",
+            "task_id": "task-bcdc7cbf198cb28cda2a83fc"
+          },
+          "entry_hash": "72689b924a329426b261c77b1e13228b2dbf37d3ffafa510621927ddcf25b4ba",
+          "event_type": "phase14.supervisor.decision",
+          "prev_chain_hash": "153dcfd7a6ae49530f41f665fb3a78ed30904c202f2a45ee7b5ad93b0da2254f",
+          "result": "allow",
+          "scope": "phase14.research.task",
+          "sequence": 15,
+          "timestamp": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "action": "execute_task",
+          "actor": "operator-test",
+          "chain_hash": "0fe0eac5e3b940d6f5c85dbf54334aeebfbeb797fe89b8c53e5f6b7f9db0ea0e",
+          "decision_id": "opd-16",
+          "details": {
+            "status": "completed",
+            "task_id": "task-bcdc7cbf198cb28cda2a83fc"
+          },
+          "entry_hash": "7a912539d50f6cf978801fc06409b92fa2df5e2f81c887c22ff837c161dd7dc4",
+          "event_type": "phase14.task.execution",
+          "prev_chain_hash": "b4df9a113beca5de6cf3859c5fb106e09144dec54a91c2137ee70a1ec5349ea2",
+          "result": "completed",
+          "scope": "phase14.research.task",
+          "sequence": 16,
+          "timestamp": "1970-01-01T00:00:00.000Z"
         }
       ]
     },
@@ -340,7 +410,7 @@
     "rolloutDecisions": []
   },
   "hydrationTimestamp": "1970-01-01T00:00:00.000Z",
-  "lastDeterministicReplayAt": "2026-03-07T23:59:21.943Z",
+  "lastDeterministicReplayAt": "2026-03-12T01:47:03.057Z",
   "openLoops": [],
   "outboundMutation": {
     "committedPublications": [],
@@ -478,12 +548,46 @@
         "sourceHash": "dfc4d20b746e679ab95fa88aaa55433596f9fc53e11d094e6f50463c4b4ad600",
         "sourcePaperId": "task:task-22ec7ce1d27ffe494f0fdcca",
         "status": "draft"
+      },
+      {
+        "aiAssisted": true,
+        "complexityScore": 50,
+        "contentHash": "d94b47a40937b2ad2631184ca2adf5225bb8c58207585ed0ee08f36ff8dfb8b2",
+        "domainTag": "research-task",
+        "generatedAt": "1970-01-01T00:00:00.000Z",
+        "generatorVersion": "phase14-task-v1",
+        "manualSubmissionRequired": true,
+        "monetizationScore": 0,
+        "notes": "Generated from task execution task-554390ebf8c61a5cb756db77",
+        "reviewedAt": null,
+        "reviewedBy": null,
+        "sequence": 7,
+        "sourceHash": "0d33a702b35e24af9a349f31b8b071abf1b82fbe4b40d1befd7600b04e4723e4",
+        "sourcePaperId": "task:task-554390ebf8c61a5cb756db77",
+        "status": "draft"
+      },
+      {
+        "aiAssisted": true,
+        "complexityScore": 50,
+        "contentHash": "dfaf39aa6809584beb9c829ee34354ee07d5099b4169a599126e6d83389e97f8",
+        "domainTag": "research-task",
+        "generatedAt": "1970-01-01T00:00:00.000Z",
+        "generatorVersion": "phase14-task-v1",
+        "manualSubmissionRequired": true,
+        "monetizationScore": 0,
+        "notes": "Generated from task execution task-bcdc7cbf198cb28cda2a83fc",
+        "reviewedAt": null,
+        "reviewedBy": null,
+        "sequence": 8,
+        "sourceHash": "969cb33da7f53c3e5099bd9222cf5e78f4748905e20ad1269d24211ee2b9d972",
+        "sourcePaperId": "task:task-bcdc7cbf198cb28cda2a83fc",
+        "status": "draft"
       }
     ],
     "generatorVersion": "v1",
     "lastAutomationRunAt": "1970-01-01T00:00:00.000Z",
-    "nextDraftSequence": 6,
-    "nextQueueSequence": 6,
+    "nextDraftSequence": 8,
+    "nextQueueSequence": 8,
     "reviewQueue": [
       {
         "draftSequence": 1,
@@ -530,6 +634,22 @@
         "enqueuedAt": "1970-01-01T00:00:00.000Z",
         "notes": "phase14_auto_ingest:task-22ec7ce1d27ffe494f0fdcca",
         "queueSequence": 6,
+        "status": "pending_review",
+        "updatedAt": "1970-01-01T00:00:00.000Z"
+      },
+      {
+        "draftSequence": 7,
+        "enqueuedAt": "1970-01-01T00:00:00.000Z",
+        "notes": "phase14_auto_ingest:task-554390ebf8c61a5cb756db77",
+        "queueSequence": 7,
+        "status": "pending_review",
+        "updatedAt": "1970-01-01T00:00:00.000Z"
+      },
+      {
+        "draftSequence": 8,
+        "enqueuedAt": "1970-01-01T00:00:00.000Z",
+        "notes": "phase14_auto_ingest:task-bcdc7cbf198cb28cda2a83fc",
+        "queueSequence": 8,
         "status": "pending_review",
         "updatedAt": "1970-01-01T00:00:00.000Z"
       }
