@@ -1,0 +1,120 @@
+# Future OpenClaw Research Agents Phases To Be Implemented
+
+This roadmap assumes the current implemented baseline ends at Phase 22 and that future work should continue the repository's governed, local-first model without weakening the manual-only external action boundary.
+
+## Sequencing Lock (Approved)
+
+- Keep existing roadmap Phase 23 intact as portfolio intelligence and submission outcome analysis.
+- Execution order for the current Sider + Hatchify objective:
+  - PR 1: roadmap/docs lock
+  - PR 2: Phase 26A minimal prerequisite slice only
+  - PR 3: Phase 27 Sider + Hatchify
+  - PR 4: Phase 28 direct-delivery
+- Phase 26A is only the minimum bridge/auth/principal prerequisite substrate for Phase 27. Broader Phase 26 consolidation remains deferred.
+- PR 2 stop condition:
+  - `/mcp` Streamable HTTP is in place.
+  - Shared auth/principal resolution is in place.
+  - Legacy MCP route auth coverage is in place.
+  - `integration_hatchify` lane separation and proving tests are in place.
+  - No Sider export/re-entry flow is implemented in PR 2.
+- PR 3 non-goals:
+  - No browser automation.
+  - No login automation.
+  - No background sync.
+  - No bidirectional integration.
+  - No mutation access for Hatchify.
+
+## Phase 23: Portfolio Intelligence and Submission Outcome Analysis
+
+Objective:
+- Turn Phase 22 submission evidence, release history, and portfolio analytics into deterministic operator decision support for reprioritization, refresh, and retirement decisions.
+
+Corresponding file paths:
+- `docs/phase23-portfolio-intelligence.md` (planned new phase document)
+- `analytics/portfolio-intelligence/domain-priority-engine.js` (extend existing prioritization logic)
+- `analytics/portfolio-intelligence/portfolio-planner.js` (extend planning logic)
+- `analytics/portfolio-intelligence/weekly-report-builder.js` (extend operator reporting)
+- `scripts/verify-phase23-policy.sh` (planned policy gate)
+- `tests/security/phase23-policy-gate.test.js` (planned security gate test)
+- `audit/evidence/phase23/` (planned evidence output directory)
+
+## Phase 24: Operator Sync and Briefing MCP Activation
+
+Objective:
+- Promote the current Notion and newsletter MCP surfaces from stub-oriented scaffolding into governed operator-facing sync and briefing artifact generation while preserving explicit approval boundaries.
+
+Corresponding file paths:
+- `docs/phase24-operator-sync-and-briefing.md` (planned new phase document)
+- `openclaw-bridge/mcp/notion-mcp.js` (extend implementation)
+- `openclaw-bridge/mcp/newsletter-mcp.js` (extend implementation)
+- `openclaw-bridge/mcp/notion-sync-mcp/contract.json` (extend contract)
+- `openclaw-bridge/mcp/newsletter-publisher-mcp/contract.json` (extend contract)
+- `scripts/verify-phase24-policy.sh` (planned policy gate)
+- `tests/security/phase24-policy-gate.test.js` (planned security gate test)
+- `audit/evidence/phase24/` (planned evidence output directory)
+
+## Phase 25: Credential Broker and Delegated Session Governance
+
+Objective:
+- Formalize temporary credential brokering, scoped session issuance, and approval-backed connector access for future integrations without weakening the local-first or manual-only control plane.
+
+Corresponding file paths:
+- `docs/phase25-credential-broker-and-session-governance.md` (planned new phase document)
+- `openclaw-bridge/security/credential-broker.js` (extend implementation)
+- `openclaw-bridge/security/credential-broker-boundary.md` (extend boundary documentation)
+- `openclaw-bridge/security/credential-broker-threat-model.md` (extend threat model)
+- `scripts/verify-phase25-policy.sh` (planned policy gate)
+- `tests/security/phase25-policy-gate.test.js` (planned security gate test)
+- `audit/evidence/phase25/` (planned evidence output directory)
+
+## Phase 26: Bridge Runtime and Execution Router Consolidation
+
+Objective:
+- Consolidate the TypeScript bridge runtime, state-store primitives, and execution router into a governed runtime surface that can support future operator-approved bridge workflows.
+
+Corresponding file paths:
+- `docs/phase26-bridge-runtime-and-execution-routing.md` (planned new phase document)
+- `openclaw-bridge/bridge/server.ts` (extend implementation)
+- `openclaw-bridge/bridge/worker.ts` (extend implementation)
+- `openclaw-bridge/bridge/state-store.ts` (extend implementation)
+- `openclaw-bridge/bridge/types.ts` (extend shared bridge types)
+- `openclaw-bridge/src/core/execution-router.ts` (extend routing boundary enforcement)
+- `scripts/verify-phase26-policy.sh` (planned policy gate)
+- `tests/security/phase26-policy-gate.test.js` (planned security gate test)
+- `audit/evidence/phase26/` (planned evidence output directory)
+
+## Phase 27: Sider + Hatchify Governed Integration
+
+Objective:
+- Implement a governed, one-directional Hatchify-to-OpenClaw integration lane and a manual-only redacted Sider export/re-entry workflow built on top of Phase 26A prerequisites.
+
+Corresponding file paths:
+- `docs/phase27-sider-hatchify-integration.md` (planned new phase document)
+- `openclaw-bridge/bridge/server.ts` (extend principal routing and integration lane boundaries)
+- `security/rbac-policy.json` (add integration role policy)
+- `security/scope-registry.json` (add integration scope mapping)
+- `scripts/verify-phase27-policy.sh` (planned policy gate)
+- `tests/security/phase27-policy-gate.test.js` (planned security gate test)
+- `audit/evidence/phase27/` (planned evidence output directory)
+
+## Phase 28: Direct Delivery Channels and Manual Fulfillment Evidence
+
+Objective:
+- Implement deterministic direct-delivery channels and post-export manual fulfillment evidence governance as a separate track from platform-target submission evidence.
+
+Corresponding file paths:
+- `docs/phase28-direct-delivery-and-fulfillment.md` (planned new phase document)
+- `config/delivery-channels.json` (planned new delivery-channel contract config)
+- `openclaw-bridge/monetization/delivery-channel-registry.js` (planned new module)
+- `openclaw-bridge/monetization/delivery-pack-generator.js` (planned new module)
+- `openclaw-bridge/monetization/delivery-evidence-manager.js` (planned new module)
+- `scripts/verify-phase28-policy.sh` (planned policy gate)
+- `tests/security/phase28-policy-gate.test.js` (planned security gate test)
+- `audit/evidence/phase28/` (planned evidence output directory)
+
+## Recommended Naming Pattern For Future Phase Assets
+
+- `docs/phaseNN-<focus>.md`
+- `scripts/verify-phaseNN-policy.sh`
+- `tests/security/phaseNN-policy-gate.test.js`
+- `audit/evidence/phaseNN/`
