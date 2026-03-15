@@ -14,6 +14,7 @@ npm ci
 npm run phase20:verify
 npm run phase21:verify
 npm run phase22:verify
+npm run phase26:verify
 npm run monetization:verify
 npm run build:verify
 ```
@@ -55,6 +56,11 @@ npm run secrets:verify
   - platform-target eligibility derived from export events (`ready_for_manual_submission` initialization)
   - operator-only submission outcome recording with idempotency and fail-closed transition validation
   - derived per-target snapshots and repo index rebuilt only from authoritative stores
+- Phase 26A adds the minimal bridge/auth/principal prerequisite substrate for future integration work:
+  - Streamable HTTP support at `/mcp` (with legacy compatibility routes retained)
+  - shared token-to-principal resolution across MCP and jobs routes
+  - explicit lane separation for `supervisor`, `operator`, and `integration_hatchify`
+  - fail-closed denial of Hatchify access to operator mutation routes
 
 ## Governance Boundary
 - Internal generation may be autonomous for research synthesis, dataset builds, Phase 20 validation/dedupe/provenance/scoring/license classification, packaging, store copy, and submission-pack preparation.
@@ -409,6 +415,7 @@ git config --local --unset core.hooksPath
 | 20 | Quality, provenance, and licensing commercialization gates | Implemented |
 | 21 | Publisher adapter boundaries and release approval/export validation | Implemented |
 | 22 | Post-export manual submission evidence ledger and verification | Implemented |
+| 26A | Bridge streamable/auth principal prerequisite slice | Implemented |
 
 ## Future Roadmap
 
