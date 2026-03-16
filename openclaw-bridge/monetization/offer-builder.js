@@ -6,6 +6,7 @@ const path = require("node:path");
 const { canonicalize, safeString, sha256 } = require("../../workflows/governance-automation/common.js");
 const {
   computeOfferId,
+  validateDirectDeliveryTargets,
   validateMonetizationMap,
   validateOfferDefinition,
   validatePlatformTargets
@@ -64,6 +65,7 @@ function createOfferBuilder(options = {}) {
   const rootDir = path.resolve(safeString(options.rootDir) || process.cwd());
   const monetizationMap = validateMonetizationMap(options.monetizationMap || {});
   const platformTargets = validatePlatformTargets(options.platformTargets || {});
+  const directDeliveryTargets = validateDirectDeliveryTargets(options.directDeliveryTargets || {});
   const datasetOutputManager = options.datasetOutputManager;
 
   if (!datasetOutputManager
@@ -270,8 +272,13 @@ function createOfferBuilder(options = {}) {
     const effectiveTargets = requestedTargets.length > 0
       ? requestedTargets
       : asStringArray(productLine.default_platform_targets);
+    const requestedDeliveryTargets = asStringArray(input.delivery_targets || input.deliveryTargets);
+    const effectiveDeliveryTargets = requestedDeliveryTargets.length > 0
+      ? requestedDeliveryTargets
+      : asStringArray(productLine.default_delivery_targets);
     const allowedTargets = new Set(asStringArray(tier.allowed_platform_targets));
     const platformConfig = asPlainObject(platformTargets.platform_targets);
+    const deliveryTargetConfig = asPlainObject(directDeliveryTargets.delivery_targets);
     for (const target of effectiveTargets) {
       if (!allowedTargets.has(target)) {
         const error = new Error(`Tier '${tierName}' does not allow platform target '${target}'`);
@@ -295,6 +302,29 @@ function createOfferBuilder(options = {}) {
         throw error;
       }
     }
+    for (const target of effectiveDeliveryTargets) {
+      const definition = asPlainObject(deliveryTargetConfig[target]);
+      if (!definition || Object.keys(definition).length < 1) {
+        const error = new Error(`Unknown delivery target '${target}'`);
+        error.code = "PHASE28_DELIVERY_TARGET_UNKNOWN";
+        throw error;
+      }
+      if (!asStringArray(definition.supported_product_lines).includes(productLineName)) {
+        const error = new Error(`Delivery target '${target}' does not support product line '${productLineName}'`);
+        error.code = "PHASE28_DELIVERY_TARGET_PRODUCT_LINE_DENIED";
+        throw error;
+      }
+      if (!asStringArray(definition.supported_tiers).includes(tierName)) {
+        const error = new Error(`Delivery target '${target}' does not support tier '${tierName}'`);
+        error.code = "PHASE28_DELIVERY_TARGET_TIER_DENIED";
+        throw error;
+      }
+    }
+    if (productLineName === "enterprise_private_delivery" && effectiveDeliveryTargets.length < 1) {
+      const error = new Error("enterprise_private_delivery offers require at least one direct delivery target");
+      error.code = "PHASE28_DELIVERY_TARGET_REQUIRED";
+      throw error;
+    }
 
     const offerSeed = canonicalize({
       source_kind: sourceContext.source_kind,
@@ -303,6 +333,7 @@ function createOfferBuilder(options = {}) {
       product_line: productLineName,
       tier: tierName,
       platform_targets: effectiveTargets,
+      direct_delivery_targets: effectiveDeliveryTargets,
       source_manifest_hash: safeString(sourceContext.source_manifest_hash),
       monetization_snapshot_hash: sha256(JSON.stringify(canonicalize({
         product_line: productLine,
@@ -320,6 +351,7 @@ function createOfferBuilder(options = {}) {
       build_id: safeString(sourceContext.build_id),
       artifact_profile: safeString(productLine.artifact_profile),
       platform_targets: effectiveTargets,
+      direct_delivery_targets: effectiveDeliveryTargets,
       release_status: "packaged",
       artifact_slots: asStringArray(tier.required_artifact_slots),
       commercialization_ready: sourceContext.source_kind === "dataset" ? sourceContext.phase20_status.commercialization_ready === true : false,

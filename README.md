@@ -15,6 +15,7 @@ npm run phase20:verify
 npm run phase21:verify
 npm run phase22:verify
 npm run phase26:verify
+npm run phase28:verify
 npm run monetization:verify
 npm run build:verify
 ```
@@ -65,6 +66,10 @@ npm run secrets:verify
   - integration role/scope lane (`integration_hatchify` + `integration.hatchify.readonly`) via existing Phase 13 token lifecycle
   - server-enforced read-only integration allowlist
   - manual-only redacted Sider export + deterministic manual re-entry artifacts
+- Phase 28 adds deterministic direct-delivery packaging and post-export delivery evidence governance:
+  - explicit `direct_delivery_targets` contracts on offers and deterministic `delivery/<target>/...` artifacts
+  - authoritative append-only chain-hashed `delivery-evidence/export-events.json` and `delivery-evidence/ledger.json`
+  - operator-only manual delivery outcome recording with idempotency and fail-closed transition validation
 
 ## Governance Boundary
 - Internal generation may be autonomous for research synthesis, dataset builds, Phase 20 validation/dedupe/provenance/scoring/license classification, packaging, store copy, and submission-pack preparation.
@@ -72,6 +77,7 @@ npm run secrets:verify
 - External publishing, uploads, marketplace submissions, customer delivery, login automation, and browser automation remain manual-only.
 - Phase 19 release bundles are packaging artifacts, not proof of publication.
 - Phase 22 evidence verification is separate from release bundle approval/hash validity; it governs post-export integrity only.
+- Phase 28 delivery evidence verification is separate from release bundle approval/hash validity; it governs post-export delivery integrity only.
 
 ## Outer Operator Workflow (Cline-compatible)
 - Cline (Plan/Act) is a recommended outer human-operated workflow for this repository.
@@ -90,6 +96,7 @@ npm run secrets:verify
 - `workspace/datasets/index/datasets-index.json` canonical dataset/build index and latest-build lookup
 - `workspace/releases/<offerId>/` deterministic release bundles
 - `workspace/releases/<offerId>/submission-evidence/` authoritative post-export evidence stores
+- `workspace/releases/<offerId>/delivery-evidence/` authoritative post-export direct-delivery evidence stores
 
 ## Dataset Identity
 - `dataset_id` is the stable dataset identity.
@@ -185,6 +192,25 @@ node scripts/record-submission-outcome.js \
 node scripts/verify-submission-evidence.js --offer-id offer-EXAMPLE --mode full
 node scripts/verify-submission-evidence.js --offer-id offer-EXAMPLE --mode incremental
 node scripts/verify-submission-evidence.js --mode rebuild
+```
+
+11. Record direct-delivery outcome evidence (post-export):
+```bash
+node scripts/record-delivery-outcome.js \
+  --offer-id offer-EXAMPLE \
+  --delivery-target manual_secure_transfer \
+  --operator-id operator-cli \
+  --outcome-state delivery_in_progress \
+  --idempotency-key phase28-demo-001 \
+  --notes "Manual customer handoff initiated" \
+  --confirm
+```
+
+12. Verify Phase 28 delivery evidence integrity:
+```bash
+node scripts/verify-delivery-evidence.js --offer-id offer-EXAMPLE --mode full
+node scripts/verify-delivery-evidence.js --offer-id offer-EXAMPLE --mode incremental
+node scripts/verify-delivery-evidence.js --mode rebuild
 ```
 
 ## Dataset Foundation and Commercialization Gates
@@ -328,6 +354,34 @@ Supported platform submission packs remain manual-only:
 - Authoritative writes are append-only with per-offer file lock and atomic `temp + fsync + rename`.
 - Corrections are new append-only events only; no in-place history rewrites.
 
+## Phase 28 Direct-Delivery Evidence Ledger
+
+- Scope is local-only, direct-delivery-only, post-export governance.
+- Phase 28 does not add delivery automation, browser automation, login automation, or outbound execution.
+- Offer-level direct-delivery targets are explicit via `direct_delivery_targets`.
+- Deterministic delivery contracts are packaged under `delivery/<target>/...`.
+- Authoritative per-offer stores:
+  - `workspace/releases/<offerId>/delivery-evidence/export-events.json`
+  - `workspace/releases/<offerId>/delivery-evidence/ledger.json`
+- Derived artifacts:
+  - `workspace/releases/<offerId>/delivery-evidence/<target>/delivery-evidence.json`
+  - `workspace/releases/index/delivery-evidence-index.json`
+- Eligibility to record evidence for `delivery_target = X` requires:
+  - `validateApprovedRelease(offerId)` success
+  - authoritative `delivery-evidence/export-events.json` has `bundle_exported` covering `X`
+- Delivery states:
+  - `ready_for_manual_delivery`
+  - `delivery_in_progress`
+  - `delivery_completed`
+  - `delivery_failed`
+  - `needs_redelivery`
+  - `withdrawn`
+- Terminal states:
+  - `delivery_completed`
+  - `withdrawn`
+- Authoritative writes are append-only with per-offer file lock and atomic `temp + fsync + rename`.
+- Phase 28 verification integrity status is separate from release approval validity and release bundle hash validity.
+
 ## Architecture
 
 Core research runtime:
@@ -363,6 +417,10 @@ Phase 19 monetization runtime:
 - `openclaw-bridge/monetization/manual-fulfillment-state-machine.js`
 - `openclaw-bridge/monetization/submission-evidence-ledger.js`
 - `openclaw-bridge/monetization/submission-evidence-manager.js`
+- `openclaw-bridge/monetization/delivery-evidence-schema.js`
+- `openclaw-bridge/monetization/manual-delivery-state-machine.js`
+- `openclaw-bridge/monetization/delivery-evidence-ledger.js`
+- `openclaw-bridge/monetization/delivery-evidence-manager.js`
 
 ## Validation Commands
 ```bash
@@ -373,11 +431,13 @@ bash scripts/verify-phase19-policy.sh
 bash scripts/verify-phase20-policy.sh
 bash scripts/verify-phase21-policy.sh
 bash scripts/verify-phase22-policy.sh
+bash scripts/verify-phase28-policy.sh
 npm run monetization:verify
 npm run phase19:verify
 npm run phase20:verify
 npm run phase21:verify
 npm run phase22:verify
+npm run phase28:verify
 node --test tests/**/*.test.js
 npm run build:verify
 ```
@@ -421,6 +481,7 @@ git config --local --unset core.hooksPath
 | 22 | Post-export manual submission evidence ledger and verification | Implemented |
 | 26A | Bridge streamable/auth principal prerequisite slice | Implemented |
 | 27 | Sider + Hatchify governed integration boundary | Implemented |
+| 28 | Direct-delivery contracts and post-export delivery evidence governance | Implemented |
 
 ## Future Roadmap
 

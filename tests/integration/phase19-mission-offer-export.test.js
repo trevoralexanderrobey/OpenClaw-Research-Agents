@@ -17,7 +17,7 @@ function writeJson(filePath, value) {
 
 async function createRepoFixture() {
   const tmp = await fsp.mkdtemp(path.join(os.tmpdir(), "openclaw-phase19-mission-offer-"));
-  for (const rel of ["config/monetization-map.json", "config/platform-targets.json"]) {
+  for (const rel of ["config/monetization-map.json", "config/platform-targets.json", "config/direct-delivery-targets.json"]) {
     const source = path.join(root, rel);
     const target = path.join(tmp, rel);
     await fsp.mkdir(path.dirname(target), { recursive: true });
@@ -97,4 +97,3 @@ test("phase19 mission release flow generates, approves, and exports a bundle", a
   assert.equal(exportBody.format, "folder");
   assert.ok(fs.existsSync(exportBody.export_path));
 });
-

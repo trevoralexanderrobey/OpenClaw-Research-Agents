@@ -25,6 +25,7 @@
 13. Phase 22 post-export submission evidence ledgers are append-only and fail-closed.
 14. Phase 26A bridge auth and principal lane separation remains fail-closed.
 15. Phase 27 Hatchify integration remains read-only and manual-only for Sider handoff/re-entry.
+16. Phase 28 direct-delivery evidence ledgers are append-only and fail-closed.
 
 ## Protected Mutation Contract
 - Protected mutations require operator role, scoped approval token, governance transaction wrapper, and kill-switch-open state.
@@ -81,6 +82,19 @@
   - manual operator review
   - deterministic manual re-entry artifacts with source export hash linkage
 - Phase 27 does not add browser automation, login automation, background sync, bidirectional integration, or mutation access for Hatchify.
+
+## Phase 28 Direct-Delivery Evidence Gate
+- Phase 28 direct-delivery capture is local-only post-export governance and does not automate external delivery.
+- Authoritative stores are append-only and chain-hashed:
+  - `delivery-evidence/export-events.json`
+  - `delivery-evidence/ledger.json`
+- Delivery evidence recording for `delivery_target = X` requires:
+  - validated approved release
+  - export event coverage for `X`
+- Initial state for `X` is derived as `ready_for_manual_delivery` from export history; no synthetic initialization event is created.
+- Delivery events enforce fail-closed state transitions, idempotency keys, attachment path confinement, and no-rewrite history policy.
+- Derived snapshots/index are rebuildable convenience views only and are never authoritative.
+- Phase 28 verification integrity status is separate from release approval validity and release bundle hash validity.
 
 ## Trust Boundaries
 - Supervisor boundary: Cline orchestrates and requests approvals but does not obtain privileged mutation authority.

@@ -6,6 +6,10 @@ const path = require("node:path");
 
 const { buildMonetizationRuntime } = require("./_monetization-runtime.js");
 
+function readJson(filePath) {
+  return JSON.parse(fs.readFileSync(filePath, "utf8"));
+}
+
 function crc32(buffer) {
   let crc = ~0;
   for (let index = 0; index < buffer.length; index += 1) {
@@ -141,6 +145,10 @@ async function main() {
   const runtime = buildMonetizationRuntime();
   const validated = runtime.releaseApprovalManager.validateApprovedRelease(args.offerId);
   const bundleDir = validated.bundle_dir;
+  const offer = readJson(path.join(bundleDir, "offer.json"));
+  const directDeliveryTargets = Array.isArray(offer.direct_delivery_targets)
+    ? offer.direct_delivery_targets
+    : [];
   if (args.format === "folder") {
     const targetDir = path.join(runtime.rootDir, "workspace", "releases", `${args.offerId}-export`);
     if (fs.existsSync(targetDir)) {
@@ -159,6 +167,19 @@ async function main() {
         : [],
       export_artifact_refs: [exportArtifactRef]
     });
+    const deliveryExportEvent = directDeliveryTargets.length > 0
+      ? await runtime.deliveryEvidenceManager.recordExportEvent({
+        offer_id: args.offerId,
+        operator_id: args.operatorId,
+        export_format: "folder",
+        exported_delivery_targets: directDeliveryTargets,
+        export_artifact_refs: [
+          await runtime.deliveryEvidenceManager.buildExportArtifactRef({
+            export_path: targetDir
+          })
+        ]
+      })
+      : null;
     process.stdout.write(`${JSON.stringify({
       ok: true,
       offer_id: args.offerId,
@@ -166,7 +187,8 @@ async function main() {
       format: "folder",
       dataset_phase20_status: validated.dataset_phase20_status || {},
       publisher_adapter_status: validated.publisher_adapter_status || {},
-      submission_evidence_export_event: exportEvent.event
+      submission_evidence_export_event: exportEvent.event,
+      delivery_evidence_export_event: deliveryExportEvent ? deliveryExportEvent.event : null
     }, null, 2)}\n`);
     return;
   }
@@ -188,6 +210,19 @@ async function main() {
       : [],
     export_artifact_refs: [exportArtifactRef]
   });
+  const deliveryExportEvent = directDeliveryTargets.length > 0
+    ? await runtime.deliveryEvidenceManager.recordExportEvent({
+      offer_id: args.offerId,
+      operator_id: args.operatorId,
+      export_format: "zip",
+      exported_delivery_targets: directDeliveryTargets,
+      export_artifact_refs: [
+        await runtime.deliveryEvidenceManager.buildExportArtifactRef({
+          export_path: zipPath
+        })
+      ]
+    })
+    : null;
   process.stdout.write(`${JSON.stringify({
     ok: true,
     offer_id: args.offerId,
@@ -195,7 +230,8 @@ async function main() {
     format: "zip",
     dataset_phase20_status: validated.dataset_phase20_status || {},
     publisher_adapter_status: validated.publisher_adapter_status || {},
-    submission_evidence_export_event: exportEvent.event
+    submission_evidence_export_event: exportEvent.event,
+    delivery_evidence_export_event: deliveryExportEvent ? deliveryExportEvent.event : null
   }, null, 2)}\n`);
 }
 

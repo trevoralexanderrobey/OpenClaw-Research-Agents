@@ -10,6 +10,7 @@ const { createSubmissionPackGenerator } = require("../openclaw-bridge/monetizati
 const { createReleaseApprovalManager } = require("../openclaw-bridge/monetization/release-approval-manager.js");
 const { createDefaultPublisherAdapterRegistry } = require("../openclaw-bridge/monetization/publisher-adapter-registry.js");
 const { createSubmissionEvidenceManager } = require("../openclaw-bridge/monetization/submission-evidence-manager.js");
+const { createDeliveryEvidenceManager } = require("../openclaw-bridge/monetization/delivery-evidence-manager.js");
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
@@ -59,6 +60,7 @@ function buildMonetizationRuntime(options = {}) {
   const rootDir = path.resolve(options.rootDir || process.cwd());
   const monetizationMap = readJson(path.join(rootDir, "config", "monetization-map.json"));
   const platformTargets = readJson(path.join(rootDir, "config", "platform-targets.json"));
+  const directDeliveryTargets = readJson(path.join(rootDir, "config", "direct-delivery-targets.json"));
   const publisherAdapterRegistry = validateRegistryCoverage(
     options.publisherAdapterRegistry || createDefaultPublisherAdapterRegistry({ platformTargets }),
     platformTargets
@@ -68,9 +70,10 @@ function buildMonetizationRuntime(options = {}) {
     rootDir,
     monetizationMap,
     platformTargets,
+    directDeliveryTargets,
     datasetOutputManager
   });
-  const deliverablePackager = createDeliverablePackager({ rootDir });
+  const deliverablePackager = createDeliverablePackager({ rootDir, directDeliveryTargets });
   const submissionPackGenerator = createSubmissionPackGenerator({
     platformTargets,
     publisherAdapterRegistry
@@ -84,18 +87,25 @@ function buildMonetizationRuntime(options = {}) {
     releasesDir: path.join(rootDir, "workspace", "releases"),
     releaseApprovalManager
   });
+  const deliveryEvidenceManager = createDeliveryEvidenceManager({
+    rootDir,
+    releasesDir: path.join(rootDir, "workspace", "releases"),
+    releaseApprovalManager
+  });
 
   return {
     rootDir,
     monetizationMap,
     platformTargets,
+    directDeliveryTargets,
     publisherAdapterRegistry,
     datasetOutputManager,
     offerBuilder,
     deliverablePackager,
     submissionPackGenerator,
     releaseApprovalManager,
-    submissionEvidenceManager
+    submissionEvidenceManager,
+    deliveryEvidenceManager
   };
 }
 
