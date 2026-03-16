@@ -24,6 +24,7 @@
 12. Phase 21 publisher adapter contracts and release approvals are fail-closed.
 13. Phase 22 post-export submission evidence ledgers are append-only and fail-closed.
 14. Phase 26A bridge auth and principal lane separation remains fail-closed.
+15. Phase 27 Hatchify integration remains read-only and manual-only for Sider handoff/re-entry.
 
 ## Protected Mutation Contract
 - Protected mutations require operator role, scoped approval token, governance transaction wrapper, and kill-switch-open state.
@@ -71,6 +72,15 @@
 - `/health` remains unauthenticated.
 - `integration_hatchify` lane is read-only and must not enter operator mutation routes.
 - Phase 26A does not add Sider export/re-entry, browser/login automation, background sync, bidirectional integration, or mutation access for Hatchify.
+
+## Phase 27 Sider + Hatchify Gate
+- Hatchify credentials are issued via existing Phase 13 token flow using `integration_hatchify` role + `integration.hatchify.readonly` scope.
+- Server-side enforcement remains authoritative; client-side tool filters are convenience only.
+- Sider content flow is redacted-only and manual:
+  - export deterministic brief artifacts
+  - manual operator review
+  - deterministic manual re-entry artifacts with source export hash linkage
+- Phase 27 does not add browser automation, login automation, background sync, bidirectional integration, or mutation access for Hatchify.
 
 ## Trust Boundaries
 - Supervisor boundary: Cline orchestrates and requests approvals but does not obtain privileged mutation authority.
