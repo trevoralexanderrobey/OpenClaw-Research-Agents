@@ -48,6 +48,10 @@ function asStringArray(value) {
     : [];
 }
 
+function asPlainObject(value) {
+  return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+}
+
 function copyIfExists(sourcePath, targetPath) {
   if (!safeString(sourcePath) || !fs.existsSync(sourcePath)) {
     return false;
@@ -60,6 +64,7 @@ function copyIfExists(sourcePath, targetPath) {
 function createDeliverablePackager(options = {}) {
   const rootDir = path.resolve(safeString(options.rootDir) || process.cwd());
   const releasesDir = path.resolve(safeString(options.releasesDir) || path.join(rootDir, "workspace", "releases"));
+  const directDeliveryTargets = asPlainObject(asPlainObject(options.directDeliveryTargets).delivery_targets);
 
   function renderStoreCopy(offer, sourceContext) {
     return [
@@ -159,6 +164,30 @@ function createDeliverablePackager(options = {}) {
       `Offer ${safeString(offer.offer_id)} is prepared for manual-only delivery or manual-only listing review.`,
       "",
       "No external publication or submission has occurred as part of this package build.",
+      ""
+    ].join("\n");
+  }
+
+  function renderDeliveryChecklist(targetName, definition = {}) {
+    const requirements = asStringArray(definition.checklist_requirements);
+    return [
+      `# Delivery Checklist: ${targetName}`,
+      "",
+      "Manual-only direct delivery steps:",
+      ...requirements.map((entry) => `- ${entry}`),
+      "",
+      "No browser/login automation or outbound delivery automation is performed by this repository.",
+      ""
+    ].join("\n");
+  }
+
+  function renderDeliveryHandoffNote(offer, targetName) {
+    return [
+      `# Delivery Handoff: ${targetName}`,
+      "",
+      `Offer ${safeString(offer.offer_id)} is packaged for manual-only direct delivery.`,
+      "",
+      "Operator action is required for external handoff.",
       ""
     ].join("\n");
   }
@@ -277,6 +306,61 @@ function createDeliverablePackager(options = {}) {
     artifactRefs.delivery_manifest = relativeFrom(bundleDir, deliveryManifestPath);
     artifactRefs.private_delivery_note = relativeFrom(bundleDir, privateDeliveryNotePath);
 
+    const deliveryTargets = asStringArray(offer.direct_delivery_targets);
+    if (deliveryTargets.length > 0) {
+      const summaryTargets = [];
+      for (const targetName of deliveryTargets) {
+        const definition = asPlainObject(directDeliveryTargets[targetName]);
+        if (Object.keys(definition).length < 1) {
+          const error = new Error(`Unknown direct delivery target '${targetName}'`);
+          error.code = "PHASE28_DELIVERY_TARGET_UNKNOWN";
+          throw error;
+        }
+        const targetRoot = path.join(bundleDir, "delivery", targetName);
+        ensureDir(targetRoot);
+        const contractPath = path.join(targetRoot, "delivery-contract.json");
+        const checklistPath = path.join(targetRoot, "checklist.md");
+        const handoffPath = path.join(targetRoot, "handoff-note.md");
+        writeJson(contractPath, canonicalize({
+          schema_version: "phase28-direct-delivery-contract-v1",
+          offer_id: safeString(offer.offer_id),
+          delivery_target: targetName,
+          product_line: safeString(offer.product_line),
+          tier: safeString(offer.tier),
+          source_kind: safeString(sourceContext.source_kind),
+          source_id: safeString(sourceContext.source_id),
+          manual_only: true,
+          approved_bundle_required: true,
+          required_artifact_placeholders: asStringArray(definition.required_artifact_placeholders)
+        }));
+        writeText(checklistPath, renderDeliveryChecklist(targetName, definition));
+        writeText(handoffPath, renderDeliveryHandoffNote(offer, targetName));
+
+        for (const placeholder of asStringArray(definition.required_artifact_placeholders)) {
+          const expectedPath = path.join(targetRoot, placeholder);
+          if (!fs.existsSync(expectedPath)) {
+            const error = new Error(`delivery target '${targetName}' is missing required placeholder '${placeholder}'`);
+            error.code = "PHASE28_DELIVERY_PLACEHOLDER_MISSING";
+            throw error;
+          }
+        }
+
+        summaryTargets.push(canonicalize({
+          delivery_target: targetName,
+          delivery_contract: relativeFrom(bundleDir, contractPath),
+          checklist: relativeFrom(bundleDir, checklistPath),
+          handoff_note: relativeFrom(bundleDir, handoffPath)
+        }));
+      }
+      const directDeliverySummaryPath = path.join(bundleDir, "delivery", "direct-delivery-targets.json");
+      writeJson(directDeliverySummaryPath, canonicalize({
+        schema_version: "phase28-direct-delivery-contract-summary-v1",
+        offer_id: safeString(offer.offer_id),
+        delivery_targets: summaryTargets
+      }));
+      artifactRefs.direct_delivery_summary = relativeFrom(bundleDir, directDeliverySummaryPath);
+    }
+
     const missingSlots = asStringArray(offer.artifact_slots).filter((slot) => !safeString(artifactRefs[slot]));
     if (missingSlots.length > 0) {
       const error = new Error(`Bundle is missing required artifact slots: ${missingSlots.join(", ")}`);
@@ -351,7 +435,7 @@ function createDeliverablePackager(options = {}) {
           continue;
         }
         const rel = relativeFrom(bundleDir, fullPath);
-        if (["manifest.json", "checksums.txt", "release-approval.json"].includes(rel)) {
+        if (["manifest.json", "checksums.txt", "release-approval.json"].includes(rel) || rel.startsWith("delivery-evidence/")) {
           continue;
         }
         files.push(canonicalize({

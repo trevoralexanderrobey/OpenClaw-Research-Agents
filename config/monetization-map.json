@@ -3,6 +3,9 @@
   "product_lines": {
     "custom_dataset_services": {
       "artifact_profile": "dataset",
+      "default_delivery_targets": [
+        "manual_secure_transfer"
+      ],
       "default_platform_targets": [
         "datarade",
         "lemon_squeezy"
@@ -102,6 +105,10 @@
     },
     "enterprise_private_delivery": {
       "artifact_profile": "mixed",
+      "default_delivery_targets": [
+        "manual_secure_transfer",
+        "manual_customer_portal"
+      ],
       "default_platform_targets": [
         "aws_data_exchange",
         "google_cloud_marketplace_bigquery",

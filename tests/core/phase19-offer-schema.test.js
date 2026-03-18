@@ -8,6 +8,7 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "../..");
 const {
   computeOfferId,
+  validateDirectDeliveryTargets,
   validateMonetizationMap,
   validateOfferDefinition,
   validatePlatformTargets
@@ -28,6 +29,12 @@ test("phase19 platform targets remain manual-only", () => {
   const config = readJson("config/platform-targets.json");
   config.platform_targets.kaggle.manual_only = false;
   assert.throws(() => validatePlatformTargets(config), /manual_only/);
+});
+
+test("phase28 direct delivery targets remain manual-only", () => {
+  const config = readJson("config/direct-delivery-targets.json");
+  config.delivery_targets.manual_secure_transfer.manual_only = false;
+  assert.throws(() => validateDirectDeliveryTargets(config), /manual_only/);
 });
 
 test("phase19 offer ids are deterministic and dataset offers require build_id", () => {
@@ -55,4 +62,3 @@ test("phase19 offer ids are deterministic and dataset offers require build_id", 
     required_metadata_fields: ["offer_id"]
   }), /build_id/);
 });
-

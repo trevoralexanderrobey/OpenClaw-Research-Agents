@@ -331,6 +331,29 @@ Mitigation:
   - `workspace/operator-briefs/sider/<exchange_id>/reentry/`
 - Phase 27 does not add browser automation, login automation, background sync, or bidirectional integration.
 
+## Phase 28 direct-delivery evidence surface
+- Phase 28 adds deterministic local-only direct-delivery governance:
+  - `openclaw-bridge/monetization/delivery-evidence-schema.js`
+  - `openclaw-bridge/monetization/manual-delivery-state-machine.js`
+  - `openclaw-bridge/monetization/delivery-evidence-ledger.js`
+  - `openclaw-bridge/monetization/delivery-evidence-manager.js`
+  - `scripts/record-delivery-outcome.js`
+  - `scripts/verify-delivery-evidence.js`
+- Direct-delivery contracts are deterministic bundle artifacts under:
+  - `workspace/releases/<offerId>/delivery/<target>/...`
+- Authoritative append-only stores:
+  - `workspace/releases/<offerId>/delivery-evidence/export-events.json`
+  - `workspace/releases/<offerId>/delivery-evidence/ledger.json`
+- Eligibility for evidence write is fail-closed and target-specific:
+  - release approval must validate
+  - export-events must include `bundle_exported` covering that same `delivery_target`
+- Initial delivery state is derived from export coverage:
+  - first qualifying export event initializes `ready_for_manual_delivery`
+  - no synthetic initialization event is created
+- Attachment refs are deterministic and path-confined under `delivery-evidence/<target>/evidence/`.
+- Phase 28 remains manual-only for external delivery actions and does not add browser/login/network automation.
+- Phase 28 verification is separate from release approval validity and does not alter release bundle hash semantics.
+
 ## Phase 19 Monetization and Release Packaging Surface
 - New local packaging surface:
   - `workspace/releases/<offerId>/`

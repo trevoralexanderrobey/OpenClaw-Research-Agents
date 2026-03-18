@@ -31,7 +31,8 @@ async function copyDatasetConfigs(targetRoot) {
 async function copyMonetizationConfigs(targetRoot) {
   await copyRepoFiles(targetRoot, [
     "config/monetization-map.json",
-    "config/platform-targets.json"
+    "config/platform-targets.json",
+    "config/direct-delivery-targets.json"
   ]);
 }
 

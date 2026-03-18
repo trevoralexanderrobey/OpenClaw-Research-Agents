@@ -49,6 +49,7 @@ test("phase19 offer builder creates deterministic mission-backed offers", async 
     rootDir: tmp,
     monetizationMap: readJson("config/monetization-map.json"),
     platformTargets: readJson("config/platform-targets.json"),
+    directDeliveryTargets: readJson("config/direct-delivery-targets.json"),
     datasetOutputManager: createDatasetOutputManager({ rootDir: tmp })
   });
 
@@ -120,6 +121,7 @@ test("phase19 offer builder resolves dataset offers from the latest commercializ
     rootDir: tmp,
     monetizationMap: readJson("config/monetization-map.json"),
     platformTargets: readJson("config/platform-targets.json"),
+    directDeliveryTargets: readJson("config/direct-delivery-targets.json"),
     datasetOutputManager: outputManager
   });
 

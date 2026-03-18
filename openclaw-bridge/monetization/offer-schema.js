@@ -63,6 +63,13 @@ function validateMonetizationMap(config = {}) {
         throw error;
       }
     }
+    for (const target of asStringArray(normalized.default_delivery_targets)) {
+      if (!/^[A-Za-z0-9._-]+$/.test(target)) {
+        const error = new Error(`product_line '${productLine}' has invalid default_delivery_targets entry '${target}'`);
+        error.code = "PHASE28_MONETIZATION_DELIVERY_TARGET_INVALID";
+        throw error;
+      }
+    }
   }
 
   for (const [tierName, definition] of Object.entries(tiers)) {
@@ -146,6 +153,50 @@ function validatePlatformTargets(config = {}) {
   return canonicalize(source);
 }
 
+function validateDirectDeliveryTargets(config = {}) {
+  const source = asPlainObject(config);
+  const targets = asPlainObject(source.delivery_targets);
+  if (safeString(source.schema_version) !== "phase28-direct-delivery-targets-v1") {
+    const error = new Error("direct delivery targets schema_version must be phase28-direct-delivery-targets-v1");
+    error.code = "PHASE28_DELIVERY_TARGETS_SCHEMA_INVALID";
+    throw error;
+  }
+  if (Object.keys(targets).length === 0) {
+    const error = new Error("direct delivery targets config requires delivery_targets");
+    error.code = "PHASE28_DELIVERY_TARGETS_REQUIRED";
+    throw error;
+  }
+  for (const [targetName, definition] of Object.entries(targets)) {
+    const normalized = asPlainObject(definition);
+    if (normalized.manual_only !== true) {
+      const error = new Error(`delivery target '${targetName}' must remain manual_only`);
+      error.code = "PHASE28_DELIVERY_TARGET_MANUAL_ONLY";
+      throw error;
+    }
+    if (asStringArray(normalized.required_artifact_placeholders).length === 0) {
+      const error = new Error(`delivery target '${targetName}' requires placeholders`);
+      error.code = "PHASE28_DELIVERY_TARGET_PLACEHOLDERS_REQUIRED";
+      throw error;
+    }
+    if (asStringArray(normalized.checklist_requirements).length === 0) {
+      const error = new Error(`delivery target '${targetName}' requires checklist_requirements`);
+      error.code = "PHASE28_DELIVERY_TARGET_CHECKLIST_REQUIRED";
+      throw error;
+    }
+    if (asStringArray(normalized.supported_product_lines).length === 0) {
+      const error = new Error(`delivery target '${targetName}' requires supported_product_lines`);
+      error.code = "PHASE28_DELIVERY_TARGET_PRODUCT_LINES_REQUIRED";
+      throw error;
+    }
+    if (asStringArray(normalized.supported_tiers).length === 0) {
+      const error = new Error(`delivery target '${targetName}' requires supported_tiers`);
+      error.code = "PHASE28_DELIVERY_TARGET_TIERS_REQUIRED";
+      throw error;
+    }
+  }
+  return canonicalize(source);
+}
+
 function computeOfferId(seed) {
   return `offer-${sha256(JSON.stringify(canonicalize(seed))).slice(0, 24)}`;
 }
@@ -155,6 +206,7 @@ function validateOfferDefinition(offer = {}) {
   const normalized = canonicalize({
     ...source,
     platform_targets: asStringArray(source.platform_targets),
+    direct_delivery_targets: asStringArray(source.direct_delivery_targets),
     artifact_slots: asStringArray(source.artifact_slots),
     required_metadata_fields: asStringArray(source.required_metadata_fields),
     warnings: asStringArray(source.warnings),
@@ -177,6 +229,11 @@ function validateOfferDefinition(offer = {}) {
     error.code = "PHASE19_OFFER_PLATFORM_TARGETS_REQUIRED";
     throw error;
   }
+  if (!Array.isArray(normalized.direct_delivery_targets)) {
+    const error = new Error("offer direct_delivery_targets must be an array");
+    error.code = "PHASE28_OFFER_DIRECT_DELIVERY_TARGETS_INVALID";
+    throw error;
+  }
   if (safeString(normalized.source_kind) === "dataset" && !safeString(normalized.build_id)) {
     const error = new Error("dataset-backed offers require build_id");
     error.code = "PHASE19_OFFER_BUILD_ID_REQUIRED";
@@ -197,6 +254,7 @@ function validateOfferDefinition(offer = {}) {
 
 module.exports = {
   computeOfferId,
+  validateDirectDeliveryTargets,
   validateMonetizationMap,
   validateOfferDefinition,
   validatePlatformTargets

@@ -1,0 +1,45 @@
+{
+  "schema_version": "phase28-direct-delivery-targets-v1",
+  "delivery_targets": {
+    "manual_secure_transfer": {
+      "manual_only": true,
+      "required_artifact_placeholders": [
+        "delivery-contract.json",
+        "checklist.md",
+        "handoff-note.md"
+      ],
+      "checklist_requirements": [
+        "Operator verifies approved bundle hash before handoff",
+        "Operator validates recipient identity out-of-band",
+        "Operator records post-export delivery evidence"
+      ],
+      "supported_product_lines": [
+        "enterprise_private_delivery",
+        "custom_dataset_services"
+      ],
+      "supported_tiers": [
+        "premium",
+        "enterprise"
+      ]
+    },
+    "manual_customer_portal": {
+      "manual_only": true,
+      "required_artifact_placeholders": [
+        "delivery-contract.json",
+        "checklist.md",
+        "handoff-note.md"
+      ],
+      "checklist_requirements": [
+        "Operator creates customer portal entry manually",
+        "Operator confirms entitlement and visibility manually",
+        "Operator records delivery confirmation evidence"
+      ],
+      "supported_product_lines": [
+        "enterprise_private_delivery"
+      ],
+      "supported_tiers": [
+        "enterprise"
+      ]
+    }
+  }
+}

@@ -11,6 +11,7 @@ function parseArgs(argv) {
     tier: "",
     buildId: "",
     targets: "",
+    deliveryTargets: "",
     confirm: false,
     unknown: []
   };
@@ -22,6 +23,7 @@ function parseArgs(argv) {
     if (token === "--tier") { out.tier = String(argv[index + 1] || "").trim(); index += 1; continue; }
     if (token === "--build-id") { out.buildId = String(argv[index + 1] || "").trim(); index += 1; continue; }
     if (token === "--targets") { out.targets = String(argv[index + 1] || "").trim(); index += 1; continue; }
+    if (token === "--delivery-targets") { out.deliveryTargets = String(argv[index + 1] || "").trim(); index += 1; continue; }
     if (token === "--confirm") { out.confirm = true; continue; }
     out.unknown.push(token);
   }
@@ -32,7 +34,7 @@ function usage() {
   return [
     "Usage:",
     "  node scripts/generate-offer.js --source <mission_id|dataset_id> --product-line <product_line> --tier <tier>",
-    "    [--build-id <build_id>] [--targets a,b,c] --confirm"
+    "    [--build-id <build_id>] [--targets a,b,c] [--delivery-targets x,y] --confirm"
   ].join("\n");
 }
 
@@ -53,7 +55,8 @@ async function main() {
     product_line: safeString(args.productLine),
     tier: safeString(args.tier),
     build_id: safeString(args.buildId),
-    targets: safeString(args.targets).split(",").map((entry) => safeString(entry)).filter(Boolean)
+    targets: safeString(args.targets).split(",").map((entry) => safeString(entry)).filter(Boolean),
+    delivery_targets: safeString(args.deliveryTargets).split(",").map((entry) => safeString(entry)).filter(Boolean)
   });
 
   const tempBundleDir = runtime.deliverablePackager.createBundleWorkspace(built.offer.offer_id);
@@ -77,6 +80,7 @@ async function main() {
     manifest_path: finalized.manifest_path.replace(tempBundleDir, bundleDir),
     checksums_path: finalized.checksums_path.replace(tempBundleDir, bundleDir),
     platform_targets: built.offer.platform_targets,
+    direct_delivery_targets: built.offer.direct_delivery_targets || [],
     source_status: built.offer.source_status || {},
     warnings: Array.isArray(built.offer.warnings) ? built.offer.warnings : []
   }, null, 2)}\n`);
