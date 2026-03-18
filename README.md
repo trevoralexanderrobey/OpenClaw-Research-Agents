@@ -409,3 +409,23 @@ git config --local --unset core.hooksPath
 | 20 | Quality, provenance, and licensing commercialization gates | Implemented |
 | 21 | Publisher adapter boundaries and release approval/export validation | Implemented |
 | 22 | Post-export manual submission evidence ledger and verification | Implemented |
+
+## Future Roadmap
+
+Planned post-Phase 22 work is tracked in `future openclaw research agents phases to be implemented.` at the repository root.
+
+Current planned implementation wave:
+- Phase 23: portfolio intelligence and submission outcome analysis
+- Phase 24: operator sync and briefing MCP activation
+- Phase 25: credential broker and delegated session governance
+- Phase 26: bridge runtime and execution-router consolidation
+- Phase 27: Sider + Hatchify governed integration
+- Phase 28: direct-delivery channels and manual fulfillment evidence
+
+Current dependency-ordered execution lock for the Sider + Hatchify objective:
+- PR 1: roadmap/docs lock
+- PR 2: Phase 26A minimal prerequisite slice only
+- PR 3: Phase 27 implementation
+- PR 4: Phase 28 implementation
+
+Phase 26A is a minimal prerequisite subset of Phase 26, not full consolidation. Phase 23 remains portfolio intelligence and is not renumbered.
