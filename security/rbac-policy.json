@@ -110,6 +110,21 @@
         }
       ],
       "scopes": []
+    },
+    {
+      "role_id": "integration_hatchify",
+      "description": "Read-only integration lane for Hatchify MCP access",
+      "permissions": [
+        {
+          "permission_id": "integration_bridge_readonly_execute",
+          "action": "execute",
+          "resource": "bridge.integration.mcp",
+          "conditions": {}
+        }
+      ],
+      "scopes": [
+        "integration.hatchify.readonly"
+      ]
     }
   ]
 }

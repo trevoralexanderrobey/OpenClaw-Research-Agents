@@ -61,6 +61,10 @@ npm run secrets:verify
   - shared token-to-principal resolution across MCP and jobs routes
   - explicit lane separation for `supervisor`, `operator`, and `integration_hatchify`
   - fail-closed denial of Hatchify access to operator mutation routes
+- Phase 27 adds governed Sider + Hatchify integration:
+  - integration role/scope lane (`integration_hatchify` + `integration.hatchify.readonly`) via existing Phase 13 token lifecycle
+  - server-enforced read-only integration allowlist
+  - manual-only redacted Sider export + deterministic manual re-entry artifacts
 
 ## Governance Boundary
 - Internal generation may be autonomous for research synthesis, dataset builds, Phase 20 validation/dedupe/provenance/scoring/license classification, packaging, store copy, and submission-pack preparation.
@@ -416,6 +420,7 @@ git config --local --unset core.hooksPath
 | 21 | Publisher adapter boundaries and release approval/export validation | Implemented |
 | 22 | Post-export manual submission evidence ledger and verification | Implemented |
 | 26A | Bridge streamable/auth principal prerequisite slice | Implemented |
+| 27 | Sider + Hatchify governed integration boundary | Implemented |
 
 ## Future Roadmap
 

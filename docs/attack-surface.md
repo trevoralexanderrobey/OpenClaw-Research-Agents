@@ -319,6 +319,18 @@ Mitigation:
 - Legacy MCP routes are preserved for compatibility and remain auth-protected.
 - Phase 26A does not include Sider export/re-entry, browser automation, login automation, background sync, or bidirectional integration.
 
+## Phase 27 Sider + Hatchify integration surface
+- Hatchify integration remains one-directional (`Hatchify -> OpenClaw`) through authenticated bridge MCP lanes.
+- Server-side lane exposure remains read-only for `integration_hatchify` and does not include mutation methods.
+- Sider flow is manual-only and local-only:
+  - export redacted brief artifacts
+  - manual operator review outside OpenClaw
+  - manual re-entry of approved responses
+- Deterministic artifacts are written under:
+  - `workspace/operator-briefs/sider/<exchange_id>/export/`
+  - `workspace/operator-briefs/sider/<exchange_id>/reentry/`
+- Phase 27 does not add browser automation, login automation, background sync, or bidirectional integration.
+
 ## Phase 19 Monetization and Release Packaging Surface
 - New local packaging surface:
   - `workspace/releases/<offerId>/`

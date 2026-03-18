@@ -21,6 +21,8 @@ workspace/missions/*
 !workspace/missions/.gitkeep
 workspace/releases/*
 !workspace/releases/.gitkeep
+workspace/operator-briefs/*
+!workspace/operator-briefs/.gitkeep
 workspace/datasets/raw/*
 !workspace/datasets/raw/.gitkeep
 workspace/datasets/staged/*

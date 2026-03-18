@@ -419,6 +419,15 @@
       "allowed_roles": [],
       "action": "write",
       "resource": "rlhf.review"
+    },
+    {
+      "scope_id": "integration.hatchify.readonly",
+      "phase": "phase27",
+      "description": "Read-only MCP integration lane for Hatchify",
+      "required_role": "integration_hatchify",
+      "allowed_roles": [],
+      "action": "execute",
+      "resource": "bridge.integration.mcp"
     }
   ]
 }
