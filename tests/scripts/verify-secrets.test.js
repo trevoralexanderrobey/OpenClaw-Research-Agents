@@ -110,5 +110,5 @@ test("verify-secrets can require ggshield explicitly", async () => {
   });
 
   assert.notEqual(run.status, 0);
-  assert.match(run.stderr, /ggshield is required but is unavailable or unauthenticated/);
+  assert.match(run.stderr, /ggshield authenticated scanning is required and prerequisites were not met/);
 });

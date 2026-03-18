@@ -29,16 +29,6 @@ has_ggshield() {
   command -v ggshield >/dev/null 2>&1
 }
 
-has_ggshield_auth() {
-  if [[ -n "${GITGUARDIAN_API_KEY:-}" ]]; then
-    return 0
-  fi
-  if ! has_ggshield; then
-    return 1
-  fi
-  ggshield api-status >/dev/null 2>&1
-}
-
 run_regex_scan() {
   if has_rg; then
     if rg -n -S "$PATTERN" "$ROOT" \
@@ -75,16 +65,38 @@ run_ggshield_scan() {
     ggshield --config-path "$GG_CONFIG" --no-check-for-updates secret scan path -r -y --use-gitignore "$ROOT"
 }
 
-if has_ggshield && has_ggshield_auth; then
+ensure_ggshield_ready() {
+  if ! has_ggshield; then
+    echo "ggshield is not installed on PATH." >&2
+    return 1
+  fi
+
+  if ggshield api-status >/dev/null 2>&1; then
+    return 0
+  fi
+
+  if [[ -n "${GITGUARDIAN_API_KEY:-}" ]]; then
+    echo "ggshield authentication failed: GITGUARDIAN_API_KEY is present but invalid or unauthorized." >&2
+    return 1
+  fi
+
+  echo "ggshield is installed but unauthenticated. Export GITGUARDIAN_API_KEY or run 'ggshield auth login'." >&2
+  return 1
+}
+
+if ensure_ggshield_ready; then
   if run_ggshield_scan; then
     echo "Secret scan passed via ggshield"
     exit 0
+  fi
+  if [[ -n "${GITGUARDIAN_API_KEY:-}" ]]; then
+    echo "ggshield scan failed while using GITGUARDIAN_API_KEY. Verify that the key is valid and has required scope." >&2
   fi
   exit 1
 fi
 
 if [[ "${VERIFY_SECRETS_REQUIRE_GGSHIELD:-0}" == "1" ]]; then
-  echo "ggshield is required but is unavailable or unauthenticated. Export GITGUARDIAN_API_KEY or run 'ggshield auth login'." >&2
+  echo "ggshield authenticated scanning is required and prerequisites were not met." >&2
   exit 1
 fi
 
