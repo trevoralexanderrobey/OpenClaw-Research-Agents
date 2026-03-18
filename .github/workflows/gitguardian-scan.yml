@@ -14,6 +14,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Validate GitGuardian API key configuration
+        env:
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+        run: |
+          if [[ -z "${GITGUARDIAN_API_KEY:-}" ]]; then
+            echo "GITGUARDIAN_API_KEY secret is required for GitGuardian scan workflow." >&2
+            exit 1
+          fi
+
       - name: GitGuardian scan
         uses: GitGuardian/ggshield/actions/secret@v1.48.0
         env:

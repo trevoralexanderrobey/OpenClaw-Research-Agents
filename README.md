@@ -487,18 +487,15 @@ git config --local --unset core.hooksPath
 
 Planned post-Phase 22 work is tracked in `future openclaw research agents phases to be implemented.` at the repository root.
 
-Current planned implementation wave:
+Current unresolved implementation wave:
 - Phase 23: portfolio intelligence and submission outcome analysis
 - Phase 24: operator sync and briefing MCP activation
 - Phase 25: credential broker and delegated session governance
-- Phase 26: bridge runtime and execution-router consolidation
+- Phase 26 (full): bridge runtime and execution-router consolidation
+
+Implemented ahead of the unresolved wave:
+- Phase 26A: minimal bridge/auth/principal prerequisite slice
 - Phase 27: Sider + Hatchify governed integration
-- Phase 28: direct-delivery channels and manual fulfillment evidence
+- Phase 28: direct-delivery channels and post-export delivery evidence governance
 
-Current dependency-ordered execution lock for the Sider + Hatchify objective:
-- PR 1: roadmap/docs lock
-- PR 2: Phase 26A minimal prerequisite slice only
-- PR 3: Phase 27 implementation
-- PR 4: Phase 28 implementation
-
-Phase 26A is a minimal prerequisite subset of Phase 26, not full consolidation. Phase 23 remains portfolio intelligence and is not renumbered.
+Phase 26A remains a minimal prerequisite subset of Phase 26 and does not represent full Phase 26 consolidation. Phase 23 remains portfolio intelligence and is not renumbered.
