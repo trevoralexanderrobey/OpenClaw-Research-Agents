@@ -13,10 +13,18 @@ import { RUNTIME_POLICY } from "../../security/runtime-policy.js";
 const { createMcpService } = require("../mcp/mcp-service.js");
 const {
   MCP_MAX_BODY_BYTES,
+  MCP_METHOD_ALLOWLIST,
   MCP_OPERATOR_METHOD_ALLOWLIST,
   normalizeMcpMessage,
   assertMcpContentLength
 } = require("./mcp-transport.js");
+const { parseBridgeRoute, BRIDGE_ROUTE_TYPES } = require("./bridge-routing.js");
+const {
+  createBridgePrincipalResolver,
+  principalToMcpRole,
+  getMcpAllowlistForPrincipal,
+  BRIDGE_PRINCIPALS
+} = require("./bridge-auth.js");
 
 interface ErrorPayload {
   error: string;
@@ -28,6 +36,7 @@ interface SseSession {
   res: http.ServerResponse;
   keepAliveTimer: NodeJS.Timeout;
   createdAtMs: number;
+  principal: string;
 }
 
 const logger = createLogger("bridge-server");
@@ -100,26 +109,6 @@ function normalizeClientIp(rawIp: string): string {
   return ip || "unknown";
 }
 
-function parseRoute(pathname: string):
-  | { type: "health" | "jobs" | "execute-tool" | "mcp-sse" | "mcp-messages" | "operator-mcp-messages" }
-  | { type: "job" | "cancel"; jobId: string }
-  | { type: "unknown" } {
-  if (pathname === "/health") return { type: "health" };
-  if (pathname === "/jobs") return { type: "jobs" };
-  if (pathname === "/execute-tool") return { type: "execute-tool" };
-  if (pathname === "/mcp/sse" || pathname === "/mcp/events") return { type: "mcp-sse" };
-  if (pathname === "/mcp/messages") return { type: "mcp-messages" };
-  if (pathname === "/operator/mcp/messages") return { type: "operator-mcp-messages" };
-
-  const jobMatch = pathname.match(/^\/jobs\/([^/]+)$/);
-  if (jobMatch) return { type: "job", jobId: decodeURIComponent(jobMatch[1]) };
-
-  const cancelMatch = pathname.match(/^\/jobs\/([^/]+)\/cancel$/);
-  if (cancelMatch) return { type: "cancel", jobId: decodeURIComponent(cancelMatch[1]) };
-
-  return { type: "unknown" };
-}
-
 function normalizeTaskSubmission(rawBody: unknown): TaskSubmission {
   const record = asRecord(rawBody);
   if (!record) {
@@ -150,6 +139,95 @@ function normalizeTaskSubmission(rawBody: unknown): TaskSubmission {
   };
 }
 
+function trackMcpRateLimit(
+  mcpPerIpMinute: Map<string, { minuteEpoch: number; count: number }>,
+  clientIp: string,
+  perMinuteLimit: number
+): boolean {
+  const minuteEpoch = Math.floor(nowMs() / 60000);
+  const existingRate = mcpPerIpMinute.get(clientIp);
+  if (existingRate && existingRate.minuteEpoch === minuteEpoch && existingRate.count >= perMinuteLimit) {
+    return false;
+  }
+  if (!existingRate || existingRate.minuteEpoch !== minuteEpoch) {
+    mcpPerIpMinute.set(clientIp, { minuteEpoch, count: 1 });
+  } else {
+    existingRate.count += 1;
+    mcpPerIpMinute.set(clientIp, existingRate);
+  }
+  return true;
+}
+
+function resolveBridgeAuthError(code: string): string {
+  if (code === "BRIDGE_AUTH_REQUIRED") return "Authorization bearer token is required";
+  if (code === "BRIDGE_AUTH_INVALID") return "Authorization bearer token is invalid";
+  if (code === "BRIDGE_AUTH_TOKEN_REVOKED") return "Authorization token is revoked";
+  if (code === "BRIDGE_AUTH_TOKEN_EXPIRED") return "Authorization token is expired";
+  if (code === "BRIDGE_PRINCIPAL_UNMAPPED") return "Token role/scope does not map to a bridge principal";
+  if (code === "BRIDGE_PRINCIPAL_FORBIDDEN") return "Principal is not allowed for this route";
+  return "Authorization failed";
+}
+
+async function handleMcpJsonRpc(
+  req: http.IncomingMessage,
+  res: http.ServerResponse,
+  mcpService: { handle: (method: string, params: Record<string, unknown>, context: Record<string, unknown>) => Promise<unknown> },
+  allowlist: string[],
+  requesterPrincipal: string
+): Promise<void> {
+  try {
+    assertMcpContentLength(req.headers["content-length"]);
+  } catch (error) {
+    const contentCode = error && typeof error === "object" && "code" in error
+      ? String((error as { code?: unknown }).code || "MCP_CONTENT_LENGTH_REQUIRED")
+      : "MCP_CONTENT_LENGTH_REQUIRED";
+    const messageText = error instanceof Error ? error.message : "Invalid content length";
+    const status = contentCode === "MCP_PAYLOAD_TOO_LARGE" ? 413 : 400;
+    sendError(req, res, status, messageText, contentCode);
+    return;
+  }
+
+  const body = await readBody(req, MCP_MAX_BODY_BYTES);
+  let message: { id: string; method: string; params: Record<string, unknown> };
+  try {
+    message = normalizeMcpMessage(body, { allowlist });
+  } catch (error) {
+    const code = error && typeof error === "object" && "code" in error
+      ? String((error as { code?: unknown }).code || "MCP_REQUEST_INVALID")
+      : "MCP_REQUEST_INVALID";
+    const messageText = error instanceof Error ? error.message : "MCP request failed";
+    sendError(req, res, 400, messageText, code);
+    return;
+  }
+
+  try {
+    const role = principalToMcpRole(requesterPrincipal);
+    const result = await mcpService.handle(message.method, message.params, {
+      correlationId: message.id,
+      requester: requesterPrincipal,
+      role,
+    });
+    sendJson(req, res, 200, {
+      jsonrpc: "2.0",
+      id: message.id,
+      result,
+    });
+  } catch (error) {
+    const code = error && typeof error === "object" && "code" in error
+      ? String((error as { code?: unknown }).code || "MCP_REQUEST_FAILED")
+      : "MCP_REQUEST_FAILED";
+    const messageText = error instanceof Error ? error.message : "MCP request failed";
+    sendJson(req, res, 200, {
+      jsonrpc: "2.0",
+      id: message.id,
+      error: {
+        code,
+        message: messageText,
+      },
+    });
+  }
+}
+
 async function bootstrap(): Promise<void> {
   const config = loadRuntimeConfig(path.resolve(process.cwd()));
   const gatewayHost = config.gateway.host;
@@ -170,6 +248,9 @@ async function bootstrap(): Promise<void> {
   worker.enqueueQueuedJobs();
   const mcpService = createMcpService({ logger });
   await mcpService.initialize();
+  const principalResolver = createBridgePrincipalResolver({
+    tokenStorePath: path.resolve(process.cwd(), "security", "token-store.json")
+  });
 
   const sseSessions = new Map<string, SseSession>();
   const mcpPerIpMinute = new Map<string, { minuteEpoch: number; count: number }>();
@@ -191,10 +272,43 @@ async function bootstrap(): Promise<void> {
     }
 
     const requestUrl = new URL(req.url || "/", "http://127.0.0.1");
-    const route = parseRoute(requestUrl.pathname);
+    const route = parseBridgeRoute(requestUrl.pathname);
+    const auth = principalResolver.resolve({
+      routeType: route.type,
+      authorizationHeader: req.headers.authorization
+    });
+    if (!auth.ok) {
+      sendError(req, res, auth.status || 401, resolveBridgeAuthError(auth.code || ""), auth.code || "BRIDGE_AUTH_FAILED");
+      return;
+    }
+    const principal = String(auth.principal || BRIDGE_PRINCIPALS.ANONYMOUS);
 
     try {
-      if (method === "GET" && route.type === "mcp-sse") {
+      if (method === "GET" && route.type === BRIDGE_ROUTE_TYPES.MCP_STREAMABLE) {
+        sendJson(req, res, 200, {
+          transport: "streamable-http",
+          endpoint: "/mcp",
+          compatibility_routes: ["/mcp/sse", "/mcp/events", "/mcp/messages", "/operator/mcp/messages"],
+          principal
+        });
+        return;
+      }
+
+      if (method === "POST" && route.type === BRIDGE_ROUTE_TYPES.MCP_STREAMABLE) {
+        if (!trackMcpRateLimit(mcpPerIpMinute, clientIp, mcpPerIpLimitPerMinute)) {
+          sendError(req, res, 429, "MCP request rate exceeded for source IP", "MCP_RATE_LIMIT_PER_IP");
+          return;
+        }
+
+        const allowlist = getMcpAllowlistForPrincipal(principal, {
+          readAllowlist: MCP_METHOD_ALLOWLIST,
+          operatorAllowlist: MCP_OPERATOR_METHOD_ALLOWLIST
+        });
+        await handleMcpJsonRpc(req, res, mcpService, allowlist, principal);
+        return;
+      }
+
+      if (method === "GET" && route.type === BRIDGE_ROUTE_TYPES.MCP_SSE) {
         if (!RUNTIME_POLICY.gateway.wsOriginAllowlist.includes(origin || RUNTIME_POLICY.gateway.wsOriginAllowlist[0])) {
           sendError(req, res, 403, "WebSocket/SSE origin not allowed", "WS_ORIGIN_NOT_ALLOWED");
           return;
@@ -222,6 +336,7 @@ async function bootstrap(): Promise<void> {
           res,
           keepAliveTimer,
           createdAtMs: nowMs(),
+          principal
         });
 
         req.on("close", () => {
@@ -233,18 +348,10 @@ async function bootstrap(): Promise<void> {
         return;
       }
 
-      if (method === "POST" && route.type === "mcp-messages") {
-        const minuteEpoch = Math.floor(nowMs() / 60000);
-        const existingRate = mcpPerIpMinute.get(clientIp);
-        if (existingRate && existingRate.minuteEpoch === minuteEpoch && existingRate.count >= mcpPerIpLimitPerMinute) {
+      if (method === "POST" && route.type === BRIDGE_ROUTE_TYPES.MCP_MESSAGES) {
+        if (!trackMcpRateLimit(mcpPerIpMinute, clientIp, mcpPerIpLimitPerMinute)) {
           sendError(req, res, 429, "MCP request rate exceeded for source IP", "MCP_RATE_LIMIT_PER_IP");
           return;
-        }
-        if (!existingRate || existingRate.minuteEpoch !== minuteEpoch) {
-          mcpPerIpMinute.set(clientIp, { minuteEpoch, count: 1 });
-        } else {
-          existingRate.count += 1;
-          mcpPerIpMinute.set(clientIp, existingRate);
         }
 
         const sessionId = String(requestUrl.searchParams.get("sessionId") || "").trim();
@@ -252,97 +359,27 @@ async function bootstrap(): Promise<void> {
           sendError(req, res, 404, "MCP SSE session not found", "MCP_SESSION_NOT_FOUND");
           return;
         }
-        try {
-          assertMcpContentLength(req.headers["content-length"]);
-        } catch (error) {
-          const contentCode = error && typeof error === "object" && "code" in error ? String((error as { code?: unknown }).code || "MCP_CONTENT_LENGTH_REQUIRED") : "MCP_CONTENT_LENGTH_REQUIRED";
-          const messageText = error instanceof Error ? error.message : "Invalid content length";
-          const status = contentCode === "MCP_PAYLOAD_TOO_LARGE" ? 413 : 400;
-          sendError(req, res, status, messageText, contentCode);
+        const session = sseSessions.get(sessionId);
+        if (!session || session.principal !== principal) {
+          sendError(req, res, 403, "MCP session principal mismatch", "BRIDGE_SESSION_PRINCIPAL_MISMATCH");
           return;
         }
 
-        const body = await readBody(req, MCP_MAX_BODY_BYTES);
-        const message = normalizeMcpMessage(body);
-        try {
-          const result = await mcpService.handle(message.method, message.params, {
-            correlationId: message.id,
-            requester: "supervisor",
-            role: "supervisor",
-          });
-          sendJson(req, res, 200, {
-            jsonrpc: "2.0",
-            id: message.id,
-            result,
-          });
-        } catch (error) {
-          const code = error && typeof error === "object" && "code" in error ? String((error as { code?: unknown }).code || "MCP_REQUEST_FAILED") : "MCP_REQUEST_FAILED";
-          const messageText = error instanceof Error ? error.message : "MCP request failed";
-          sendJson(req, res, 200, {
-            jsonrpc: "2.0",
-            id: message.id,
-            error: {
-              code,
-              message: messageText,
-            },
-          });
-        }
+        await handleMcpJsonRpc(req, res, mcpService, MCP_METHOD_ALLOWLIST, principal);
         return;
       }
 
-      if (method === "POST" && route.type === "operator-mcp-messages") {
-        const minuteEpoch = Math.floor(nowMs() / 60000);
-        const existingRate = mcpPerIpMinute.get(clientIp);
-        if (existingRate && existingRate.minuteEpoch === minuteEpoch && existingRate.count >= mcpPerIpLimitPerMinute) {
+      if (method === "POST" && route.type === BRIDGE_ROUTE_TYPES.OPERATOR_MCP_MESSAGES) {
+        if (!trackMcpRateLimit(mcpPerIpMinute, clientIp, mcpPerIpLimitPerMinute)) {
           sendError(req, res, 429, "MCP request rate exceeded for source IP", "MCP_RATE_LIMIT_PER_IP");
           return;
         }
-        if (!existingRate || existingRate.minuteEpoch !== minuteEpoch) {
-          mcpPerIpMinute.set(clientIp, { minuteEpoch, count: 1 });
-        } else {
-          existingRate.count += 1;
-          mcpPerIpMinute.set(clientIp, existingRate);
-        }
 
-        try {
-          assertMcpContentLength(req.headers["content-length"]);
-        } catch (error) {
-          const contentCode = error && typeof error === "object" && "code" in error ? String((error as { code?: unknown }).code || "MCP_CONTENT_LENGTH_REQUIRED") : "MCP_CONTENT_LENGTH_REQUIRED";
-          const messageText = error instanceof Error ? error.message : "Invalid content length";
-          const status = contentCode === "MCP_PAYLOAD_TOO_LARGE" ? 413 : 400;
-          sendError(req, res, status, messageText, contentCode);
-          return;
-        }
-
-        const body = await readBody(req, MCP_MAX_BODY_BYTES);
-        const message = normalizeMcpMessage(body, { allowlist: MCP_OPERATOR_METHOD_ALLOWLIST });
-        try {
-          const result = await mcpService.handle(message.method, message.params, {
-            correlationId: message.id,
-            requester: "operator",
-            role: "operator",
-          });
-          sendJson(req, res, 200, {
-            jsonrpc: "2.0",
-            id: message.id,
-            result,
-          });
-        } catch (error) {
-          const code = error && typeof error === "object" && "code" in error ? String((error as { code?: unknown }).code || "MCP_REQUEST_FAILED") : "MCP_REQUEST_FAILED";
-          const messageText = error instanceof Error ? error.message : "MCP request failed";
-          sendJson(req, res, 200, {
-            jsonrpc: "2.0",
-            id: message.id,
-            error: {
-              code,
-              message: messageText,
-            },
-          });
-        }
+        await handleMcpJsonRpc(req, res, mcpService, MCP_OPERATOR_METHOD_ALLOWLIST, BRIDGE_PRINCIPALS.OPERATOR);
         return;
       }
 
-      if (method === "GET" && route.type === "health") {
+      if (method === "GET" && route.type === BRIDGE_ROUTE_TYPES.HEALTH) {
         const jobs = store.listJobs();
         const queuedCount = jobs.filter((job) => job.status === "queued").length;
         const runningCount = jobs.filter((job) => job.status === "running").length;
@@ -359,12 +396,12 @@ async function bootstrap(): Promise<void> {
         return;
       }
 
-      if (method === "GET" && route.type === "jobs") {
+      if (method === "GET" && route.type === BRIDGE_ROUTE_TYPES.JOBS) {
         sendJson(req, res, 200, { jobs: store.listJobs() });
         return;
       }
 
-      if (method === "POST" && route.type === "jobs") {
+      if (method === "POST" && route.type === BRIDGE_ROUTE_TYPES.JOBS) {
         const body = await readBody(req);
         const submission = normalizeTaskSubmission(body);
         const job = await store.createJob(submission);
@@ -373,7 +410,7 @@ async function bootstrap(): Promise<void> {
         return;
       }
 
-      if (method === "GET" && route.type === "job") {
+      if (method === "GET" && route.type === BRIDGE_ROUTE_TYPES.JOB) {
         const job = store.getJob(route.jobId);
         if (!job) {
           sendError(req, res, 404, "Job not found", "JOB_NOT_FOUND");
@@ -383,7 +420,7 @@ async function bootstrap(): Promise<void> {
         return;
       }
 
-      if (method === "POST" && route.type === "cancel") {
+      if (method === "POST" && route.type === BRIDGE_ROUTE_TYPES.CANCEL) {
         const existing = store.getJob(route.jobId);
         if (!existing) {
           sendError(req, res, 404, "Job not found", "JOB_NOT_FOUND");
@@ -397,7 +434,7 @@ async function bootstrap(): Promise<void> {
         return;
       }
 
-      if (method === "POST" && route.type === "execute-tool") {
+      if (method === "POST" && route.type === BRIDGE_ROUTE_TYPES.EXECUTE_TOOL) {
         sendError(req, res, 403, "Tool execution is blocked at bridge boundary in Phase 3.", "TOOL_EXECUTION_BLOCKED");
         return;
       }

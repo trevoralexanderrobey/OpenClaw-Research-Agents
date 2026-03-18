@@ -23,6 +23,7 @@
 11. Phase 20 dataset commercialization gates are fail-closed.
 12. Phase 21 publisher adapter contracts and release approvals are fail-closed.
 13. Phase 22 post-export submission evidence ledgers are append-only and fail-closed.
+14. Phase 26A bridge auth and principal lane separation remains fail-closed.
 
 ## Protected Mutation Contract
 - Protected mutations require operator role, scoped approval token, governance transaction wrapper, and kill-switch-open state.
@@ -57,6 +58,19 @@
 - Evidence events enforce fail-closed state transitions, idempotency keys, attachment path confinement, and no-rewrite history policy.
 - Derived snapshots/index are rebuildable convenience views only and are never authoritative.
 - Phase 22 verification integrity status is separate from release approval validity and release bundle hash validity.
+
+## Phase 26A Bridge Prerequisite Gate
+- Phase 26A is a minimal prerequisite slice for future integration phases and is not full Phase 26 consolidation.
+- Bridge auth and principal resolution are shared across:
+  - `/mcp`
+  - `/mcp/sse`
+  - `/mcp/events`
+  - `/mcp/messages`
+  - `/operator/mcp/messages`
+  - `/jobs*`
+- `/health` remains unauthenticated.
+- `integration_hatchify` lane is read-only and must not enter operator mutation routes.
+- Phase 26A does not add Sider export/re-entry, browser/login automation, background sync, bidirectional integration, or mutation access for Hatchify.
 
 ## Trust Boundaries
 - Supervisor boundary: Cline orchestrates and requests approvals but does not obtain privileged mutation authority.

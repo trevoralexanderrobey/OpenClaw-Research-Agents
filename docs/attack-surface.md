@@ -304,6 +304,21 @@ Mitigation:
 - Derived snapshots/index are non-authoritative and rebuildable only from authoritative stores.
 - Phase 22 verification is separate from release approval validity and does not alter release bundle hash semantics.
 
+## Phase 26A bridge streamable/auth prerequisite surface
+- Phase 26A adds a minimal bridge prerequisite slice only:
+  - `GET /mcp` and `POST /mcp` (Streamable HTTP)
+  - shared principal resolution for `/mcp`, `/mcp/sse`, `/mcp/events`, `/mcp/messages`, `/operator/mcp/messages`, and `/jobs*`
+- `/health` remains unauthenticated.
+- Principal lanes are explicit and fail-closed:
+  - `supervisor`
+  - `operator`
+  - `integration_hatchify`
+- `integration_hatchify` is denied access to:
+  - `/operator/mcp/messages`
+  - `/jobs*`
+- Legacy MCP routes are preserved for compatibility and remain auth-protected.
+- Phase 26A does not include Sider export/re-entry, browser automation, login automation, background sync, or bidirectional integration.
+
 ## Phase 19 Monetization and Release Packaging Surface
 - New local packaging surface:
   - `workspace/releases/<offerId>/`
